@@ -1,4 +1,4 @@
-# 📘 Development Diary
+#📘 Development Diary
 
 ### 📅 30.09.25-03.10.25
 - What was achieved:
