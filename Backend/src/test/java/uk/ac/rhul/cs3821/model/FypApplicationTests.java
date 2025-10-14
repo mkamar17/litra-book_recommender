@@ -1,4 +1,4 @@
-package uk.ac.rhul.cs2800.fyp;
+package uk.ac.rhul.cs3821.model;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
