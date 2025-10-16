@@ -27,4 +27,16 @@ public class BookController {
     public ResponseEntity<List<Book>> all() {
         return ResponseEntity.ok(service.getAll());
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteBook(@PathVariable Long id) {
+        boolean deleted = service.deleteBookById(id);
+        if (deleted) {
+            return ResponseEntity.ok("Book deleted successfully.");
+        } else {
+            return ResponseEntity.status(404).body("Book not found.");
+        }
+    }
+
+
 }
