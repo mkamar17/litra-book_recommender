@@ -19,9 +19,12 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="bg-black min-h-screen p-6">
-      <h1 className="text-3xl font-bold text-white mb-6">Popular Fiction</h1>
-      <BookRow title="Top Picks for You" books={books} />
+    <div className="bg-black min-h-screen text-white">
+    <h1 className="text-3xl font-bold px-10 pt-6 mb-6">Popular Fiction</h1>
+    <div className="space-y-10">
+      <BookRow title="For You" books={books} />
     </div>
+  </div>
+
   );
 }

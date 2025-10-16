@@ -1,0 +1,43 @@
+/* .book-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scroll-behavior: smooth;
+  }
+  
+  .book-row::-webkit-scrollbar {
+    height: 8px;
+    background: transparent;
+  }
+  
+  .book-row::-webkit-scrollbar-thumb {
+    background-color: #2d2d2d;
+    border-radius: 10px;
+  }
+   */
+
+   .book-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: visible;
+    padding: 0 3rem 1rem 3rem; /* adds spacing on both sides */
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory; /* optional for smooth snap scrolling */
+  }
+  
+  .book-row::-webkit-scrollbar {
+    height: 8px;
+    background: transparent;
+  }
+  
+  .book-row::-webkit-scrollbar-thumb {
+    background-color: #2d2d2d;
+    border-radius: 10px;
+  }
+  
+  .book-card {
+    flex-shrink: 0; /* prevents them from shrinking vertically */
+    scroll-snap-align: start;
+  }
+  
