@@ -36,3 +36,18 @@
 	 - Front-end connection
 - Reflections/Blockers:
 	 - No blockers but set up and design is time-consuming 
+	 
+### 📅 13.10.25-16.10.25
+- What was achieved:
+	 - End-to-end connection achieved with API connections
+	 - Books fetched from Google Books API and displayed on front-end
+	 - Began setting up my interim report 
+- Next steps:
+	 - Add test classes 
+	 - Set up CI/CD pipeline
+	 - Clean code: remove commented code and add javadoc 
+	 - Continue working on figma designs 
+	 - Background theory for interim report started
+- Reflections/Blockers:
+	 - I am struggling a lot with the written report and spent a lot of time worrying about perfection which affected productivity 
+	 - Even if it is not perfect to start with it is better to attempt and fix later 
