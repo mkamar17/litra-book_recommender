@@ -1,24 +1,30 @@
 package uk.ac.rhul.cs3821.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Book {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String externalId;   // Google volumeId
     private String title;
+    private String author;
 
-    public Book() {}
+    @Column(length = 4000)
+    private String description;
 
-    public Book(String title) {
-        this.title = title;
-    }
+    private String coverUrl;
+    private String genre;
+    private String source;       // "google_books"
 
-    public Long getId() { return id; }
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title;}
 }
+
