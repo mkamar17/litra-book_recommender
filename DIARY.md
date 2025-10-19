@@ -51,3 +51,14 @@
 - Reflections/Blockers:
 	 - I am struggling a lot with the written report and spent a lot of time worrying about perfection which affected productivity 
 	 - Even if it is not perfect to start with it is better to attempt and fix later 
+	 
+### 📅 16.10.25-19.10.25	 
+- What was achieved:
+	- Structured the layout of interim report 
+	- Added user stories and low-fidelity prototypes to software engineering section
+	- First draft of State of Art Web Development
+- Next steps:
+	- Same as before (I overestimated what I could achieve)
+- Reflections:
+	- I finally got started with my report and feeling more confident than before
+	- Now I need to make sure I am able to balance report writing with development so one doesn't hinder the productivity of the other
