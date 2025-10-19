@@ -52,7 +52,7 @@
 	 - I am struggling a lot with the written report and spent a lot of time worrying about perfection which affected productivity 
 	 - Even if it is not perfect to start with it is better to attempt and fix later 
 	 
-### 📅 16.10.25-19.10.25	 
+### 📅 17.10.25-19.10.25	 
 - What was achieved:
 	- Structured the layout of interim report 
 	- Added user stories and low-fidelity prototypes to software engineering section
