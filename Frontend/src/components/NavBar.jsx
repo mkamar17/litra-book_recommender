@@ -2,9 +2,12 @@ import React from 'react';
 
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+
 
 import logo from '../assets/logo.png';
 import pfp from '../assets/user_pfp.png';
+import search from '../assets/search.png';
 
 
 const navigation = [
@@ -24,7 +27,7 @@ export default function Example() {
       as="nav"
       className="sticky top-0 z-50 bg-[rgb(41,40,40)] text-white after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10"
     >
-      <div className="max-w-7xl px-8 sm:px-6 lg:px-8">
+      <div className="w-full px-8">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             {/* Mobile menu button*/}
@@ -62,7 +65,22 @@ export default function Example() {
             </div>
           </div>
           
-          <div className="flex items-center gap-1 ml-auto pr-10">
+          <div className="flex items-center gap-4 ml-auto pr-6">
+            
+            {/* Search Bar */}
+            <div className="relative">
+            <input
+                type="text"
+                placeholder="Dystopian thriller novels..."
+                className="bg-[rgb(60,60,60)] text-white placeholder-gray-400 text-sm font-light rounded-full pl-10 pr-4 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 w-48 sm:w-64 transition-all duration-200"
+                />
+                <img
+                    src={search}
+                    alt="search"
+                    className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
+
+                />
+            </div>
 
             <button
               type="button"
@@ -74,7 +92,7 @@ export default function Example() {
             </button>
 
             {/* Profile dropdown */}
-            <Menu as="div" className="relative ml-3">
+            <Menu as="div" className="relative -ml-2">
               <MenuButton className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
                 <span className="absolute -inset-1.5" />
                 <span className="sr-only">Open user menu</span>
