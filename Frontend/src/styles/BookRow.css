@@ -1,0 +1,22 @@
+.book-row {
+display: flex;
+gap: 1.5rem;
+overflow-x: visible;
+scroll-behavior: smooth;
+scroll-snap-type: x mandatory;
+}
+
+.book-row::-webkit-scrollbar {
+height: 8px;
+background: transparent;
+}
+
+.book-row::-webkit-scrollbar-thumb {
+background-color: #2d2d2d;
+border-radius: 10px;
+}
+
+.book-card {
+flex-shrink: 0;
+scroll-snap-align: start;
+}
