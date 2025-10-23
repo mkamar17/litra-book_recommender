@@ -19,9 +19,9 @@
 
    .book-row {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
     overflow-x: visible;
-    padding: 0 3rem 1rem 3rem; /* adds spacing on both sides */
+    /* padding: 0 3rem 1rem 3rem; adds spacing on both sides */
     scroll-behavior: smooth;
     scroll-snap-type: x mandatory; /* optional for smooth snap scrolling */
   }
