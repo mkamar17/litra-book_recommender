@@ -48,3 +48,8 @@ body {
 .read-the-docs {
   color: #888;
 }
+
+/* need to figure out how to get rid of the blue */
+nav a {
+  color: white !important;
+}
