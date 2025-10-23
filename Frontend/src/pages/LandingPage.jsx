@@ -14,7 +14,6 @@ export default function LandingPage() {
 
   return (
     <div className="bg-grey min-h-screen text-white font-poppins">
-    {/* <h1 className="text-left font-bold px-10 pt-6 mb-6">Popular Fiction</h1> */}
     <div className="text-left space-y-10 px-10">
         <BookRow title="For You" books={books} />
     </div>
