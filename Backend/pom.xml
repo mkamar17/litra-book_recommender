@@ -167,7 +167,6 @@
 
 				<configuration>
 					<excludes>
-						<exclude>**/BackendApplication*</exclude>
 						<exclude>uk/ac/rhul/cs3821/FypApplication</exclude>
 					</excludes>
 				</configuration>
