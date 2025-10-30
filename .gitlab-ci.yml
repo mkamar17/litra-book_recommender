@@ -1,0 +1,45 @@
+stages:
+  - build
+  - test
+  - jacoco
+  - checkstyle
+  - spotbugs
+
+cache:
+  paths:
+    - .m2/repository
+
+build:
+  stage: build
+  script:
+    - cd Backend
+    - mvn compile
+
+test:
+  stage: test
+  script:
+    - cd Backend
+    - mvn test -Dspring.profiles.active=ci
+  artifacts:
+    paths:
+      - Backend/target/jacoco.exec
+
+jacoco:
+  stage: jacoco
+  dependencies:
+    - test
+  script:
+    - cd Backend
+    - mvn verify -Dspring.profiles.active=ci
+
+checkstyle:
+  stage: checkstyle
+  script:
+    - cd Backend
+    - mvn checkstyle:check
+
+spotbugs:
+  stage: spotbugs
+  script:
+    - cd Backend
+    - mvn spotbugs:check

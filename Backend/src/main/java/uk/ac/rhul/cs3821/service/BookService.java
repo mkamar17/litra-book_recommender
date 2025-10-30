@@ -3,86 +3,129 @@ package uk.ac.rhul.cs3821.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import uk.ac.rhul.cs3821.dto.GoogleBooksDTO;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.repository.BookRepository;
+import uk.ac.rhul.cs3821.dto.GoogleBooksDTO;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service layer for interacting with Google Books and managing {@link Book} entities.
+ */
 @Service
 @RequiredArgsConstructor
 public class BookService {
+
     private final BookRepository repo;
-    private final WebClient web = WebClient.builder().baseUrl("https://www.googleapis.com").build();
+    private final WebClient web = WebClient.builder()
+        .baseUrl("https://www.googleapis.com")
+        .build();
 
-    public List<Book> fetchAndStorePopularFiction(int max) {
-        // You can tweak query to target popular fiction keywords/categories
-        String path = "/books/v1/volumes?q=subject:fiction&maxResults=" + Math.min(max, 40);
+    /**
+     * Fetches popular fiction books from Google Books, stores them locally,
+     * and returns a unified list.
+     *
+     * @param max maximum number of results to fetch
+     * @return list of stored {@link Book} entities
+     */
+    public List<Book> fetchAndStorePopularFiction(final int max) {
+        final String path = "/books/v1/volumes?q=subject:fiction&maxResults="
+            + Math.min(max, 40);
 
-        uk.ac.rhul.cs3821.dto.GoogleBooksDTO dto = web.get()
-                .uri(path)
-                .retrieve()
-                .bodyToMono(uk.ac.rhul.cs3821.dto.GoogleBooksDTO.class)
-                .block();
+        final GoogleBooksDTO dto = web.get()
+            .uri(path)
+            .retrieve()
+            .bodyToMono(GoogleBooksDTO.class)
+            .block();
 
-        if (dto == null || dto.items == null) return List.of();
+        if (dto == null || dto.items == null) {
+            return List.of();
+        }
 
-        List<Book> fetchedBooks = dto.items.stream()
-                .map(item -> {
-                    String title = item.volumeInfo != null ? item.volumeInfo.title : null;
-                    String author = (item.volumeInfo != null && item.volumeInfo.authors != null && !item.volumeInfo.authors.isEmpty())
-                            ? item.volumeInfo.authors.get(0) : "Unknown";
-                    String desc = item.volumeInfo != null ? item.volumeInfo.description : null;
-                    String genre = (item.volumeInfo != null && item.volumeInfo.categories != null && !item.volumeInfo.categories.isEmpty())
-                            ? item.volumeInfo.categories.get(0) : "Fiction";
-                    String cover = (item.volumeInfo != null && item.volumeInfo.imageLinks != null)
-                            ? secure(item.volumeInfo.imageLinks.thumbnail) : null;
+        final List<Book> fetchedBooks = dto.items.stream()
+            .map(item -> {
+                final String title = item.volumeInfo != null
+                    ? item.volumeInfo.title : null;
+                final String author =
+                    (item.volumeInfo != null
+                        && item.volumeInfo.authors != null
+                        && !item.volumeInfo.authors.isEmpty())
+                        ? item.volumeInfo.authors.get(0) : "Unknown";
+                final String desc = item.volumeInfo != null
+                    ? item.volumeInfo.description : null;
+                final String genre =
+                    (item.volumeInfo != null
+                        && item.volumeInfo.categories != null
+                        && !item.volumeInfo.categories.isEmpty())
+                        ? item.volumeInfo.categories.get(0) : "Fiction";
+                final String cover =
+                    (item.volumeInfo != null
+                        && item.volumeInfo.imageLinks != null)
+                        ? secure(item.volumeInfo.imageLinks.thumbnail)
+                        : null;
 
-                    return Book.builder()
-                            .externalId(item.id)
-                            .title(title)
-                            .author(author)
-                            .description(desc)
-                            .genre(genre)
-                            .coverUrl(cover)
-                            .source("google_books")
-                            .build();
-                })
-                .toList();
+                return Book.builder()
+                    .externalId(item.id)
+                    .title(title)
+                    .author(author)
+                    .description(desc)
+                    .genre(genre)
+                    .coverUrl(cover)
+                    .source("google_books")
+                    .build();
+            })
+            .toList();
 
         return fetchedBooks.stream()
-                .map(this::upsertByExternalId)
-                .collect(Collectors.toList());
+            .map(this::upsertByExternalId)
+            .collect(Collectors.toList());
     }
 
-    private Book upsertByExternalId(Book candidate) {
+    private Book upsertByExternalId(final Book candidate) {
         return repo.findByExternalId(candidate.getExternalId())
-                .map(existing -> {
-                    existing.setTitle(candidate.getTitle());
-                    existing.setAuthor(candidate.getAuthor());
-                    existing.setDescription(candidate.getDescription());
-                    existing.setGenre(candidate.getGenre());
-                    existing.setCoverUrl(candidate.getCoverUrl());
-                    existing.setSource(candidate.getSource());
-                    return repo.save(existing);
-                })
-                .orElseGet(() -> repo.save(candidate));
+            .map(existing -> {
+                existing.setTitle(candidate.getTitle());
+                existing.setAuthor(candidate.getAuthor());
+                existing.setDescription(candidate.getDescription());
+                existing.setGenre(candidate.getGenre());
+                existing.setCoverUrl(candidate.getCoverUrl());
+                existing.setSource(candidate.getSource());
+                return repo.save(existing);
+            })
+            .orElseGet(() -> repo.save(candidate));
     }
 
-    private static String secure(String url) {
-        if (url == null) return null;
-        return url.startsWith("http://") ? url.replace("http://", "https://") : url;
+    private static String secure(final String url) {
+        if (url == null) {
+            return null;
+        }
+        return url.startsWith("http://")
+            ? url.replace("http://", "https://")
+            : url;
     }
 
-    public List<Book> getAll() { return repo.findAll(); }
+    /**
+     * Retrieves all stored books.
+     *
+     * @return list of books
+     */
+    public List<Book> getAll() {
+        return repo.findAll();
+    }
 
-    public boolean deleteBookById(Long id) {
+    /**
+     * Deletes a book by ID if it exists.
+     *
+     * @param id identifier of the book to delete
+     * @return true if deletion was successful, false otherwise
+     */
+    public boolean deleteBookById(final Long id) {
         if (repo.existsById(id)) {
             repo.deleteById(id);
             return true;
         }
         return false;
     }
-
 }
