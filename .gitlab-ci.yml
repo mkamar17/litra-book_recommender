@@ -5,7 +5,6 @@ stages:
   - checkstyle
   - spotbugs
 
-## To speed up command line operations
 cache:
   paths:
     - .m2/repository
@@ -13,7 +12,7 @@ cache:
 build:
   stage: build
   script:
-    - cd Backend 
+    - cd Backend
     - mvn compile
 
 test:
@@ -21,9 +20,14 @@ test:
   script:
     - cd Backend
     - mvn test -Dspring.profiles.active=ci
+  artifacts:
+    paths:
+      - Backend/target/jacoco.exec
 
 jacoco:
   stage: jacoco
+  dependencies:
+    - test
   script:
     - cd Backend
     - mvn verify -Dspring.profiles.active=ci
