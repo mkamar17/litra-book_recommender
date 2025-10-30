@@ -62,3 +62,15 @@
 - Reflections:
 	- I finally got started with my report and feeling more confident than before
 	- Now I need to make sure I am able to balance report writing with development so one doesn't hinder the productivity of the other
+
+### 📅 20.10.25-23.10.25
+- What was achieved:
+	- Navbar implemented
+	- BookTest, BookControllerTest (still needs fixing), SecurityConfigTest, SecurityIntegrationTest classes implemented
+- Next steps:
+	- Failing tests need to pass 
+	- Set up CI/CD pipeline 
+- Reflections:
+	- I had a written assignment due for one of my modules which significantly impacted my FYP progress 
+	- Still struggling to balance other modules with FYP especially with deadlines involved  
+	
