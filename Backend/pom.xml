@@ -164,6 +164,14 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.12</version>
+
+				<configuration>
+					<excludes>
+						<exclude>**/BackendApplication*</exclude>
+						<exclude>uk/ac/rhul/cs3821/*</exclude>
+					</excludes>
+				</configuration>
+
 				<executions>
 					<execution>
 						<goals>
