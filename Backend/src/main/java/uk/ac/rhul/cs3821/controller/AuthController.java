@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.rhul.cs3821.dto.auth.LoginRequest;
 import uk.ac.rhul.cs3821.dto.auth.RegisterRequest;
+import uk.ac.rhul.cs3821.dto.auth.TokenResponse;
 import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 import uk.ac.rhul.cs3821.service.JwtService;
