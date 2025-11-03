@@ -16,6 +16,14 @@ import java.util.Arrays;
 @Configuration
 public class SecurityConfig {
 
+    private final JwtAuthFilter jwtFilter;
+    private final UserDetailsService uds;
+
+    public SecurityConfig(JwtAuthFilter jwtFilter, UserDetailsService uds) {
+        this.jwtFilter = jwtFilter;
+        this.uds = uds;
+    }
+
     /**
      * Configures the security filter chain.
      *
@@ -25,17 +33,33 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return httpSecurity
-            .formLogin(httpForm -> {
-                .loginPage("/login").permitAll();
+        http.csrf(csrf -> csrf.disable())
+            .cors(cors -> {
             })
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/**").permitAll()
+                .anyRequest().authenticated())
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
 
-            .authorizeHttpRequests(registry -> {
-                registry.requestMatchers("/req/signup").permitAll();
-                registry.anyRequest().authenticated();
-            })
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
+    }
 
-            .build();
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider p = new DaoAuthenticationProvider();
+        p.setUserDetailsService(uds);
+        p.setPasswordEncoder(passwordEncoder());
+        return p;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
+        return cfg.getAuthenticationManager();
     }
 
     /**

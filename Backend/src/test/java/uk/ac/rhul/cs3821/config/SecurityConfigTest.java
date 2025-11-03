@@ -17,8 +17,7 @@ class SecurityConfigTest {
     void testCorsConfigurationSource() {
         CorsConfigurationSource source = securityConfig.corsConfigurationSource();
         assertNotNull(source, "CORS configuration source should not be null");
-
-        // ✅ Use a mock request instead of null
+        
         MockHttpServletRequest request = new MockHttpServletRequest();
         CorsConfiguration config = source.getCorsConfiguration(request);
 
