@@ -5,12 +5,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+/**
+ * Builder model class representing each book object.
+ */
 
 @Entity
 @Getter
@@ -20,20 +23,20 @@ import lombok.Setter;
 @Builder
 public class Book {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String externalId;   // Google volumeId
-    private String title;
-    private String author;
+  private String externalId;
+  private String title;
+  private String author;
 
-    @Column(length = 4000)
-    private String description;
+  @Column(length = 4000)
+  private String description;
 
-    private String coverUrl;
-    private String genre;
-    private String source;       // "google_books"
+  private String coverUrl;
+  private String genre;
+  private String source;
 
 }
 
