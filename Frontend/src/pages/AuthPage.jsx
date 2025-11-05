@@ -35,31 +35,37 @@ export default function AuthPage() {
 
   return (
     <div className="auth-background">
-        <h1>Sign In</h1>
-      <div className="auth-card">
-        
-        <form onSubmit={handleLogin}>
-          <input
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <input
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-
-          <button type="submit">Sign In</button>
-        </form>
-
-        {error && <p className="error">{error}</p>}
-
-        <p>OR</p>
-        <button onClick={() => navigate("/register")}>Get Started →</button>
+      <div className="auth-wrapper">
+        <h1 className="auth-title">Sign In</h1>
+  
+        <div className="auth-card">
+          <form className="auth-form" onSubmit={handleLogin}>
+            <input
+              placeholder="Email or phone number"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+  
+            <input
+              placeholder="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+  
+            <button type="submit" className="auth-button">Sign In</button>
+          </form>
+  
+          {error && <p className="error">{error}</p>}
+  
+          <p className="divider">OR</p>
+  
+          <button onClick={() => navigate("/register")} className="register-button">
+            Get Started →
+          </button>
+        </div>
       </div>
     </div>
   );
+  
 }
