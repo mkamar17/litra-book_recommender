@@ -25,8 +25,8 @@ class RecommendationControllerTest {
 
   @MockitoBean
   private AppUserDetailsService userDetailsService;
-  
-  // ✅ should return the static list
+
+  // should return the static list
   @Test
   void testGetRecommendations() throws Exception {
     mockMvc.perform(get("/recommendations")
@@ -38,7 +38,7 @@ class RecommendationControllerTest {
         .andExpect(jsonPath("$[2]").value("Where the Crawdads Sing"));
   }
 
-  // ✅ optional: ensure no authentication still works
+  // ensure no authentication still works
   @Test
   void testGetRecommendations_NoAuthProvided() throws Exception {
     mockMvc.perform(get("/recommendations"))
