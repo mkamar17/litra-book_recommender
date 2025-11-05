@@ -1,7 +1,10 @@
 package uk.ac.rhul.cs3821.config;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,33 +15,52 @@ import uk.ac.rhul.cs3821.service.JwtService;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-    private final JwtService jwt;
-    private final UserDetailsService uds;
 
-    public JwtFilter(JwtService jwt, UserDetailsService uds) {
-        this.jwt = jwt;
-        this.uds = uds;
-    }
+  private final JwtService jwt;
+  private final UserDetailsService uds;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
-        throws java.io.IOException, ServletException {
+  public JwtFilter(JwtService jwt, UserDetailsService uds) {
+    this.jwt = jwt;
+    this.uds = uds;
+  }
 
-        String auth = req.getHeader("Authorization");
-        if (auth != null && auth.startsWith("Bearer ")) {
-            String token = auth.substring(7);
-            try {
-                String email = jwt.getSubject(token);
-                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    var userDetails = uds.loadUserByUsername(email);
-                    var authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-            } catch (Exception ignored) {
-            }
+  @Override
+  protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+      throws ServletException, IOException {
+
+    final String authHeader = req.getHeader("Authorization");
+
+    // 1. Check "Authorization: Bearer ..."
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+
+      final String token = authHeader.substring(7);
+      final String username = jwt.extractUserName(token);
+
+      // 2. Must not already be authenticated
+      if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+        var userDetails = uds.loadUserByUsername(username);
+
+        // 3. Validate token
+        if (jwt.validateToken(token, userDetails)) {
+
+          var authToken = new UsernamePasswordAuthenticationToken(
+              userDetails,
+              null,
+              userDetails.getAuthorities()
+          );
+
+          authToken.setDetails(
+              new WebAuthenticationDetailsSource().buildDetails(req)
+          );
+
+          // 4. Set auth context
+          SecurityContextHolder.getContext().setAuthentication(authToken);
         }
-        chain.doFilter(req, res);
+      }
     }
+
+    // 5. Continue filter chain
+    chain.doFilter(req, res);
+  }
 }
