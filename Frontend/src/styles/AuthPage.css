@@ -1,0 +1,21 @@
+.auth-background {
+    background-image: url("/src/assets/auth_bg.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    width: 100vw;
+    height: 100vh;
+  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .auth-card {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 2rem;
+    border-radius: 12px;
+    backdrop-filter: blur(6px);
+  }
+  

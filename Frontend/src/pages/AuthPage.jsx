@@ -1,6 +1,8 @@
 import React from 'react';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../styles/AuthPage.css";
+
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -33,8 +35,9 @@ export default function AuthPage() {
 
   return (
     <div className="auth-background">
+        <h1>Sign In</h1>
       <div className="auth-card">
-        <h2>Sign In</h2>
+        
         <form onSubmit={handleLogin}>
           <input
             placeholder="Email"
