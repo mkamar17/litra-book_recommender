@@ -7,7 +7,10 @@ import '../App.css'
 export default function LandingPage() {
   const [books, setBooks] = useState([]);
 
+  
+
   useEffect(() => {
+    console.log("LandingPage mounted");
     api.get("/books")
       .then((res) => setBooks(res.data))
       .catch(console.error);

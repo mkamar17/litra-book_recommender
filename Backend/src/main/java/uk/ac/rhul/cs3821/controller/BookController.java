@@ -1,5 +1,6 @@
 package uk.ac.rhul.cs3821.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,8 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.service.BookService;
 
-import java.util.List;
-
 /**
  * REST controller for managing book operations.
  */
@@ -22,42 +21,42 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookController {
 
-    private final BookService service;
+  private final BookService service;
 
-    /**
-     * Fetches books from Google Books API and stores them locally.
-     *
-     * @param max maximum number of books to fetch
-     * @return list of persisted books
-     */
-    @PostMapping("/fetch")
-    public ResponseEntity<List<Book>> fetch(@RequestParam(defaultValue = "20") int max) {
-        return ResponseEntity.ok(service.fetchAndStorePopularFiction(max));
-    }
+  /**
+   * Fetches books from Google Books API and stores them locally.
+   *
+   * @param max maximum number of books to fetch
+   * @return list of persisted books
+   */
+  @PostMapping("/fetch")
+  public ResponseEntity<List<Book>> fetch(@RequestParam(defaultValue = "20") int max) {
+    return ResponseEntity.ok(service.fetchAndStorePopularFiction(max));
+  }
 
-    /**
-     * Returns all books stored locally.
-     *
-     * @return list of books
-     */
-    @GetMapping
-    public ResponseEntity<List<Book>> all() {
-        return ResponseEntity.ok(service.getAll());
-    }
+  /**
+   * Returns all books stored locally.
+   *
+   * @return list of books
+   */
+  @GetMapping
+  public ResponseEntity<List<Book>> all() {
+    return ResponseEntity.ok(service.getAll());
+  }
 
-    /**
-     * Deletes a book by its identifier.
-     *
-     * @param id book identifier
-     * @return success or error message
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteBook(@PathVariable Long id) {
-        final boolean deleted = service.deleteBookById(id);
-        if (deleted) {
-            return ResponseEntity.ok("Book deleted successfully.");
-        } else {
-            return ResponseEntity.status(404).body("Book not found.");
-        }
+  /**
+   * Deletes a book by its identifier.
+   *
+   * @param id book identifier
+   * @return success or error message
+   */
+  @DeleteMapping("/{id}")
+  public ResponseEntity<String> deleteBook(@PathVariable Long id) {
+    final boolean deleted = service.deleteBookById(id);
+    if (deleted) {
+      return ResponseEntity.ok("Book deleted successfully.");
+    } else {
+      return ResponseEntity.status(404).body("Book not found.");
     }
+  }
 }

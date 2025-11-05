@@ -9,12 +9,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class FypApplication {
 
-    /**
-     * Application entry point.
-     *
-     * @param args command-line arguments
-     */
-    public static void main(String[] args) {
-        SpringApplication.run(FypApplication.class, args);
-    }
+  /**
+   * Application entry point.
+   *
+   * @param args command-line arguments
+   */
+  public static void main(String[] args) {
+    SpringApplication.run(FypApplication.class, args);
+  }
 }
