@@ -13,12 +13,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import uk.ac.rhul.cs3821.service.AppUserDetailsService;
 import uk.ac.rhul.cs3821.service.JwtService;
 
+/**
+ * A request filter that intercepts incoming HTTP requests once per request to
+ * validate and process JSON Web Tokens (JWT) passed via the Authorization header.
+ */
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
   private final JwtService jwt;
   private final AppUserDetailsService uds;
 
+  /**
+   * Public constructor for JwtFilter.
+   *
+   * @param jwt the JWT service used for token parsing and validation
+   * @param uds the user details service used to load authenticated users
+   */
   public JwtFilter(JwtService jwt, AppUserDetailsService uds) {
     this.jwt = jwt;
     this.uds = uds;

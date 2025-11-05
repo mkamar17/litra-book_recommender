@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +28,12 @@ public class SecurityConfig {
   private final JwtFilter jwtFilter;
   private final AppUserDetailsService uds;
 
+  /**
+   * Creates the filter with required services.
+   *
+   * @param jwtFilter the JWT service used to validate tokens
+   * @param uds       loads user details for authentication
+   */
   public SecurityConfig(JwtFilter jwtFilter, AppUserDetailsService uds) {
     this.jwtFilter = jwtFilter;
     this.uds = uds;
@@ -41,7 +48,7 @@ public class SecurityConfig {
    */
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable())
+    http.csrf(AbstractHttpConfigurer::disable)
         .cors(cors -> {
         })
         .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -52,11 +59,22 @@ public class SecurityConfig {
     return http.build();
   }
 
+  /**
+   * Creates a password encoder using BCrypt.
+   *
+   * @return a BCrypt-based password encoder
+   */
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder(12);
   }
 
+  /**
+   * Configures the authentication provider to use the custom user details
+   * service and password encoder.
+   *
+   * @return the configured authentication provider
+   */
   @Bean
   public AuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider p = new DaoAuthenticationProvider();
@@ -65,8 +83,16 @@ public class SecurityConfig {
     return p;
   }
 
+  /**
+   * Exposes the authentication manager bean used during authentication.
+   *
+   * @param cfg the authentication configuration
+   * @return the authentication manager instance
+   * @throws Exception if retrieval fails
+   */
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg)
+      throws Exception {
     return cfg.getAuthenticationManager();
   }
 

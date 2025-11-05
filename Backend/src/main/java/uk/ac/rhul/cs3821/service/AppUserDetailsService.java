@@ -2,14 +2,23 @@ package uk.ac.rhul.cs3821.service;
 
 import java.util.stream.Collectors;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 
+/**
+ * Loads user information for authentication through Spring Security.
+ */
 @Service
-public class AppUserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
+public class AppUserDetailsService implements UserDetailsService {
   private final UserRepository repo;
 
+  /**
+   * Creates the service with the user repository.
+   *
+   * @param repo the repository used to find users
+   */
   public AppUserDetailsService(UserRepository repo) {
     this.repo = repo;
   }
