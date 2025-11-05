@@ -215,7 +215,12 @@
                             </excludes>
                             <rules>
                                 <rule>
-                                    <element>PACKAGE</element>
+                                    <element>CLASS</element>
+
+                                    <excludes>
+                                        <!-- Exclude Spring Boot entrypoint -->
+                                        <exclude>uk.ac.rhul.cs3821.FypApplication</exclude>
+                                    </excludes>
                                     <limits>
                                         <limit>
                                             <counter>LINE</counter>
