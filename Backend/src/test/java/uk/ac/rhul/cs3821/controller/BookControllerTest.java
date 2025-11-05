@@ -10,7 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.ac.rhul.cs3821.model.Book;
+import uk.ac.rhul.cs3821.service.AppUserDetailsService;
 import uk.ac.rhul.cs3821.service.BookService;
+import uk.ac.rhul.cs3821.service.JwtService;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -32,10 +34,10 @@ class BookControllerTest {
   private BookService service = Mockito.mock(BookService.class);
 
   @MockitoBean
-  private uk.ac.rhul.cs3821.service.JwtService jwtService;
+  private JwtService jwtService;
 
   @MockitoBean
-  private uk.ac.rhul.cs3821.service.AppUserDetailsService uds;
+  private AppUserDetailsService uds;
 
   @Test
   void testFetchBooks() throws Exception {

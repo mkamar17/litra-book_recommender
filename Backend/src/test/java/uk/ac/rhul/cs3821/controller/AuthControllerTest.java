@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.ac.rhul.cs3821.repository.UserRepository;
+import uk.ac.rhul.cs3821.service.AppUserDetailsService;
 import uk.ac.rhul.cs3821.service.JwtService;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -49,7 +50,7 @@ class AuthControllerTest {
   private PasswordEncoder encoder;
 
   @MockitoBean
-  private uk.ac.rhul.cs3821.service.AppUserDetailsService uds;
+  private AppUserDetailsService uds;
 
   // REGISTER success
   @Test
