@@ -10,7 +10,7 @@ import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.repository.BookRepository;
 
 /**
- * Service layer for interacting with Google Books and managing {@link Book} entities.
+ * Service layer for interacting with Google Books and managing Book entities.
  */
 @Service
 @RequiredArgsConstructor
