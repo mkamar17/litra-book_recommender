@@ -34,7 +34,7 @@ class SecurityConfigTest {
     CorsConfiguration config = source.getCorsConfiguration(request);
 
     assertNotNull(config, "CORS configuration should not be null");
-    assertEquals(List.of("http://localhost:5173"), config.getAllowedOrigins());
+    assertEquals(List.of("http://localhost:5173", "http://localhost:8080"), config.getAllowedOrigins());
     assertTrue(config.getAllowedMethods().containsAll(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")));
     assertTrue(config.getAllowedHeaders().containsAll(List.of("Authorization", "Content-Type")));
     assertTrue(config.getAllowCredentials());
