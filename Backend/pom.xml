@@ -12,7 +12,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>uk.ac.rhul.cs2800</groupId>
+    <groupId>uk.ac.rhul.cs3821</groupId>
     <artifactId>fyp</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>fyp</name>
@@ -159,13 +159,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.5.0</version>
-                <!--                <dependencies>-->
-                <!--                    <dependency>-->
-                <!--                        <groupId>com.puppycrawl.tools</groupId>-->
-                <!--                        <artifactId>checkstyle</artifactId>-->
-                <!--                        <version></version>-->
-                <!--                    </dependency>-->
-                <!--                </dependencies>-->
                 <configuration>
                     <configLocation>resources/google_checks.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
