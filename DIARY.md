@@ -72,5 +72,39 @@
 	- Set up CI/CD pipeline 
 - Reflections:
 	- I had a written assignment due for one of my modules which significantly impacted my FYP progress 
-	- Still struggling to balance other modules with FYP especially with deadlines involved  
-	
+	- Still struggling to balance other modules with FYP especially with deadlines involved 
+
+### 📅 27.10.25-29.10.25
+- What was achieved:
+	- No progress :(
+- Reflections:
+	- I had another assignment deadline for my User-Centered Design module which I didn't have time to work on other than this week, which also impacted my project progress.
+ 
+### 📅 29.10.25-31.10.25
+- What was achieved:
+	- CI/CD pipeline configured
+	- Fixed broken test classes 
+	- Added javadoc and checkstyle  
+- Next steps:
+	- IDE has issues with maven checkstyle being different to Intellij's default checkstyle which needs fixing
+	- IDE also does not recognise the project as a Java project so syntax colouring is incorrect -- this needs to be fixed
+	- Prepare for meeting with supervisor by completing first draft of architectural design patterns and paradigms section in interim as well as cleaning up the report as best as possible 
+- Reflections:
+	- The pipeline set-up was very time-consuming and quite draining.
+	 
+### 📅 03.10.25-06.10.25
+- What was achieved:
+	- Intellij IDE issues solved including checkstyle config mismatches 
+	- Implemented authentication page with end-to-end functionality and JWT 
+	- First draft of architectural design patterns and paradigms 
+	- Second mandatory meeting with supervisor: Discussed current interim and product status 
+		- Main meeting takeway(s):
+		--- There was a clear misunderstanding with the "background reading" section - I talked about the tools and technologies I decided to use and why rather than discussing them conceptually in the form a critical research evaluation
+		--- I need to split each chapter into smaller sections to keep the focus as I tend to tangent a little 
+- Next steps:
+	- Books take too long to get fetched due to the authentication slowing it down -- that needs optimising
+	- Need to fix bug with user accounts getting deleted when token expires 
+	- Reorder some of the content which was misplaced in the interim report to their correct section
+- Reflection:
+	 - Before my meeting I was quite overwhelmed thinking I had underperformed and was falling behind my peers since I was struggling a lot with finding a balance between working on my FYP and keeping up with my modules at the same time, but my supervisor reassured me that feeling the pressure is normal and as long as I continue trying my best I will get far :)
+	 
