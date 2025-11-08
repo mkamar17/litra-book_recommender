@@ -1,7 +1,7 @@
 package uk.ac.rhul.cs3821.service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -39,79 +39,76 @@ public class BookService {
    * @return list of stored {@link Book} entities
    */
   public List<Book> fetchAndStorePopularFiction(final int max) {
-//    final String path = "/books/v1/volumes?q=subject:young+adult+thriller&maxResults="
-//        + Math.min(max, 40);
+    repo.deleteAll();
 
-    final String uri = UriComponentsBuilder.fromPath("/books/v1/volumes")
-        .queryParam("q", "subject:\"Young Adult Fiction\" thriller")
-        .queryParam("printType", "books")
-        .queryParam("orderBy", "relevance")
-        .queryParam("maxResults", Math.min(max, 40))
-        // .queryParam("key", googleApiKey) // <— add if you have/need an API key
-        .build()
-        .toUriString();
+    int totalFetched = 0;
+    List<Book> allBooks = new ArrayList<>();
 
-    System.out.println(">>> Fetching books from Google API...");
-    final GoogleBooksDto dto = web.get()
-        .uri(uri)
-        .retrieve()
-        .bodyToMono(GoogleBooksDto.class)
-        .block();
+    while (totalFetched < max) {
+      int batchSize = Math.min(40, max - totalFetched);
+      final String uri = UriComponentsBuilder.fromPath("/books/v1/volumes")
+          .queryParam("q", "subject:\"Young Adult Fiction\" thriller")
+          .queryParam("printType", "books")
+          .queryParam("orderBy", "relevance")
+          .queryParam("startIndex", totalFetched)
+          .queryParam("maxResults", batchSize)
+          .build()
+          .toUriString();
 
-    if (dto == null || dto.items == null) {
-      System.out.println(">>> No items returned from Google Books API");
-      return List.of();
+      System.out.println(">>> Fetching batch starting at index " + totalFetched);
+
+      final GoogleBooksDto dto = web.get()
+          .uri(uri)
+          .retrieve()
+          .bodyToMono(GoogleBooksDto.class)
+          .block();
+
+      if (dto == null || dto.items == null || dto.items.isEmpty()) {
+        System.out.println(">>> No more results at index " + totalFetched);
+        break;
+      }
+
+      final List<Book> batch = dto.items.stream().map(item -> {
+        final String title = item.volumeInfo != null ? item.volumeInfo.title : null;
+        final String author =
+            (item.volumeInfo != null && item.volumeInfo.authors != null && !item.volumeInfo.authors.isEmpty())
+                ? item.volumeInfo.authors.get(0)
+                : "Unknown";
+        final String desc = item.volumeInfo != null ? item.volumeInfo.description : null;
+        final String safeDesc = (desc != null && desc.length() > 4000)
+            ? desc.substring(0, 4000)
+            : desc;
+        final String genre =
+            (item.volumeInfo != null && item.volumeInfo.categories != null && !item.volumeInfo.categories.isEmpty())
+                ? item.volumeInfo.categories.getFirst()
+                : "Fiction";
+        final String cover =
+            (item.volumeInfo != null && item.volumeInfo.imageLinks != null)
+                ? secure(item.volumeInfo.imageLinks.thumbnail)
+                : null;
+
+        return Book.builder()
+            .externalId(item.id)
+            .title(title)
+            .author(author)
+            .description(safeDesc)
+            .genre(genre)
+            .coverUrl(cover)
+            .source("google_books")
+            .build();
+      }).toList();
+
+      repo.saveAll(batch);
+      allBooks.addAll(batch);
+      totalFetched += batch.size();
+
+      System.out.println(">>> Total so far: " + totalFetched);
     }
 
-    //clearing existing data
-    repo.deleteAll();
-    System.out.println(">>> Cleared existing books from repository...");
-
-    final List<Book> fetchedBooks = dto.items.stream()
-        .map(item -> {
-          final String title = item.volumeInfo != null
-              ? item.volumeInfo.title : null;
-          final String author =
-              (item.volumeInfo != null
-                  && item.volumeInfo.authors != null
-                  && !item.volumeInfo.authors.isEmpty())
-                  ? item.volumeInfo.authors.get(0) : "Unknown";
-          final String desc = item.volumeInfo != null
-              ? item.volumeInfo.description : null;
-          final String genre =
-              (item.volumeInfo != null
-                  && item.volumeInfo.categories != null
-                  && !item.volumeInfo.categories.isEmpty())
-                  ? item.volumeInfo.categories.getFirst() : "Fiction";
-          final String cover =
-              (item.volumeInfo != null
-                  && item.volumeInfo.imageLinks != null)
-                  ? secure(item.volumeInfo.imageLinks.thumbnail)
-                  : null;
-
-          return Book.builder()
-              .externalId(item.id)
-              .title(title)
-              .author(author)
-              .description(desc)
-              .genre(genre)
-              .coverUrl(cover)
-              .source("google_books")
-              .build();
-        })
-        .toList();
-
-    System.out.println(">>> Saving " + fetchedBooks.size() + " books to repository...");
-    List<Book> saved = fetchedBooks.stream()
-        .map(this::upsertByExternalId)
-        .collect(Collectors.toList());
-
-    System.out.println(">>> Saved " + saved.size() + " books successfully.");
-    return saved;
-//    return fetchedBooks.stream()
-//        .map(this::upsertByExternalId)
-//        .collect(Collectors.toList());
+    System.out.println(">>> Finished fetching " + allBooks.size() + " books.");
+    return allBooks;
   }
+
 
   private Book upsertByExternalId(final Book candidate) {
     return repo.findByExternalId(candidate.getExternalId())
@@ -134,7 +131,7 @@ public class BookService {
    */
   public List<Book> getAll() {
     System.out.println("Fetching books...");
-    fetchAndStorePopularFiction(7);
+    fetchAndStorePopularFiction(50);
     return repo.findAll();
   }
 
