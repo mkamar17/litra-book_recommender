@@ -1,4 +1,9 @@
 import React, { useEffect, useState } from "react";
+import {Swiper, SwiperSlide} from "swiper/react";
+import "swiper/css";
+import { Navigation, EffectFade} from "swiper/modules";
+import "swiper/css/navigation";
+import "swiper/css/effect-fade";
 import api from "../api/api.js";
 import BookRow from "../components/BookRow";
 import NavBar from "../components/NavBar.jsx"

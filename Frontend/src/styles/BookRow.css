@@ -6,6 +6,12 @@ scroll-behavior: smooth;
 scroll-snap-type: x mandatory;
 }
 
+.book-row-container {
+    overflow: visible; /* make sure the row isn’t clipping top/bottom */
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
 .book-row::-webkit-scrollbar {
 height: 8px;
 background: transparent;
@@ -20,3 +26,29 @@ border-radius: 10px;
 flex-shrink: 0;
 scroll-snap-align: start;
 }
+
+.swiper-slide {
+    overflow: visible !important;
+    transition: opacity 0.1s ease;
+  }
+
+  .book-swiper {
+    padding-top: 30px;
+    padding-bottom: 70px;
+    overflow: visible !important;
+  }
+
+  .swiper-button-prev,
+.swiper-button-next {
+    opacity: 0.9;
+  color: #fff !important; /* changes arrow color */
+  fill: #fff !important;  /* some themes use fill */
+  stroke: #fff !important;
+}
+
+.swiper-button-prev:hover,
+.swiper-button-next:hover {
+  opacity: 1;
+  transform: scale(1.15) translateY(-2px); /* rise up a bit */
+}
+

@@ -3,7 +3,7 @@
   height: 240px;         /* fixed height */
     background-color: #1c1c1e;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: visible !important;
     box-shadow: 0 0 15px rgba(0, 102, 255, 0.6),
     0 4px 10px rgba(0, 0, 0, 0.4); /* soft blue glow */
     transition: transform 0.2s ease, box-shadow 0.2s ease;
