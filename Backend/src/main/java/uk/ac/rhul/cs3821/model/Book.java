@@ -31,7 +31,7 @@ public class Book {
   private String title;
   private String author;
 
-  @Column(length = 4000)
+  @Column(columnDefinition = "TEXT")
   private String description;
 
   private String coverUrl;

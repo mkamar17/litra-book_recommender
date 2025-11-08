@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import uk.ac.rhul.cs3821.dto.GoogleBooksDto;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.repository.BookRepository;
@@ -38,18 +39,33 @@ public class BookService {
    * @return list of stored {@link Book} entities
    */
   public List<Book> fetchAndStorePopularFiction(final int max) {
-    final String path = "/books/v1/volumes?q=subject:fiction&maxResults="
-        + Math.min(max, 40);
+//    final String path = "/books/v1/volumes?q=subject:young+adult+thriller&maxResults="
+//        + Math.min(max, 40);
 
+    final String uri = UriComponentsBuilder.fromPath("/books/v1/volumes")
+        .queryParam("q", "subject:\"Young Adult Fiction\" thriller")
+        .queryParam("printType", "books")
+        .queryParam("orderBy", "relevance")
+        .queryParam("maxResults", Math.min(max, 40))
+        // .queryParam("key", googleApiKey) // <— add if you have/need an API key
+        .build()
+        .toUriString();
+
+    System.out.println(">>> Fetching books from Google API...");
     final GoogleBooksDto dto = web.get()
-        .uri(path)
+        .uri(uri)
         .retrieve()
         .bodyToMono(GoogleBooksDto.class)
         .block();
 
     if (dto == null || dto.items == null) {
+      System.out.println(">>> No items returned from Google Books API");
       return List.of();
     }
+
+    //clearing existing data
+    repo.deleteAll();
+    System.out.println(">>> Cleared existing books from repository...");
 
     final List<Book> fetchedBooks = dto.items.stream()
         .map(item -> {
@@ -85,9 +101,16 @@ public class BookService {
         })
         .toList();
 
-    return fetchedBooks.stream()
+    System.out.println(">>> Saving " + fetchedBooks.size() + " books to repository...");
+    List<Book> saved = fetchedBooks.stream()
         .map(this::upsertByExternalId)
         .collect(Collectors.toList());
+
+    System.out.println(">>> Saved " + saved.size() + " books successfully.");
+    return saved;
+//    return fetchedBooks.stream()
+//        .map(this::upsertByExternalId)
+//        .collect(Collectors.toList());
   }
 
   private Book upsertByExternalId(final Book candidate) {
@@ -110,6 +133,8 @@ public class BookService {
    * @return list of books
    */
   public List<Book> getAll() {
+    System.out.println("Fetching books...");
+    fetchAndStorePopularFiction(7);
     return repo.findAll();
   }
 
