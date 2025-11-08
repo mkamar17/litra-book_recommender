@@ -53,3 +53,7 @@ overflow: hidden;
   transform: scale(1.15) translateY(-2px); /* rise up a bit */
 }
 
+.book-swiper-mask {
+    position: relative;
+    overflow: hidden; /* hides both left and right overflow */
+  }

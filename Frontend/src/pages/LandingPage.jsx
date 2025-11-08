@@ -52,6 +52,8 @@ export default function LandingPage() {
       <NavBar />
       <div className="text-left space-y-10 px-10 mt-6">
         <BookRow title="For You" books={books} />
+        <BookRow title="Thrillers" books={books}/>
+        <BookRow title="Fantasy" books={books}/>
       </div>
     </div>
   );

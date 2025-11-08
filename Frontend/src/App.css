@@ -4,6 +4,12 @@
 
 body {
   font-family: 'Poppins', sans-serif;
+  background-color: rgb(24, 24, 24);
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden; /* stop right-side scrolling */
+  color: white;
 }
 
 .logo {
