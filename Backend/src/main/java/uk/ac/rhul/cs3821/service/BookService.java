@@ -114,8 +114,7 @@ public class BookService {
 
       System.out.println(">>> Added " + batch.size() + " books for " + category);
     }
-
-    // ✅ Remove duplicates across all categories
+    
     List<Book> distinctBooks = allBooks.stream()
         .collect(Collectors.collectingAndThen(
             Collectors.toMap(Book::getExternalId, b -> b, (b1, b2) -> b1),
