@@ -2,6 +2,8 @@ package uk.ac.rhul.cs3821.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,6 +19,17 @@ import uk.ac.rhul.cs3821.repository.BookRepository;
 @RequiredArgsConstructor
 public class BookService {
 
+  //temporary helper method to get more specific book titles
+  private static final Map<String, String> CATEGORIES = Map.of(
+      "BookTok Favourites",
+      "(intitle:\"It Ends With Us\" OR intitle:\"Verity\" OR intitle:\"Ugly Love\" OR intitle:\"Reminders of Him\" OR inauthor:\"Colleen Hoover\" OR inauthor:\"Ali Hazelwood\" OR \"booktok\")",
+      "Psychological Thrillers",
+      "(intitle:\"The Silent Patient\" OR intitle:\"Behind Closed Doors\" OR intitle:\"The Housemaid\" OR inauthor:\"B.A. Paris\" OR inauthor:\"Freida McFadden\" OR \"psychological thriller\")",
+      "Fantasy & YA",
+      "(intitle:\"Shatter Me\" OR intitle:\"A Court of Thorns and Roses\" OR intitle:\"Throne of Glass\" OR intitle:\"The Cruel Prince\" OR inauthor:\"Sarah J. Maas\" OR inauthor:\"Tahereh Mafi\" OR inauthor:\"Holly Black\")",
+      "Modern Romance",
+      "(intitle:\"Happy Place\" OR intitle:\"Love and Other Words\" OR inauthor:\"Emily Henry\" OR inauthor:\"Taylor Jenkins Reid\" OR \"romance bestseller\")"
+  );
   private final BookRepository repo;
   private final WebClient web = WebClient.builder()
       .baseUrl("https://www.googleapis.com")
@@ -39,23 +52,23 @@ public class BookService {
    * @return list of stored {@link Book} entities
    */
   public List<Book> fetchAndStorePopularFiction(final int max) {
-    repo.deleteAll();
-
-    int totalFetched = 0;
     List<Book> allBooks = new ArrayList<>();
 
-    while (totalFetched < max) {
-      int batchSize = Math.min(40, max - totalFetched);
+    for (Map.Entry<String, String> entry : CATEGORIES.entrySet()) {
+      String category = entry.getKey();
+      String query = entry.getValue();
+
+      System.out.println(">>> Fetching category: " + category);
+
       final String uri = UriComponentsBuilder.fromPath("/books/v1/volumes")
-          .queryParam("q", "subject:\"Young Adult Fiction\" thriller")
+          .queryParam("q", query)
+          .queryParam("filter", "paid-ebooks")
+          .queryParam("langRestrict", "en")
           .queryParam("printType", "books")
           .queryParam("orderBy", "relevance")
-          .queryParam("startIndex", totalFetched)
-          .queryParam("maxResults", batchSize)
+          .queryParam("maxResults", Math.min(max, 40))
           .build()
           .toUriString();
-
-      System.out.println(">>> Fetching batch starting at index " + totalFetched);
 
       final GoogleBooksDto dto = web.get()
           .uri(uri)
@@ -64,8 +77,8 @@ public class BookService {
           .block();
 
       if (dto == null || dto.items == null || dto.items.isEmpty()) {
-        System.out.println(">>> No more results at index " + totalFetched);
-        break;
+        System.out.println(">>> No results for " + category);
+        continue;
       }
 
       final List<Book> batch = dto.items.stream().map(item -> {
@@ -78,10 +91,6 @@ public class BookService {
         final String safeDesc = (desc != null && desc.length() > 4000)
             ? desc.substring(0, 4000)
             : desc;
-        final String genre =
-            (item.volumeInfo != null && item.volumeInfo.categories != null && !item.volumeInfo.categories.isEmpty())
-                ? item.volumeInfo.categories.getFirst()
-                : "Fiction";
         final String cover =
             (item.volumeInfo != null && item.volumeInfo.imageLinks != null)
                 ? secure(item.volumeInfo.imageLinks.thumbnail)
@@ -92,21 +101,29 @@ public class BookService {
             .title(title)
             .author(author)
             .description(safeDesc)
-            .genre(genre)
+            .genre(category) // use our curated genre name
             .coverUrl(cover)
             .source("google_books")
             .build();
       }).toList();
+      // ✅ Upsert each book to prevent duplicates
+      batch.forEach(book -> {
+        Book saved = upsertByExternalId(book);
+        allBooks.add(saved);
+      });
 
-      repo.saveAll(batch);
-      allBooks.addAll(batch);
-      totalFetched += batch.size();
-
-      System.out.println(">>> Total so far: " + totalFetched);
+      System.out.println(">>> Added " + batch.size() + " books for " + category);
     }
 
-    System.out.println(">>> Finished fetching " + allBooks.size() + " books.");
-    return allBooks;
+    // ✅ Remove duplicates across all categories
+    List<Book> distinctBooks = allBooks.stream()
+        .collect(Collectors.collectingAndThen(
+            Collectors.toMap(Book::getExternalId, b -> b, (b1, b2) -> b1),
+            m -> new ArrayList<>(m.values())
+        ));
+
+    System.out.println(">>> Finished fetching " + distinctBooks.size() + " unique books total.");
+    return distinctBooks;
   }
 
 
