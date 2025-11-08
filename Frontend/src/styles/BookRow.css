@@ -25,6 +25,7 @@ border-radius: 10px;
 .book-card {
 flex-shrink: 0;
 scroll-snap-align: start;
+overflow: hidden;
 }
 
 .swiper-slide {
