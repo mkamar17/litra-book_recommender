@@ -19,17 +19,27 @@ import uk.ac.rhul.cs3821.repository.BookRepository;
 @RequiredArgsConstructor
 public class BookService {
 
-  //temporary helper method to get more specific book titles
-  private static final Map<String, String> CATEGORIES = Map.of(
-      "BookTok Favourites",
-      "(intitle:\"It Ends With Us\" OR intitle:\"Verity\" OR intitle:\"Ugly Love\" OR intitle:\"Reminders of Him\" OR inauthor:\"Colleen Hoover\" OR inauthor:\"Ali Hazelwood\" OR \"booktok\")",
-      "Psychological Thrillers",
-      "(intitle:\"The Silent Patient\" OR intitle:\"Behind Closed Doors\" OR intitle:\"The Housemaid\" OR inauthor:\"B.A. Paris\" OR inauthor:\"Freida McFadden\" OR \"psychological thriller\")",
-      "Fantasy & YA",
-      "(intitle:\"Shatter Me\" OR intitle:\"A Court of Thorns and Roses\" OR intitle:\"Throne of Glass\" OR intitle:\"The Cruel Prince\" OR inauthor:\"Sarah J. Maas\" OR inauthor:\"Tahereh Mafi\" OR inauthor:\"Holly Black\")",
-      "Modern Romance",
-      "(intitle:\"Happy Place\" OR intitle:\"Love and Other Words\" OR inauthor:\"Emily Henry\" OR inauthor:\"Taylor Jenkins Reid\" OR \"romance bestseller\")"
+  // temporary helper method to get more specific book titles - changed to mapofentries for checkstyle
+  private static final Map<String, String> CATEGORIES = Map.ofEntries(
+      Map.entry("BookTok Favourites",
+          "(intitle:\"It Ends With Us\" OR intitle:\"Verity\" OR intitle:\"Ugly Love\" "
+              + "OR intitle:\"Reminders of Him\" OR inauthor:\"Colleen Hoover\" "
+              + "OR inauthor:\"Ali Hazelwood\" OR \"booktok\")"),
+      Map.entry("Psychological Thrillers",
+          "(intitle:\"The Silent Patient\" OR intitle:\"Behind Closed Doors\" "
+              + "OR intitle:\"The Housemaid\" OR inauthor:\"B.A. Paris\" "
+              + "OR inauthor:\"Freida McFadden\" OR \"psychological thriller\")"),
+      Map.entry("Fantasy & YA",
+          "(intitle:\"Shatter Me\" OR intitle:\"A Court of Thorns and Roses\" "
+              + "OR intitle:\"Throne of Glass\" OR intitle:\"The Cruel Prince\" "
+              + "OR inauthor:\"Sarah J. Maas\" OR inauthor:\"Tahereh Mafi\" "
+              + "OR inauthor:\"Holly Black\")"),
+      Map.entry("Modern Romance",
+          "(intitle:\"Happy Place\" OR intitle:\"Love and Other Words\" "
+              + "OR inauthor:\"Emily Henry\" OR inauthor:\"Taylor Jenkins Reid\" "
+              + "OR \"romance bestseller\")")
   );
+
   private final BookRepository repo;
   private final WebClient web = WebClient.builder()
       .baseUrl("https://www.googleapis.com")
@@ -101,12 +111,12 @@ public class BookService {
             .title(title)
             .author(author)
             .description(safeDesc)
-            .genre(category) // use our curated genre name
+            .genre(category)
             .coverUrl(cover)
             .source("google_books")
             .build();
       }).toList();
-      // ✅ Upsert each book to prevent duplicates
+
       batch.forEach(book -> {
         Book saved = upsertByExternalId(book);
         allBooks.add(saved);
@@ -114,7 +124,7 @@ public class BookService {
 
       System.out.println(">>> Added " + batch.size() + " books for " + category);
     }
-    
+
     List<Book> distinctBooks = allBooks.stream()
         .collect(Collectors.collectingAndThen(
             Collectors.toMap(Book::getExternalId, b -> b, (b1, b2) -> b1),
@@ -124,7 +134,6 @@ public class BookService {
     System.out.println(">>> Finished fetching " + distinctBooks.size() + " unique books total.");
     return distinctBooks;
   }
-
 
   private Book upsertByExternalId(final Book candidate) {
     return repo.findByExternalId(candidate.getExternalId())
