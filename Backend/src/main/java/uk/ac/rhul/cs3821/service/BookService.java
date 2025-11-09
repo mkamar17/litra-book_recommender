@@ -1,10 +1,13 @@
 package uk.ac.rhul.cs3821.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import uk.ac.rhul.cs3821.dto.GoogleBooksDto;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.repository.BookRepository;
@@ -15,6 +18,27 @@ import uk.ac.rhul.cs3821.repository.BookRepository;
 @Service
 @RequiredArgsConstructor
 public class BookService {
+
+  // temporary helper method to get more specific book titles - changed to mapofentries for checkstyle
+  private static final Map<String, String> CATEGORIES = Map.ofEntries(
+      Map.entry("BookTok Favourites",
+          "(intitle:\"It Ends With Us\" OR intitle:\"Verity\" OR intitle:\"Ugly Love\" "
+              + "OR intitle:\"Reminders of Him\" OR inauthor:\"Colleen Hoover\" "
+              + "OR inauthor:\"Ali Hazelwood\" OR \"booktok\")"),
+      Map.entry("Psychological Thrillers",
+          "(intitle:\"The Silent Patient\" OR intitle:\"Behind Closed Doors\" "
+              + "OR intitle:\"The Housemaid\" OR inauthor:\"B.A. Paris\" "
+              + "OR inauthor:\"Freida McFadden\" OR \"psychological thriller\")"),
+      Map.entry("Fantasy & YA",
+          "(intitle:\"Shatter Me\" OR intitle:\"A Court of Thorns and Roses\" "
+              + "OR intitle:\"Throne of Glass\" OR intitle:\"The Cruel Prince\" "
+              + "OR inauthor:\"Sarah J. Maas\" OR inauthor:\"Tahereh Mafi\" "
+              + "OR inauthor:\"Holly Black\")"),
+      Map.entry("Modern Romance",
+          "(intitle:\"Happy Place\" OR intitle:\"Love and Other Words\" "
+              + "OR inauthor:\"Emily Henry\" OR inauthor:\"Taylor Jenkins Reid\" "
+              + "OR \"romance bestseller\")")
+  );
 
   private final BookRepository repo;
   private final WebClient web = WebClient.builder()
@@ -38,56 +62,77 @@ public class BookService {
    * @return list of stored {@link Book} entities
    */
   public List<Book> fetchAndStorePopularFiction(final int max) {
-    final String path = "/books/v1/volumes?q=subject:fiction&maxResults="
-        + Math.min(max, 40);
+    List<Book> allBooks = new ArrayList<>();
 
-    final GoogleBooksDto dto = web.get()
-        .uri(path)
-        .retrieve()
-        .bodyToMono(GoogleBooksDto.class)
-        .block();
+    for (Map.Entry<String, String> entry : CATEGORIES.entrySet()) {
+      String category = entry.getKey();
+      String query = entry.getValue();
 
-    if (dto == null || dto.items == null) {
-      return List.of();
+      System.out.println(">>> Fetching category: " + category);
+
+      final String uri = UriComponentsBuilder.fromPath("/books/v1/volumes")
+          .queryParam("q", query)
+          .queryParam("filter", "paid-ebooks")
+          .queryParam("langRestrict", "en")
+          .queryParam("printType", "books")
+          .queryParam("orderBy", "relevance")
+          .queryParam("maxResults", Math.min(max, 40))
+          .build()
+          .toUriString();
+
+      final GoogleBooksDto dto = web.get()
+          .uri(uri)
+          .retrieve()
+          .bodyToMono(GoogleBooksDto.class)
+          .block();
+
+      if (dto == null || dto.items == null || dto.items.isEmpty()) {
+        System.out.println(">>> No results for " + category);
+        continue;
+      }
+
+      final List<Book> batch = dto.items.stream().map(item -> {
+        final String title = item.volumeInfo != null ? item.volumeInfo.title : null;
+        final String author =
+            (item.volumeInfo != null && item.volumeInfo.authors != null && !item.volumeInfo.authors.isEmpty())
+                ? item.volumeInfo.authors.get(0)
+                : "Unknown";
+        final String desc = item.volumeInfo != null ? item.volumeInfo.description : null;
+        final String safeDesc = (desc != null && desc.length() > 4000)
+            ? desc.substring(0, 4000)
+            : desc;
+        final String cover =
+            (item.volumeInfo != null && item.volumeInfo.imageLinks != null)
+                ? secure(item.volumeInfo.imageLinks.thumbnail)
+                : null;
+
+        return Book.builder()
+            .externalId(item.id)
+            .title(title)
+            .author(author)
+            .description(safeDesc)
+            .genre(category)
+            .coverUrl(cover)
+            .source("google_books")
+            .build();
+      }).toList();
+
+      batch.forEach(book -> {
+        Book saved = upsertByExternalId(book);
+        allBooks.add(saved);
+      });
+
+      System.out.println(">>> Added " + batch.size() + " books for " + category);
     }
 
-    final List<Book> fetchedBooks = dto.items.stream()
-        .map(item -> {
-          final String title = item.volumeInfo != null
-              ? item.volumeInfo.title : null;
-          final String author =
-              (item.volumeInfo != null
-                  && item.volumeInfo.authors != null
-                  && !item.volumeInfo.authors.isEmpty())
-                  ? item.volumeInfo.authors.get(0) : "Unknown";
-          final String desc = item.volumeInfo != null
-              ? item.volumeInfo.description : null;
-          final String genre =
-              (item.volumeInfo != null
-                  && item.volumeInfo.categories != null
-                  && !item.volumeInfo.categories.isEmpty())
-                  ? item.volumeInfo.categories.getFirst() : "Fiction";
-          final String cover =
-              (item.volumeInfo != null
-                  && item.volumeInfo.imageLinks != null)
-                  ? secure(item.volumeInfo.imageLinks.thumbnail)
-                  : null;
+    List<Book> distinctBooks = allBooks.stream()
+        .collect(Collectors.collectingAndThen(
+            Collectors.toMap(Book::getExternalId, b -> b, (b1, b2) -> b1),
+            m -> new ArrayList<>(m.values())
+        ));
 
-          return Book.builder()
-              .externalId(item.id)
-              .title(title)
-              .author(author)
-              .description(desc)
-              .genre(genre)
-              .coverUrl(cover)
-              .source("google_books")
-              .build();
-        })
-        .toList();
-
-    return fetchedBooks.stream()
-        .map(this::upsertByExternalId)
-        .collect(Collectors.toList());
+    System.out.println(">>> Finished fetching " + distinctBooks.size() + " unique books total.");
+    return distinctBooks;
   }
 
   private Book upsertByExternalId(final Book candidate) {
@@ -110,6 +155,8 @@ public class BookService {
    * @return list of books
    */
   public List<Book> getAll() {
+    System.out.println("Fetching books...");
+    fetchAndStorePopularFiction(50);
     return repo.findAll();
   }
 

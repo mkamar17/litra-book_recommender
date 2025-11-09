@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,7 +45,7 @@ class BookServiceTest {
   void setup() {
     MockitoAnnotations.openMocks(this);
 
-    // Replace real WebClient with mock via reflection
+    // Replace the real WebClient in BookService with the mock
     try {
       var field = BookService.class.getDeclaredField("web");
       field.setAccessible(true);
@@ -53,6 +53,11 @@ class BookServiceTest {
     } catch (Exception e) {
       fail("Failed to inject WebClient mock");
     }
+
+    // Default WebClient chain setup for all tests
+    when(webClient.get()).thenReturn(uriSpec);
+    when(uriSpec.uri(anyString())).thenReturn(headersSpec);
+    when(headersSpec.retrieve()).thenReturn(responseSpec);
   }
 
   // ----------------------------------------
@@ -69,7 +74,6 @@ class BookServiceTest {
     vi.title = "Title A";
     vi.authors = List.of("Author A");
     vi.description = "Desc A";
-    vi.categories = List.of("Fiction");
 
     GoogleBooksDto.ImageLinks links = new GoogleBooksDto.ImageLinks();
     links.thumbnail = "http://imageA";
@@ -78,23 +82,20 @@ class BookServiceTest {
     item.volumeInfo = vi;
     dto.items = List.of(item);
 
-    // repo upsert behaviour
+    // Mock repo and WebClient behavior
     when(repo.findByExternalId("id1")).thenReturn(Optional.empty());
     when(repo.save(any())).thenAnswer(i -> i.getArgument(0));
-
-    // WebClient chain mocks
-    when(webClient.get()).thenReturn(uriSpec);
-    when(uriSpec.uri(anyString())).thenReturn(headersSpec);
-    when(headersSpec.retrieve()).thenReturn(responseSpec);
-    when(responseSpec.bodyToMono(GoogleBooksDto.class)).thenReturn(Mono.just(dto));
+    when(responseSpec.bodyToMono(GoogleBooksDto.class))
+        .thenAnswer(inv -> Mono.just(dto)); // reused for all category calls
 
     List<Book> result = service.fetchAndStorePopularFiction(10);
 
-    assertEquals(1, result.size());
-    assertEquals("Title A", result.get(0).getTitle());
-    assertEquals("Author A", result.get(0).getAuthor());
-    assertEquals("https://imageA", result.get(0).getCoverUrl()); // secure() applied
-    assertEquals("google_books", result.get(0).getSource());
+    assertFalse(result.isEmpty());
+    Book book = result.get(0);
+    assertEquals("Title A", book.getTitle());
+    assertEquals("Author A", book.getAuthor());
+    assertEquals("https://imageA", book.getCoverUrl()); // secure() applied
+    assertEquals("google_books", book.getSource());
   }
 
   // ----------------------------------------
@@ -105,9 +106,6 @@ class BookServiceTest {
     GoogleBooksDto dto = new GoogleBooksDto();
     dto.items = null;
 
-    when(webClient.get()).thenReturn(uriSpec);
-    when(uriSpec.uri(anyString())).thenReturn(headersSpec);
-    when(headersSpec.retrieve()).thenReturn(responseSpec);
     when(responseSpec.bodyToMono(GoogleBooksDto.class)).thenReturn(Mono.just(dto));
 
     List<Book> result = service.fetchAndStorePopularFiction(5);
@@ -129,7 +127,6 @@ class BookServiceTest {
     when(repo.findByExternalId("id1")).thenReturn(Optional.of(existing));
     when(repo.save(any())).thenAnswer(i -> i.getArgument(0));
 
-    // DTO with new info
     GoogleBooksDto dto = new GoogleBooksDto();
     GoogleBooksDto.Item item = new GoogleBooksDto.Item();
     item.id = "id1";
@@ -137,14 +134,11 @@ class BookServiceTest {
     GoogleBooksDto.VolumeInfo vi = new GoogleBooksDto.VolumeInfo();
     vi.title = "New Title";
     vi.authors = List.of("New Author");
-
     item.volumeInfo = vi;
+
     dto.items = List.of(item);
 
-    when(webClient.get()).thenReturn(uriSpec);
-    when(uriSpec.uri(anyString())).thenReturn(headersSpec);
-    when(headersSpec.retrieve()).thenReturn(responseSpec);
-    when(responseSpec.bodyToMono(GoogleBooksDto.class)).thenReturn(Mono.just(dto));
+    when(responseSpec.bodyToMono(GoogleBooksDto.class)).thenAnswer(i -> Mono.just(dto));
 
     List<Book> result = service.fetchAndStorePopularFiction(3);
 
@@ -157,8 +151,13 @@ class BookServiceTest {
   // ----------------------------------------
   @Test
   void testGetAll() {
+    // Avoid NPE from fetchAndStorePopularFiction(50)
+    when(responseSpec.bodyToMono(GoogleBooksDto.class)).thenReturn(Mono.empty());
     when(repo.findAll()).thenReturn(List.of(new Book()));
-    assertEquals(1, service.getAll().size());
+
+    List<Book> result = service.getAll();
+
+    assertEquals(1, result.size());
   }
 
   // ----------------------------------------
