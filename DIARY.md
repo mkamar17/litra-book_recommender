@@ -108,3 +108,15 @@
 - Reflection:
 	 - Before my meeting I was quite overwhelmed thinking I had underperformed and was falling behind my peers since I was struggling a lot with finding a balance between working on my FYP and keeping up with my modules at the same time, but my supervisor reassured me that feeling the pressure is normal and as long as I continue trying my best I will get far :)
 	 
+### 📅 07.10.25-09.10.25
+- What was achieved:
+	- Fixed book fetch and user accounts deleting bugs
+	- Added Swiper module to allow navigating across book rows (left and right) with fade effect 
+	- Redraft of architectural design patterns and paradigms section started 
+	- Books that were originally fetched were quite old and academic, now they are popular thrillers and romance novels
+- Next steps:
+	- At the moment, each book row is identical - need to add variety and organise by category 
+	- Add functionality to search bar 
+	- Receive feedback from supervisor about redraft and continue optimising background reading section 
+- Reflections/blockers:
+	- My hard work paid off this week and I spent a lot more hours on my project, which I'm really pleased about. I feel that I am now in a solid position to keep progressing well, although I struggle a lot with writing the report so I have to prioritise that more.
