@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
@@ -21,7 +21,36 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Example() {
+export default function NavBar({ onSearch }) {
+  const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    if (query.trim() === '') {
+      // when user clears the input, immediately reset
+      onSearch('');
+      return;
+    }
+
+    const delay = setTimeout(() => {
+      onSearch(query);
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [query]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+  
+    // if input is empty, reset view
+    if (query.trim() === '') {
+      onSearch(''); 
+      return;
+    }
+  
+    // otherwise search normally
+    onSearch(query);
+  };
+  
   return (
     <Disclosure
       as="nav"
@@ -68,19 +97,21 @@ export default function Example() {
           <div className="flex items-center gap-4 ml-auto pr-6">
             
             {/* Search Bar */}
-            <div className="relative">
+            <form onSubmit={handleSearch} className="relative">
             <input
-                type="text"
-                placeholder="Dystopian thriller novels..."
-                className="bg-[rgb(60,60,60)] text-white placeholder-gray-400 text-sm font-light rounded-full pl-10 pr-4 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 w-48 sm:w-64 transition-all duration-200"
-                />
-                <img
-                    src={search}
-                    alt="search"
-                    className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
-
-                />
-            </div>
+              type="text"
+              placeholder="Dystopian thriller novels..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="bg-[rgb(60,60,60)] text-white placeholder-gray-400 text-sm font-light rounded-full pl-10 pr-4 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 w-48 sm:w-64 transition-all duration-200"
+            />
+            <button
+              type="submit"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            >
+              <img src={search} alt="search" className="w-4 h-4" />
+            </button>
+          </form>
 
             <button
               type="button"
@@ -98,7 +129,6 @@ export default function Example() {
                 <span className="sr-only">Open user menu</span>
                 <img
                   alt=""
-                  //src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                   src={pfp}
                   className="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10"
                 />
