@@ -161,6 +161,26 @@ class BookServiceTest {
   }
 
   // ----------------------------------------
+// getBooksByGenre()
+// ----------------------------------------
+  @Test
+  void testGetBooksByGenre() {
+    List<Book> mockBooks = List.of(
+        new Book(1L, "ext1", "The Silent Patient", "Alex Michaelides", "Desc", "url", "Psychological Thrillers", "google_books"),
+        new Book(2L, "ext2", "Behind Closed Doors", "B.A. Paris", "Desc", "url", "Psychological Thrillers", "google_books")
+    );
+
+    when(repo.findByGenreIgnoreCase("Psychological Thrillers")).thenReturn(mockBooks);
+
+    List<Book> result = service.getBooksByGenre("Psychological Thrillers");
+
+    assertEquals(2, result.size());
+    assertEquals("The Silent Patient", result.get(0).getTitle());
+    assertEquals("Psychological Thrillers", result.get(0).getGenre());
+    verify(repo).findByGenreIgnoreCase("Psychological Thrillers");
+  }
+  
+  // ----------------------------------------
   // deleteBookById
   // ----------------------------------------
   @Test

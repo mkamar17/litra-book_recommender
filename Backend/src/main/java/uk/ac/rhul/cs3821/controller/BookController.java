@@ -66,7 +66,7 @@ public class BookController {
    * @param genre the name of the genre
    * @return list of books with the specified genre
    */
-  @GetMapping("/books/genre/{genre}")
+  @GetMapping("/genre/{genre}")
   public List<Book> getBooksByGenre(@PathVariable String genre) {
     return service.getBooksByGenre(genre);
   }
