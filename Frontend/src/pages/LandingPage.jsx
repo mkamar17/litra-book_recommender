@@ -32,23 +32,36 @@ export default function LandingPage() {
     fetchBooks();
   }, []);
 
-  // initially local filtering 
+
+  const normalize = (str) =>
+  str
+    .toLowerCase()
+    .replace(/[-'’\s]/g, '') // normalising hyphens, apostrophes, and spaces
+    .trim();
+
   const handleSearch = (query) => {
-    console.log(query);
-    const trimmed = query.trim().toLowerCase();
-  
-    // if the query is empty, reset to main view
-    if (trimmed === '') {
-      setFilteredBooks([]); 
+    console.log("Search query:", query);
+
+    const normalizedQuery = normalize(query);
+
+    // If the query is empty, reset to main view
+    if (normalizedQuery === "") {
+      setFilteredBooks([]);
       return;
     }
-  
-    const results = books.filter(
-      (book) =>
-        book.title.toLowerCase().includes(trimmed) ||
-        (book.genre && book.genre.toLowerCase().includes(trimmed)) ||
-        (book.author && book.author.toLowerCase().includes(trimmed))
-    );
+
+    const results = books.filter((book) => {
+      const title = normalize(book.title || "");
+      const genre = normalize(book.genre || "");
+      const author = normalize(book.author || "");
+
+      return (
+        title.includes(normalizedQuery) ||
+        genre.includes(normalizedQuery) ||
+        author.includes(normalizedQuery)
+      );
+    });
+
     setFilteredBooks(results);
   };
   
