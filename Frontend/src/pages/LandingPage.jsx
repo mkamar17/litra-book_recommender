@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {Swiper, SwiperSlide} from "swiper/react";
 import "swiper/css";
-import { Navigation, EffectFade} from "swiper/modules";
 import "swiper/css/navigation";
 import "swiper/css/effect-fade";
 import api from "../api/api.js";
@@ -85,25 +83,17 @@ export default function LandingPage() {
   return (
     <div className="bg-[rgb(24,24,24)] min-h-screen text-white font-poppins">
       <NavBar onSearch={handleSearch} />
-      {/* <div className="text-left space-y-10 px-10 mt-6">
-        <BookRow title="For You" books={books} />
-        <BookRow title="Thrillers" books={books}/>
-        <BookRow title="Fantasy" books={books}/>
-      </div> */}
 
-<div className="text-left space-y-10 px-10 mt-6">
-  {filteredBooks.length > 0 ? (
-    // 🔥 Show search results if we have any
-    <BookRow title="Search Results" books={filteredBooks} />
-  ) : (
-    // 🧭 Otherwise show default categories
-    <>
-      <BookRow title="For You" books={books} />
-      <BookRow title="Thrillers" books={books} />
-      <BookRow title="Fantasy" books={books} />
-    </>
-  )}
-</div>
+    <div className="text-left space-y-10 px-10 mt-6">
+      {filteredBooks.length > 0 ? (
+        <BookRow title="Search Results" books={filteredBooks} />
+      ) : (
+        <>
+          <BookRow title="For You" books={books} />
+          <BookRow title="Thrillers" books={books} />
+          <BookRow title="Fantasy" books={books} />
+        </>
+      )}
     </div>
-  );
+    </div> );
 }
