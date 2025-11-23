@@ -92,7 +92,7 @@
 - Reflections:
 	- The pipeline set-up was very time-consuming and quite draining.
 	 
-### 📅 03.10.25-06.10.25
+### 📅 03.11.25-06.11.25
 - What was achieved:
 	- Intellij IDE issues solved including checkstyle config mismatches 
 	- Implemented authentication page with end-to-end functionality and JWT 
@@ -108,7 +108,7 @@
 - Reflection:
 	 - Before my meeting I was quite overwhelmed thinking I had underperformed and was falling behind my peers since I was struggling a lot with finding a balance between working on my FYP and keeping up with my modules at the same time, but my supervisor reassured me that feeling the pressure is normal and as long as I continue trying my best I will get far :)
 	 
-### 📅 07.10.25-09.10.25
+### 📅 07.11.25-09.11.25
 - What was achieved:
 	- Fixed book fetch and user accounts deleting bugs
 	- Added Swiper module to allow navigating across book rows (left and right) with fade effect 
@@ -120,3 +120,39 @@
 	- Receive feedback from supervisor about redraft and continue optimising background reading section 
 - Reflections/blockers:
 	- My hard work paid off this week and I spent a lot more hours on my project, which I'm really pleased about. I feel that I am now in a solid position to keep progressing well, although I struggle a lot with writing the report so I have to prioritise that more.
+	
+### 📅 010.11.25-14.11.25
+- What was achieved:
+	- Development:
+		- Added search bar functionality — currently performs local filtering to avoid repeated API calls
+			- searching also normalises input (if user types a book that has a hyphen in the title without the hyphen, it still recognises it)
+		- Added a fade effect when scrolling through the cards 
+		- Genre tab is being worked on..currently displays some genres that a user can select and all books with that genre are displayed to the user with an animation (the animation is a bit glitchy though)
+	
+	- Report:
+		- What are architectural paradigms and design patterns section...
+			- Architectural paradigms:
+				- Object-oriented Architecture complete
+			- Design patterns:
+				- Creational patterns: Singleton, Abstract Factory, Builder
+				- Structural: Adapter, Facade, Bridge 
+- Next steps:
+	- For the report, I need to finish the architectural paradigms and design patterns section completely and make a start on the state of the art web development section 
+	- Since I am at a decent position with my code, I am going to focus on my interim report more this week 
+- Reflections: 
+	- At first, developing was harder than the interim, now there has been a significant reverse -- I am very slow at writing so I am going to focus on my interim now 
+	
+### 📅 16.11.25-21.11.25
+- What was achieved:
+	- This week I worked on my report as I was falling behind
+	- Completed Web development Architectural paradigms and Applicable Design patterns section 
+	- Wrote introduction for state of the art web developement and completed subsection on React 
+- Next steps: 
+	- I need to get back into development as soon as possible so that I can achieve a couple more user stories before the deadline 
+	- Complete genre tab functionality 
+	- Fetch the right books in the landing page (all rows fetch the same books at the moment)
+	- Add functionality for reader to be able to select a book and have the option to start reading and add it to "My library"
+	- Continue working on my report -- currently working on discussing front-end technologies 
+- Reflections:
+	- I tend to overwrite which is slowing my progress down a lot even though I have spent many hours working on the report this week 
+	- From now on, I am going to prioritise getting sections completed quicker, even if they are less thorough, and then focus on polishing and expanding if I have time left   
