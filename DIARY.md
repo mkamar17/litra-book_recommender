@@ -121,7 +121,7 @@
 - Reflections/blockers:
 	- My hard work paid off this week and I spent a lot more hours on my project, which I'm really pleased about. I feel that I am now in a solid position to keep progressing well, although I struggle a lot with writing the report so I have to prioritise that more.
 	
-### 📅 010.11.25-14.11.25
+### 📅 10.11.25-14.11.25
 - What was achieved:
 	- Development:
 		- Added search bar functionality — currently performs local filtering to avoid repeated API calls
