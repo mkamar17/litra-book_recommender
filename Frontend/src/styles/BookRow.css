@@ -21,6 +21,9 @@ background: transparent;
 background-color: #2d2d2d;
 border-radius: 10px;
 }
+.book-row-container {
+  overflow: visible;
+}
 
 .book-card {
 flex-shrink: 0;
@@ -39,6 +42,11 @@ overflow: hidden;
     overflow: visible !important;
   }
 
+  .swiper-wrapper {
+    overflow: visible !important;
+  }
+
+
   .swiper-button-prev,
 .swiper-button-next {
     opacity: 0.9;
@@ -55,5 +63,6 @@ overflow: hidden;
 
 .book-swiper-mask {
     position: relative;
-    overflow: hidden; /* hides both left and right overflow */
+    /*overflow: hidden; /* hides both left and right overflow */
+    overflow: visible !important;
   }

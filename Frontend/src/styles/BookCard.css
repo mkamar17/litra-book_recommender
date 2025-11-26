@@ -43,4 +43,66 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .book-popup {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 105%);
+    width: 260px;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 14px;
+    color: white;
+    z-index: 15;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  .popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .popup-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .popup-add-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  
+  .popup-add-btn:hover {
+    background: rgba(255,255,255,0.25);
+    transform: scale(1.12);
+  }
+  
+  .popup-author {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin-top: -2px;
+    margin-bottom: 8px;
+  }
+  
+  .popup-description {
+    font-size: 0.82rem;
+    line-height: 1.25;
+    opacity: 0.85;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, 120%); }
+    to { opacity: 1; transform: translate(-50%, 105%); }
+  }
   
