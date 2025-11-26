@@ -8,7 +8,6 @@ export default function GenrePage() {
   const [genres] = useState([
     "BookTok Favourites",
     "Psychological Thrillers",
-    "Fantasy & YA",
     "Modern Romance",
   ]);
   const [selectedGenre, setSelectedGenre] = useState(null);
@@ -76,7 +75,7 @@ export default function GenrePage() {
               ) : (
                 <>
                   {/* //<h1 className="text-3xl font-semibold mb-6">{selectedGenre}</h1> */}
-                  <BookRow title={`${selectedGenre} Books`} books={books} />
+                  <BookRow title={`${selectedGenre}`} books={books} />
                 </>
               )}
             </motion.div>
