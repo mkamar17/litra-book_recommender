@@ -59,4 +59,15 @@ public class BookController {
       return ResponseEntity.status(404).body("Book not found.");
     }
   }
+
+  /**
+   * Method returns books with specific genre.
+   *
+   * @param genre the name of the genre
+   * @return list of books with the specified genre
+   */
+  @GetMapping("/genre/{genre}")
+  public List<Book> getBooksByGenre(@PathVariable String genre) {
+    return service.getBooksByGenre(genre);
+  }
 }

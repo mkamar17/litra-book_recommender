@@ -9,6 +9,15 @@ import '../App.css'
 
 export default function LandingPage() {
   const [books, setBooks] = useState([]);
+
+  //adding categories to display on homepage
+
+  const [thrillerBooks, setThrillerBooks] = useState([]);
+  const [fantasyBooks, setFantasyBooks] = useState([]);
+  const [romanceBooks, setRomanceBooks] = useState([]);
+  const [booktokBooks, setBooktokBooks] = useState([]);
+
+
   const [filteredBooks, setFilteredBooks] = useState([]); //to handle search filtering 
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null); 
@@ -17,8 +26,19 @@ export default function LandingPage() {
     async function fetchBooks() {
       try {
         console.log("Fetching books...");
-        const res = await api.get("/books");
-        setBooks(res.data);
+        const [all, thriller, fantasy, romance, booktok] = await Promise.all([
+        api.get("/books"),
+        api.get("/books/genre/Psychological Thrillers"),
+        api.get("/books/genre/Fantasy & YA"),
+        api.get("/books/genre/Modern Romance"),
+        api.get("/books/genre/BookTok Favourites"),
+      ]);
+      setBooks(all.data);
+      setThrillerBooks(thriller.data);
+      setFantasyBooks(fantasy.data);
+      setRomanceBooks(romance.data);
+      setBooktokBooks(booktok.data);
+
       } catch (err) {
         console.error("Failed to fetch books:", err);
         setError("Could not load books. Please try again later.");
@@ -90,8 +110,10 @@ export default function LandingPage() {
       ) : (
         <>
           <BookRow title="For You" books={books} />
-          <BookRow title="Thrillers" books={books} />
-          <BookRow title="Fantasy" books={books} />
+          <BookRow title="BookTok Favourites" books={booktokBooks} />
+          <BookRow title="Psychological Thrillers" books={thrillerBooks} />
+          <BookRow title="Fantasy & YA" books={fantasyBooks} />
+          <BookRow title="Modern Romance" books={romanceBooks} />
         </>
       )}
     </div>

@@ -15,6 +15,7 @@ import uk.ac.rhul.cs3821.service.BookService;
 import uk.ac.rhul.cs3821.service.JwtService;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -70,6 +71,23 @@ class BookControllerTest {
         .andExpect(jsonPath("$.length()").value(1))
         .andExpect(jsonPath("$[0].title").value("Title A"))
         .andExpect(jsonPath("$[0].author").value("Author X"));
+  }
+
+  @Test
+  void testGetBooksByGenre() throws Exception {
+    List<Book> mockBooks = List.of(
+        new Book(1L, "id1", "The Silent Patient", "Alex Michaelides", "Desc", "cover1", "Psychological Thrillers", "google_books"),
+        new Book(2L, "id2", "Behind Closed Doors", "B.A. Paris", "Desc", "cover2", "Psychological Thrillers", "google_books")
+    );
+
+    when(service.getBooksByGenre(anyString())).thenReturn(mockBooks);
+
+    mockMvc.perform(get("/api/books/genre/Psychological%20Thrillers")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(2))
+        .andExpect(jsonPath("$[0].genre").value("Psychological Thrillers"))
+        .andExpect(jsonPath("$[1].title").value("Behind Closed Doors"));
   }
 
   @Test

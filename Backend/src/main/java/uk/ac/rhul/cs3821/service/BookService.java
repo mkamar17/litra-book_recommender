@@ -173,4 +173,14 @@ public class BookService {
     }
     return false;
   }
+
+  /**
+   * Method finds books by genre name.
+   *
+   * @param genre the genre name
+   * @return list of books with that genre
+   */
+  public List<Book> getBooksByGenre(String genre) {
+    return repo.findByGenreIgnoreCase(genre);
+  }
 }
