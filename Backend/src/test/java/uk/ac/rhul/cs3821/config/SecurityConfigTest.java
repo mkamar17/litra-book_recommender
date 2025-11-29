@@ -18,7 +18,6 @@ class SecurityConfigTest {
 
   @BeforeEach
   void setUp() {
-    // Mock dependencies
     JwtFilter mockFilter = Mockito.mock(JwtFilter.class);
     AppUserDetailsService mockUds = Mockito.mock(AppUserDetailsService.class);
 
