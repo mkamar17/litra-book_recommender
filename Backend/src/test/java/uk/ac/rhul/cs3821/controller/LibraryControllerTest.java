@@ -13,6 +13,7 @@ import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.repository.BookRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,6 +46,8 @@ public class LibraryControllerTest {
     testBook = new Book();
     testBook.setId(1L);
     testBook.setTitle("Test Book");
+
+    testUser.getLibrary().add(testBook);
   }
 
   @Test
@@ -84,5 +87,31 @@ public class LibraryControllerTest {
 
     assertEquals("Book not found", exception.getMessage());
     verify(userRepo, never()).save(any());
+  }
+
+  @Test
+  void testGetUserLibrarySuccess() {
+    when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
+
+    ResponseEntity<?> response = libraryController.getUserLibrary("test@example.com");
+
+    assertEquals(200, response.getStatusCodeValue());
+
+    assertInstanceOf(HashSet.class, response.getBody());
+    HashSet<?> books = (HashSet<?>) response.getBody();
+
+    assertEquals(1, books.size());
+    assertTrue(books.contains(testBook));
+  }
+
+  @Test
+  void testGetUserLibraryUserNotFound() {
+    when(userRepo.findByEmail("missing@example.com")).thenReturn(Optional.empty());
+
+    RuntimeException exception = assertThrows(RuntimeException.class, () ->
+        libraryController.getUserLibrary("missing@example.com")
+    );
+
+    assertEquals("User not found", exception.getMessage());
   }
 }

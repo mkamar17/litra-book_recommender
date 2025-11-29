@@ -3,6 +3,7 @@ package uk.ac.rhul.cs3821.controller;
 import java.util.HashSet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,5 +49,18 @@ public class LibraryController {
     userRepo.save(user);
 
     return ResponseEntity.ok("Book added to library");
+  }
+
+  /**
+   * Retrieves all the books saved in a user's library.
+   *
+   * @param email the user's email
+   * @return the list of books
+   */
+  @GetMapping
+  public ResponseEntity<?> getUserLibrary(@RequestParam String email) {
+    User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+    return ResponseEntity.ok(user.getLibrary());
   }
 }
