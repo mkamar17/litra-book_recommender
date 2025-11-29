@@ -15,10 +15,9 @@
     width: 900px;
     max-height: 80vh;
     color: white;
-    text-align: center;
+    text-align: left;
     position: relative;
-    display: flex;              /* make columns */
-  gap: 30px;  
+
   }
   
   .modal-image {
@@ -58,5 +57,24 @@
   
   .modal-start-book-btn:hover {
     opacity: 0.8;
+  }
+  
+  .modal-content-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+  }
+
+  .modal-left {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .modal-right {
+    width: 65%;
+    text-align: left;
   }
   

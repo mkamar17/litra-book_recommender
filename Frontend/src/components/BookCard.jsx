@@ -9,8 +9,8 @@ export default function BookCard({ book, onAddToLibrary, onStartReadin, onSelect
   return (
     <div
       className="book-card"
-      // onMouseEnter={() => setShowPopup(true)}
-      // onMouseLeave={() => setShowPopup(false)}
+      onMouseEnter={() => setShowPopup(true)}
+      onMouseLeave={() => setShowPopup(false)}
       onClick={() => onSelectBook(book)}
     >
       <img src={book.coverUrl} alt={book.title} className="book-cover" />
