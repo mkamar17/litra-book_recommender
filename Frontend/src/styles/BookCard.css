@@ -1,4 +1,6 @@
 .book-card {
+  position: relative;
+  z-index: 1;
   width: 160px;          /* fixed width */
   height: 240px;         /* fixed height */
     background-color: #1c1c1e;
@@ -10,8 +12,9 @@
   }
   
   .book-card:hover {
-    transform: scale(1.05);
+    transform: scale(1.2);
     box-shadow: 0 0 25px rgba(0, 123, 255, 0.6); 
+    z-index:999;
   }
   
   .book-card img {
@@ -43,4 +46,70 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .book-popup {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -105%);
+    width: 260px;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 14px;
+    color: white;
+    z-index: 9999;
+    pointer-events: auto;
+  }
   
+  
+  .popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .popup-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .popup-add-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  
+  .popup-add-btn:hover {
+    background: rgba(255,255,255,0.25);
+    transform: scale(1.12);
+  }
+  
+  .popup-author {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin-top: -2px;
+    margin-bottom: 8px;
+  }
+  
+  .popup-description {
+    font-size: 0.82rem;
+    line-height: 1.25;
+    opacity: 0.85;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, 120%); }
+    to { opacity: 1; transform: translate(-50%, 105%); }
+  }
+
+
+  .book-card {
+    transition: transform 0.22s ease, filter 0.22s ease;
+  }

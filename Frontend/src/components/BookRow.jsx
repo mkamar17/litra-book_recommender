@@ -6,9 +6,10 @@ import "swiper/css/navigation";
 import BookCard from "./BookCard";
 import "../styles/BookRow.css";
 
-export default function BookRow({ title, books }) {
+export default function BookRow({ title, books, onAddToLibrary }) {
   const swiperRef = useRef(null);
   const observerRef = useRef(null);
+  
 
   const setupObserver = (swiper) => {
     // Disconnect old observer if it exists
@@ -87,7 +88,7 @@ export default function BookRow({ title, books }) {
         >
           {books.map((book) => (
             <SwiperSlide key={book.id || book.externalId}>
-              <BookCard book={book} />
+              <BookCard book={book} onAddToLibrary={onAddToLibrary} />
             </SwiperSlide>
           ))}
         </Swiper>
