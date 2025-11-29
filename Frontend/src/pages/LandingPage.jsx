@@ -82,6 +82,17 @@ export default function LandingPage() {
 
     setFilteredBooks(results);
   };
+
+  const handleAddToLibrary = async (book) => {
+    try {
+      await api.post(`/library/add/${book.id}`);
+      alert(`"${book.title}" added to your library!`);
+    } catch (err) {
+      console.error("Error adding book:", err);
+      alert("Failed to add book");
+    }
+  };
+  
   
 
   if (loading) {
@@ -109,11 +120,11 @@ export default function LandingPage() {
         <BookRow title="Search Results" books={filteredBooks} />
       ) : (
         <>
-          <BookRow title="For You" books={books} />
-          <BookRow title="BookTok Favourites" books={booktokBooks} />
-          <BookRow title="Psychological Thrillers" books={thrillerBooks} />
-          <BookRow title="Fantasy & YA" books={fantasyBooks} />
-          <BookRow title="Modern Romance" books={romanceBooks} />
+          <BookRow title="For You" books={books} onAddToLibrary={handleAddToLibrary} />
+          <BookRow title="BookTok Favourites" books={booktokBooks} onAddToLibrary={handleAddToLibrary} />
+          <BookRow title="Psychological Thrillers" books={thrillerBooks} onAddToLibrary={handleAddToLibrary}/>
+          <BookRow title="Fantasy & YA" books={fantasyBooks} onAddToLibrary={handleAddToLibrary}/>
+          <BookRow title="Modern Romance" books={romanceBooks} onAddToLibrary={handleAddToLibrary}/>
         </>
       )}
     </div>

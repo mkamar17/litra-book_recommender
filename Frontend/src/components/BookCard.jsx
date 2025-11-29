@@ -4,6 +4,8 @@ import "../styles/BookCard.css";
 export default function BookCard({ book, onAddToLibrary, onStartReading }) {
   const [showPopup, setShowPopup] = useState(false);
 
+  const showAddButton = !!onAddToLibrary;
+
   return (
     <div
       className="book-card"
@@ -16,8 +18,14 @@ export default function BookCard({ book, onAddToLibrary, onStartReading }) {
         <div className="book-popup">
           <div className="popup-header">
             <span className="popup-title">{book.title}</span>
-            <button className="popup-add-btn" onClick={() => onAddToLibrary(book)}>+</button>
+
+            {showAddButton && (
+              <button className="popup-add-btn" onClick={() => onAddToLibrary(book)}>+</button>
+            )}
           </div>
+
+            {/* <button className="popup-add-btn" onClick={() => onAddToLibrary(book)}>+</button>
+          </div> */}
 
           <p className="popup-author">{book.author}</p>
 
