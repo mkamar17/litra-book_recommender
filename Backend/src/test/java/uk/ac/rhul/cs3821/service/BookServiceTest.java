@@ -45,7 +45,7 @@ class BookServiceTest {
   void setup() {
     MockitoAnnotations.openMocks(this);
 
-    // Replace the real WebClient in BookService with the mock
+    // replacing real WebClient in BookService with mock
     try {
       var field = BookService.class.getDeclaredField("web");
       field.setAccessible(true);
@@ -54,15 +54,12 @@ class BookServiceTest {
       fail("Failed to inject WebClient mock");
     }
 
-    // Default WebClient chain setup for all tests
+    // default WebClient chain setup for all tests
     when(webClient.get()).thenReturn(uriSpec);
     when(uriSpec.uri(anyString())).thenReturn(headersSpec);
     when(headersSpec.retrieve()).thenReturn(responseSpec);
   }
 
-  // ----------------------------------------
-  // fetchAndStorePopularFiction (happy path)
-  // ----------------------------------------
   @Test
   void testFetchAndStorePopularFiction() {
     GoogleBooksDto dto = new GoogleBooksDto();
@@ -82,7 +79,6 @@ class BookServiceTest {
     item.volumeInfo = vi;
     dto.items = List.of(item);
 
-    // Mock repo and WebClient behavior
     when(repo.findByExternalId("id1")).thenReturn(Optional.empty());
     when(repo.save(any())).thenAnswer(i -> i.getArgument(0));
     when(responseSpec.bodyToMono(GoogleBooksDto.class))
@@ -98,9 +94,6 @@ class BookServiceTest {
     assertEquals("google_books", book.getSource());
   }
 
-  // ----------------------------------------
-  // dto.items == null
-  // ----------------------------------------
   @Test
   void testFetchAndStorePopularFiction_NullItems() {
     GoogleBooksDto dto = new GoogleBooksDto();
@@ -113,9 +106,6 @@ class BookServiceTest {
     assertTrue(result.isEmpty());
   }
 
-  // ----------------------------------------
-  // Upsert behaviour
-  // ----------------------------------------
   @Test
   void testUpsert_UpdatesWhenExists() {
     Book existing = Book.builder()
@@ -146,12 +136,8 @@ class BookServiceTest {
     assertEquals("New Author", result.get(0).getAuthor());
   }
 
-  // ----------------------------------------
-  // getAll()
-  // ----------------------------------------
   @Test
   void testGetAll() {
-    // Avoid NPE from fetchAndStorePopularFiction(50)
     when(responseSpec.bodyToMono(GoogleBooksDto.class)).thenReturn(Mono.empty());
     when(repo.findAll()).thenReturn(List.of(new Book()));
 
@@ -160,9 +146,6 @@ class BookServiceTest {
     assertEquals(1, result.size());
   }
 
-  // ----------------------------------------
-// getBooksByGenre()
-// ----------------------------------------
   @Test
   void testGetBooksByGenre() {
     List<Book> mockBooks = List.of(
@@ -179,10 +162,7 @@ class BookServiceTest {
     assertEquals("Psychological Thrillers", result.get(0).getGenre());
     verify(repo).findByGenreIgnoreCase("Psychological Thrillers");
   }
-  
-  // ----------------------------------------
-  // deleteBookById
-  // ----------------------------------------
+
   @Test
   void testDeleteBookById_Success() {
     when(repo.existsById(1L)).thenReturn(true);
@@ -202,10 +182,7 @@ class BookServiceTest {
     verify(repo, never()).deleteById(any());
     assertFalse(result);
   }
-
-  // ----------------------------------------
-  // secure() static helper
-  // ----------------------------------------
+  
   @Test
   void testSecure() throws Exception {
     var method = BookService.class.getDeclaredMethod("secure", String.class);

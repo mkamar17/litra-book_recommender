@@ -11,7 +11,7 @@ import '../styles/BookModal.css'
 export default function LandingPage() {
   const [books, setBooks] = useState([]);
 
-  //adding categories to display on homepage
+  // adding categories to display on homepage
 
   const [thrillerBooks, setThrillerBooks] = useState([]);
   const [fantasyBooks, setFantasyBooks] = useState([]);
@@ -19,11 +19,11 @@ export default function LandingPage() {
   const [booktokBooks, setBooktokBooks] = useState([]);
 
 
-  const [filteredBooks, setFilteredBooks] = useState([]); //to handle search filtering 
+  const [filteredBooks, setFilteredBooks] = useState([]); // to handle search filtering 
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null); 
 
-  //to handle selecting a book
+  // to handle selecting a book
   const [selectedBook, setSelectedBook] = useState(null);
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function LandingPage() {
 
     const normalizedQuery = normalize(query);
 
-    // If the query is empty, reset to main view
+    // if query is empty, reset to main view
     if (normalizedQuery === "") {
       setFilteredBooks([]);
       return;
@@ -94,7 +94,6 @@ export default function LandingPage() {
   const handleAddToLibrary = async (book) => {
     try {
       await api.post(`/library/add/${book.id}`);
-      alert(`"${book.title}" added to your library!`);
     } catch (err) {
       console.error("Error adding book:", err);
       alert("Failed to add book");
@@ -141,7 +140,7 @@ export default function LandingPage() {
     <div className="book-modal" onClick={(e) => e.stopPropagation()}>
     <div className="modal-content-row">
 
-{/* LEFT — book image + button */}
+{/* Book image and start reading  */}
 <div className="modal-left">
   <img src={selectedBook.coverUrl} className="modal-image"/>
 
@@ -153,7 +152,7 @@ export default function LandingPage() {
   </button>
 </div>
 
-{/* RIGHT — description truncated */}
+{/* Description */}
 <div className="modal-right">
   <p className="modal-description">
     {selectedBook.description
@@ -162,7 +161,7 @@ export default function LandingPage() {
   </p>
 </div>
 
-{/* CLOSE BUTTON */}
+{/* Close button */}
 <button className="modal-close-btn" onClick={() => setSelectedBook(null)}>✕</button>
 
 </div>

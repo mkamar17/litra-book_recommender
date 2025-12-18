@@ -8,8 +8,6 @@ export default function MyLibrary() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  //const email = localStorage.getItem("email");
-
   useEffect(() => {
     async function fetchLibrary() {
       try {

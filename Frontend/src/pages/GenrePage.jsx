@@ -74,7 +74,6 @@ export default function GenrePage() {
                 <p className="text-red-400 text-center mt-10">{error}</p>
               ) : (
                 <>
-                  {/* //<h1 className="text-3xl font-semibold mb-6">{selectedGenre}</h1> */}
                   <BookRow title={`${selectedGenre}`} books={books} />
                 </>
               )}

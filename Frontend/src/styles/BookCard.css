@@ -18,10 +18,10 @@
   }
   
   .book-card img {
-    width: 160px;          /* fixed width */
-    height: 240px;         /* fixed height */
-    object-fit: cover;     /* crops to fill nicely without stretching */
-    border-radius: 8px;    /* optional rounded corners */
+    width: 160px;         
+    height: 240px;        
+    object-fit: cover;     
+    border-radius: 8px;    
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
   

@@ -19,7 +19,7 @@ class JwtServiceTest {
   void setup() throws Exception {
     jwtService = new JwtService();
 
-    // Use reflection to set secret key
+    // setting secret key
     Field secretField = JwtService.class.getDeclaredField("secretKey");
     secretField.setAccessible(true);
 
@@ -72,12 +72,11 @@ class JwtServiceTest {
   void testTokenIsNotExpired() {
     String token = jwtService.generate("fay@example.com");
 
-    // Should be valid now
     assertFalse(tokenIsExpired(token));
   }
 
   /**
-   * Helper uses reflection to call private extractExpiration
+   * This helper method uses reflection to call private extractExpiration
    */
   private boolean tokenIsExpired(String token) {
     try {

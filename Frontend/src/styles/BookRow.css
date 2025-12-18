@@ -7,7 +7,7 @@ scroll-snap-type: x mandatory;
 }
 
 .book-row-container {
-    overflow: visible; /* make sure the row isn’t clipping top/bottom */
+    overflow: visible; 
     padding-top: 10px;
     padding-bottom: 10px;
   }
@@ -50,19 +50,18 @@ overflow: hidden;
   .swiper-button-prev,
 .swiper-button-next {
     opacity: 0.9;
-  color: #fff !important; /* changes arrow color */
-  fill: #fff !important;  /* some themes use fill */
+  color: #fff !important; 
+  fill: #fff !important; 
   stroke: #fff !important;
 }
 
 .swiper-button-prev:hover,
 .swiper-button-next:hover {
   opacity: 1;
-  transform: scale(1.15) translateY(-2px); /* rise up a bit */
+  transform: scale(1.15) translateY(-2px); 
 }
 
 .book-swiper-mask {
     position: relative;
-    /*overflow: hidden; /* hides both left and right overflow */
     overflow: visible !important;
   }

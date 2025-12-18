@@ -25,9 +25,6 @@ export default function BookCard({ book, onAddToLibrary, onStartReadin, onSelect
             )}
           </div>
 
-            {/* <button className="popup-add-btn" onClick={() => onAddToLibrary(book)}>+</button>
-          </div> */}
-
           <p className="popup-author">{book.author}</p>
 
           <p className="popup-description">
