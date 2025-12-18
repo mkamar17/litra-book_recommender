@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../styles/BookCard.css";
 
-export default function BookCard({ book, onAddToLibrary, onStartReading }) {
+export default function BookCard({ book, onAddToLibrary, onStartReadin, onSelectBook }) {
   const [showPopup, setShowPopup] = useState(false);
 
   const showAddButton = !!onAddToLibrary;
@@ -11,6 +11,7 @@ export default function BookCard({ book, onAddToLibrary, onStartReading }) {
       className="book-card"
       onMouseEnter={() => setShowPopup(true)}
       onMouseLeave={() => setShowPopup(false)}
+      onClick={() => onSelectBook(book)}
     >
       <img src={book.coverUrl} alt={book.title} className="book-cover" />
 
@@ -23,9 +24,6 @@ export default function BookCard({ book, onAddToLibrary, onStartReading }) {
               <button className="popup-add-btn" onClick={() => onAddToLibrary(book)}>+</button>
             )}
           </div>
-
-            {/* <button className="popup-add-btn" onClick={() => onAddToLibrary(book)}>+</button>
-          </div> */}
 
           <p className="popup-author">{book.author}</p>
 

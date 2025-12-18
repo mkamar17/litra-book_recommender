@@ -1,0 +1,80 @@
+.book-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  .book-modal {
+    background: #111;
+    padding: 30px;
+    border-radius: 14px;
+    width: 900px;
+    max-height: 80vh;
+    color: white;
+    text-align: left;
+    position: relative;
+
+  }
+  
+  .modal-image {
+    width: 200px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+  }
+  
+  .modal-title {
+    font-size: 26px;
+    font-weight: bold;
+  }
+  
+  .modal-author {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #bbb;
+  }
+  
+  .modal-description {
+    text-align: left;
+    line-height: 1.5;
+    margin: 15px 0;
+  }
+  
+  .modal-start-book-btn {
+    margin-top: 12px;
+    background: #b80000;
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    width: 50%;
+  }
+  
+  .modal-start-book-btn:hover {
+    opacity: 0.8;
+  }
+  
+  .modal-content-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+  }
+
+  .modal-left {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .modal-right {
+    width: 65%;
+    text-align: left;
+  }
+  

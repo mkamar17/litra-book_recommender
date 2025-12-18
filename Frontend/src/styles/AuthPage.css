@@ -19,8 +19,7 @@
     flex-direction: column;
     align-items: center;
   }
-  
-  /* ==== TITLE ABOVE CARD ==== */
+
   
   .auth-title {
     color: white;
@@ -30,7 +29,6 @@
     text-align: center;
   }
   
-  /* ==== CARD CONTAINER ==== */
   
   .auth-card {
     background: #081821;
@@ -43,7 +41,6 @@
     box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
   }
   
-  /* ==== FORM ==== */
   
   .auth-form {
     width: 100%;
@@ -52,7 +49,6 @@
     gap: 16px;
   }
   
-  /* ==== INPUTS ==== */
   
   .auth-form input {
     width: 100%;
@@ -68,7 +64,6 @@
     border-color: #e50914;
   }
   
-  /* ==== PRIMARY BUTTON ==== */
   
   .auth-button {
     background: #e50914;
@@ -84,7 +79,6 @@
     background: #f6121d;
   }
   
-  /* ==== OR DIVIDER ==== */
   
   .divider {
     color: #b3b3b3;
@@ -92,7 +86,6 @@
     font-weight: 500;
   }
   
-  /* ==== REGISTER BUTTON ==== */
   
   .register-button {
     background: transparent;
@@ -109,7 +102,6 @@
     color: white;
   }
   
-  /* ==== ERROR ==== */
   
   .error {
     color: #ff6b6b;
@@ -117,14 +109,13 @@
     font-size: 0.9rem;
   }
 
-  /* make the small helper text white */
+
 .helper-text {
     color: white;
     margin-top: 10px;
     font-size: 0.95rem;
   }
   
-  /* white text on outlined button */
   .secondary-button {
     background: transparent;
     border: 2px solid #e50914;

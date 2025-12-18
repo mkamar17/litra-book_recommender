@@ -6,11 +6,12 @@ import api from "../api/api.js";
 import BookRow from "../components/BookRow";
 import NavBar from "../components/NavBar.jsx"
 import '../App.css'
+import '../styles/BookModal.css'
 
 export default function LandingPage() {
   const [books, setBooks] = useState([]);
 
-  //adding categories to display on homepage
+  // adding categories to display on homepage
 
   const [thrillerBooks, setThrillerBooks] = useState([]);
   const [fantasyBooks, setFantasyBooks] = useState([]);
@@ -18,10 +19,17 @@ export default function LandingPage() {
   const [booktokBooks, setBooktokBooks] = useState([]);
 
 
-  const [filteredBooks, setFilteredBooks] = useState([]); //to handle search filtering 
+  const [filteredBooks, setFilteredBooks] = useState([]); // to handle search filtering 
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null); 
 
+  // to handle selecting a book
+  const [selectedBook, setSelectedBook] = useState(null);
+
+  useEffect(() => {
+    console.log("selectedBook changed:", selectedBook);
+  }, [selectedBook]);
+  
   useEffect(() => {
     async function fetchBooks() {
       try {
@@ -62,7 +70,7 @@ export default function LandingPage() {
 
     const normalizedQuery = normalize(query);
 
-    // If the query is empty, reset to main view
+    // if query is empty, reset to main view
     if (normalizedQuery === "") {
       setFilteredBooks([]);
       return;
@@ -86,7 +94,6 @@ export default function LandingPage() {
   const handleAddToLibrary = async (book) => {
     try {
       await api.post(`/library/add/${book.id}`);
-      alert(`"${book.title}" added to your library!`);
     } catch (err) {
       console.error("Error adding book:", err);
       alert("Failed to add book");
@@ -120,13 +127,48 @@ export default function LandingPage() {
         <BookRow title="Search Results" books={filteredBooks} />
       ) : (
         <>
-          <BookRow title="For You" books={books} onAddToLibrary={handleAddToLibrary} />
-          <BookRow title="BookTok Favourites" books={booktokBooks} onAddToLibrary={handleAddToLibrary} />
-          <BookRow title="Psychological Thrillers" books={thrillerBooks} onAddToLibrary={handleAddToLibrary}/>
-          <BookRow title="Fantasy & YA" books={fantasyBooks} onAddToLibrary={handleAddToLibrary}/>
-          <BookRow title="Modern Romance" books={romanceBooks} onAddToLibrary={handleAddToLibrary}/>
+          <BookRow title="For You" books={books} onAddToLibrary={handleAddToLibrary} onSelectBook={setSelectedBook}/>
+          <BookRow title="BookTok Favourites" books={booktokBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={setSelectedBook}/>
+          <BookRow title="Psychological Thrillers" books={thrillerBooks} onAddToLibrary={handleAddToLibrary}onSelectBook={setSelectedBook}/>
+          <BookRow title="Fantasy & YA" books={fantasyBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={setSelectedBook}/>
+          <BookRow title="Modern Romance" books={romanceBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={setSelectedBook}/>
         </>
       )}
+
+{selectedBook && (
+  <div className="book-modal-overlay" onClick={() => setSelectedBook(null)}>
+    <div className="book-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-content-row">
+
+{/* Book image and start reading  */}
+<div className="modal-left">
+  <img src={selectedBook.coverUrl} className="modal-image"/>
+
+  <button
+    className="modal-start-book-btn"
+    onClick={() => console.log("Start book:", selectedBook.id)}
+  >
+    Start Book
+  </button>
+</div>
+
+{/* Description */}
+<div className="modal-right">
+  <p className="modal-description">
+    {selectedBook.description
+      ? selectedBook.description.replace(/^(.{0,650}\b).*/, "$1") + "…"
+      : "No description available."}
+  </p>
+</div>
+
+{/* Close button */}
+<button className="modal-close-btn" onClick={() => setSelectedBook(null)}>✕</button>
+
+</div>
+    </div>
+  </div>
+)}
     </div>
     </div> );
+
 }

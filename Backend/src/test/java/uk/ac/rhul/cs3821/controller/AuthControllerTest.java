@@ -52,7 +52,6 @@ class AuthControllerTest {
   @MockitoBean
   private AppUserDetailsService uds;
 
-  // REGISTER success
   @Test
   void testRegisterSuccess() throws Exception {
     when(repo.existsByEmail("test@example.com")).thenReturn(false);
@@ -68,7 +67,7 @@ class AuthControllerTest {
     verify(repo, times(1)).save(any());
   }
 
-  // REGISTER email already exists
+  // email already exists
   @Test
   void testRegisterEmailTaken() throws Exception {
     when(repo.existsByEmail("test@example.com")).thenReturn(true);
@@ -81,8 +80,7 @@ class AuthControllerTest {
         .andExpect(status().isBadRequest())
         .andExpect(content().string("Email taken"));
   }
-
-  // LOGIN success
+  
   @Test
   void testLoginSuccess() throws Exception {
     Authentication mockAuth = mock(Authentication.class);

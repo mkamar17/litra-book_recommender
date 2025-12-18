@@ -52,7 +52,6 @@ public class JwtFilterTest {
     SecurityContextHolder.clearContext();
   }
 
-  // Should authenticate when token is valid
   @Test
   void shouldAuthenticateWithValidToken() throws ServletException, IOException {
 
@@ -72,7 +71,7 @@ public class JwtFilterTest {
     verify(chain, times(1)).doFilter(req, res);
   }
 
-  // Should NOT authenticate on missing Authorization header
+  // if Authorisation header is missing do not authenticate
   @Test
   void shouldSkipWhenNoAuthHeader() throws ServletException, IOException {
 
@@ -84,7 +83,6 @@ public class JwtFilterTest {
     verify(chain).doFilter(req, res);
   }
 
-  // Should skip when header is not Bearer
   @Test
   void shouldSkipWhenHeaderNotBearer() throws ServletException, IOException {
 
@@ -96,7 +94,6 @@ public class JwtFilterTest {
     verify(chain).doFilter(req, res);
   }
 
-  // Should skip when username = null
   @Test
   void shouldSkipWhenNoUsername() throws ServletException, IOException {
 
@@ -109,7 +106,6 @@ public class JwtFilterTest {
     verify(chain).doFilter(req, res);
   }
 
-  // Should not re-authenticate if already authenticated
   @Test
   void shouldSkipWhenAlreadyAuthenticated() throws ServletException, IOException {
 
@@ -122,14 +118,14 @@ public class JwtFilterTest {
 
     filter.doFilterInternal(req, res, chain);
 
-    // stays as "existing" authentication
+    // the user already exists
     assertEquals("existing", SecurityContextHolder.getContext()
         .getAuthentication().getPrincipal());
 
     verify(chain).doFilter(req, res);
   }
 
-  // Should skip on invalid token
+  // if the token is invalid...
   @Test
   void shouldSkipWhenTokenInvalid() throws ServletException, IOException {
 

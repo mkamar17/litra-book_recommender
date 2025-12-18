@@ -20,7 +20,7 @@ class AppUserDetailsServiceTest {
 
   @Test
   void testLoadUserByUsernameSuccess() {
-    // Arrange
+
     UserRepository repo = mock(UserRepository.class);
     AppUserDetailsService service = new AppUserDetailsService(repo);
 
@@ -31,10 +31,8 @@ class AppUserDetailsServiceTest {
 
     when(repo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
 
-    // Act
     UserDetails result = service.loadUserByUsername("test@example.com");
 
-    // Assert
     assertNotNull(result);
     assertEquals("test@example.com", result.getUsername());
     assertEquals("hashedpass", result.getPassword());
@@ -48,13 +46,12 @@ class AppUserDetailsServiceTest {
 
   @Test
   void testLoadUserByUsernameUserNotFound() {
-    // Arrange
+
     UserRepository repo = mock(UserRepository.class);
     AppUserDetailsService service = new AppUserDetailsService(repo);
 
     when(repo.findByEmail("missing@example.com")).thenReturn(Optional.empty());
-
-    // Act + Assert
+    
     assertThrows(UsernameNotFoundException.class,
         () -> service.loadUserByUsername("missing@example.com"));
 

@@ -8,7 +8,7 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow-x: hidden; /* stop right-side scrolling */
+  overflow-x: hidden;
   color: white;
 }
 
@@ -48,7 +48,6 @@ body {
   color: #888;
 }
 
-/* need to figure out how to get rid of the blue */
 nav a {
   color: white !important;
 }

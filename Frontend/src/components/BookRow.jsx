@@ -6,13 +6,13 @@ import "swiper/css/navigation";
 import BookCard from "./BookCard";
 import "../styles/BookRow.css";
 
-export default function BookRow({ title, books, onAddToLibrary }) {
+export default function BookRow({ title, books, onAddToLibrary, onSelectBook}) {
   const swiperRef = useRef(null);
   const observerRef = useRef(null);
   
 
   const setupObserver = (swiper) => {
-    // Disconnect old observer if it exists
+
     if (observerRef.current) observerRef.current.disconnect();
   
     const swiperEl = swiper.el;
@@ -26,7 +26,7 @@ export default function BookRow({ title, books, onAddToLibrary }) {
   
           // fade if partially visible on either edge
           if (ratio < 0.98) {
-            slide.style.opacity = 0.3 + ratio * 0.7; // smoothly fades 0.3 → 1
+            slide.style.opacity = 0.3 + ratio * 0.7; 
           } else {
             slide.style.opacity = 1;
           }
@@ -34,7 +34,7 @@ export default function BookRow({ title, books, onAddToLibrary }) {
       },
       {
         root: swiperEl.querySelector(".swiper-wrapper").parentElement,
-        rootMargin: "0px", // detect both edges accurately
+        rootMargin: "0px", 
         threshold: Array.from({ length: 21 }, (_, i) => i / 20),
       }
     );
@@ -88,7 +88,7 @@ export default function BookRow({ title, books, onAddToLibrary }) {
         >
           {books.map((book) => (
             <SwiperSlide key={book.id || book.externalId}>
-              <BookCard book={book} onAddToLibrary={onAddToLibrary} />
+              <BookCard book={book} onAddToLibrary={onAddToLibrary} onSelectBook={onSelectBook} />
             </SwiperSlide>
           ))}
         </Swiper>

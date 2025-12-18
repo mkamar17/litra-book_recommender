@@ -40,18 +40,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
     final String authHeader = req.getHeader("Authorization");
 
-    // 1. Check "Authorization: Bearer ..."
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
       final String token = authHeader.substring(7);
       final String username = jwt.extractUserName(token);
 
-      // 2. Must not already be authenticated
+      // check the user isn't already authenticated
       if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
         var userDetails = uds.loadUserByUsername(username);
 
-        // 3. Validate token
         if (jwt.validateToken(token, userDetails)) {
 
           var authToken = new UsernamePasswordAuthenticationToken(
@@ -64,13 +62,12 @@ public class JwtFilter extends OncePerRequestFilter {
               new WebAuthenticationDetailsSource().buildDetails(req)
           );
 
-          // 4. Set auth context
           SecurityContextHolder.getContext().setAuthentication(authToken);
         }
       }
     }
 
-    // 5. Continue filter chain
+    // continue the filter chain
     chain.doFilter(req, res);
   }
 }
