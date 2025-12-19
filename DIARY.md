@@ -156,3 +156,43 @@
 - Reflections:
 	- I tend to overwrite which is slowing my progress down a lot even though I have spent many hours working on the report this week 
 	- From now on, I am going to prioritise getting sections completed quicker, even if they are less thorough, and then focus on polishing and expanding if I have time left   
+	
+### 📅 24.11.25-28.11.25
+- What was achieved:
+	- This week I focused on progressing key development tasks, particularly around the My Library feature.
+	- Implemented backend support for adding books to a user’s My Library, including creating a new `user_library` table and updating the User model.
+	- Added a new `LibraryController` with token-based authentication and updated Spring Security to resolve a 403 error.
+	- Wrote and updated JUnit tests to reflect the new secure logic.
+	- On the frontend, made the Add to My Library button functional and improved hover behaviour on book cards.
+	- Merged completed feature branches into main and carried out minor code clean-up.
+- Next steps:
+	- Implement Start Reading functionality for books in My Library.
+	- Continue working on the report.
+- Reflections:
+	- Returning to development this week felt productive after focusing heavily on the report previously.
+	- Working across backend, security, and frontend showed the complexity of full-stack features so I aim to maintain this momentum without overcomplicating implementations.
+
+### 📅 01.12.25-05.12.25
+- What was achieved: 
+	- Prepared for supervisor meeting by completing as much of the report as possible
+	- I completed my first drafts of all sections (including bullet points to make sure I had at least something each section)
+	- I only left the literature review blank I was still unsure how to do it
+	- Final supervisor meeting where all misunderstandings with the report were clarified, also product progress was evaluated
+- Next steps:
+	- Work on improving my current report 
+	- Try to complete the Start Reading functionality 
+- Reflections:
+	- By this stage I was very mentally drained and it was becoming much harder to continue working on the project as it reached the end of the term and I wanted to spend time with friends before the holiday 
+	- However, I still tried my best and my confidence with the report increased even though the sections weren't final, they were no longer empty 
+
+### 📅 08.12.25-12.12.25
+- What was achieved:
+	- I decided to get the 5-day extension as I had a machine learning assignment which I had to prioritise so very minimal progress on the report and development
+
+### 📅 15.12.25-19.12.25
+- What was achieved: 
+	- Completed the report, retrospective and demo video for the interim submission
+	- Cleaned up existing code and submitted zip file
+- Reflections:
+	- I do want to continue working on my project over the holiday as I feel I can do a lot more with the product but I struggled a lot with the time management and multitasking 
+	- This was definitely the most challenging academic piece of work I have had to do but I have grown a lot from it and I feel much better prepared for next term as I know what worked and what didn't.
