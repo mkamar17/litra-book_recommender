@@ -12,13 +12,13 @@ cache:
 build:
   stage: build
   script:
-    - cd Backend
+    - cd product/Backend
     - mvn compile
 
 test:
   stage: test
   script:
-    - cd Backend
+    - cd product/Backend
     - mvn test -Dspring.profiles.active=ci
   artifacts:
     paths:
@@ -29,17 +29,17 @@ jacoco:
   dependencies:
     - test
   script:
-    - cd Backend
+    - cd product/Backend
     - mvn verify -Dspring.profiles.active=ci
 
 checkstyle:
   stage: checkstyle
   script:
-    - cd Backend
+    - cd product/Backend
     - mvn checkstyle:check
 
 spotbugs:
   stage: spotbugs
   script:
-    - cd Backend
+    - cd product/Backend
     - mvn spotbugs:check
