@@ -5,6 +5,7 @@ import "swiper/css/effect-fade";
 import api from "../api/api.js";
 import BookRow from "../components/BookRow";
 import NavBar from "../components/NavBar.jsx"
+import ReadingTimer from "../components/ReadingTimer";
 import '../App.css'
 import '../styles/BookModal.css'
 
@@ -25,6 +26,10 @@ export default function LandingPage() {
 
   // to handle selecting a book
   const [selectedBook, setSelectedBook] = useState(null);
+
+  // to handle starting a reading session
+  const [isReading, setIsReading] = useState(false);
+
 
   useEffect(() => {
     console.log("selectedBook changed:", selectedBook);
@@ -136,7 +141,7 @@ export default function LandingPage() {
       )}
 
 {selectedBook && (
-  <div className="book-modal-overlay" onClick={() => setSelectedBook(null)}>
+  <div className="book-modal-overlay" onClick={() => {setSelectedBook(null); setIsReading(false)}}>
     <div className="book-modal" onClick={(e) => e.stopPropagation()}>
     <div className="modal-content-row">
 
@@ -146,10 +151,20 @@ export default function LandingPage() {
 
   <button
     className="modal-start-book-btn"
-    onClick={() => console.log("Start book:", selectedBook.id)}
+    onClick={() => setIsReading(true)}
   >
     Start Book
   </button>
+
+  {isReading && selectedBook && (
+  <ReadingTimer
+    bookId={selectedBook.id}
+    title={selectedBook.title}
+    coverUrl={selectedBook.coverUrl}
+    onClose={() => setIsReading(false)}
+  />
+)}
+
 </div>
 
 {/* Description */}
@@ -162,7 +177,7 @@ export default function LandingPage() {
 </div>
 
 {/* Close button */}
-<button className="modal-close-btn" onClick={() => setSelectedBook(null)}>✕</button>
+<button className="modal-close-btn" onClick={() => {setSelectedBook(null); setIsReading(false);}}>✕</button>
 
 </div>
     </div>
