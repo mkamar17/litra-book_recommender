@@ -52,7 +52,11 @@ public class ReadingSessionController {
    */
 
   @PostMapping("/end/{sessionId}")
-  public ReadingSession end(@PathVariable Long sessionId) {
-    return service.endSession(sessionId);
+  public ReadingSession end(
+      @PathVariable Long sessionId,
+      @AuthenticationPrincipal User user
+  ) {
+    return service.endSession(sessionId, user);
   }
+
 }

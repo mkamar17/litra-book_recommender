@@ -65,15 +65,22 @@ public class ReadingSessionService {
   }
 
   /**
-   * Small wrapper method that accepts sessionID to load the session.
+   * Small wrapper method that accepts sessionID and user.
    *
    * @param sessionId accepted
+   * @param user      to represent the authenticated user
    * @return the session
    */
-  public ReadingSession endSession(Long sessionId) {
+  public ReadingSession endSession(Long sessionId, User user) {
     ReadingSession session = sessionRepo.findById(sessionId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+    // 🔐 Authorization check
+    if (!session.getUser().getId().equals(user.getId())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
+
     return endSession(session);
   }
+
 }

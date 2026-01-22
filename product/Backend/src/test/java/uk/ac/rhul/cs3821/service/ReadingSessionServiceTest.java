@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.ReadingSession;
 import uk.ac.rhul.cs3821.model.User;
@@ -15,6 +16,7 @@ import uk.ac.rhul.cs3821.repository.ReadingSessionRepository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
@@ -110,4 +112,50 @@ class ReadingSessionServiceTest {
 
     verify(sessionRepository).save(session);
   }
+
+  /**
+   * Testing that the owner of the reading session can end the session.
+   */
+  @Test
+  void endSessionById_allowsOwner() {
+    ReadingSession session = ReadingSession.builder()
+        .id(10L)
+        .user(user)
+        .book(book)
+        .startTime(Instant.now().minusSeconds(300))
+        .build();
+
+    when(sessionRepository.findById(10L)).thenReturn(Optional.of(session));
+    when(sessionRepository.save(any())).thenReturn(session);
+
+    ReadingSession result =
+        readingSessionService.endSession(10L, user);
+
+    assertNotNull(result.getEndTime());
+    assertNotNull(result.getDurationSeconds());
+  }
+
+  /**
+   * Testing that unauthorised user cannot end reading session.
+   */
+  @Test
+  void endSessionById_throwsForbidden_whenUserIsNotOwner() {
+    User otherUser = new User();
+    otherUser.setId(99L);
+
+    ReadingSession session = ReadingSession.builder()
+        .id(10L)
+        .user(user) // owned by original user
+        .book(book)
+        .startTime(Instant.now().minusSeconds(300))
+        .build();
+
+    when(sessionRepository.findById(10L)).thenReturn(Optional.of(session));
+
+    assertThrows(ResponseStatusException.class, () ->
+        readingSessionService.endSession(10L, otherUser)
+    );
+  }
+
+
 }

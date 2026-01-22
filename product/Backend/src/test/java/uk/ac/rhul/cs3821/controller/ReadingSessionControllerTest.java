@@ -89,13 +89,19 @@ class ReadingSessionControllerTest {
   }
 
   @Test
+  @WithMockUser
   void endSession_success() throws Exception {
     ReadingSession session = new ReadingSession();
     session.setId(1L);
 
-    when(readingSessionService.endSession(1L)).thenReturn(session);
+    when(readingSessionService.endSession(eq(1L), any()))
+        .thenReturn(session);
 
     mockMvc.perform(post("/api/reading-sessions/end/{id}", 1L))
         .andExpect(status().isOk());
+
+    verify(readingSessionService)
+        .endSession(eq(1L), any());
   }
+
 }
