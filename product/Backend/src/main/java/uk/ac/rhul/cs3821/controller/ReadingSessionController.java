@@ -1,11 +1,13 @@
 package uk.ac.rhul.cs3821.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.ReadingSession;
 import uk.ac.rhul.cs3821.model.User;
@@ -37,7 +39,8 @@ public class ReadingSessionController {
       @PathVariable Long bookId,
       @AuthenticationPrincipal User user
   ) {
-    Book book = bookRepo.findById(bookId).orElseThrow();
+    Book book = bookRepo.findById(bookId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    ;
     return service.startSession(user, book);
   }
 
@@ -50,7 +53,6 @@ public class ReadingSessionController {
 
   @PostMapping("/end/{sessionId}")
   public ReadingSession end(@PathVariable Long sessionId) {
-    // session lookup omitted for brevity
-    return null;
+    return service.endSession(sessionId);
   }
 }

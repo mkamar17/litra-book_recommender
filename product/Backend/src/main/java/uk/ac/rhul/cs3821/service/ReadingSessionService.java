@@ -3,7 +3,9 @@ package uk.ac.rhul.cs3821.service;
 import java.time.Duration;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.ReadingSession;
 import uk.ac.rhul.cs3821.model.User;
@@ -60,5 +62,18 @@ public class ReadingSessionService {
     );
 
     return sessionRepo.save(session);
+  }
+
+  /**
+   * Small wrapper method that accepts sessionID to load the session.
+   *
+   * @param sessionId accepted
+   * @return the session
+   */
+  public ReadingSession endSession(Long sessionId) {
+    ReadingSession session = sessionRepo.findById(sessionId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    return endSession(session);
   }
 }
