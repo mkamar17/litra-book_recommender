@@ -1,17 +1,18 @@
 package uk.ac.rhul.cs3821.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.ReadingSession;
 import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.repository.BookRepository;
+import uk.ac.rhul.cs3821.repository.UserRepository;
 import uk.ac.rhul.cs3821.service.ReadingSessionService;
 
 /**
@@ -24,8 +25,9 @@ import uk.ac.rhul.cs3821.service.ReadingSessionService;
 @RequiredArgsConstructor
 public class ReadingSessionController {
 
-  private final ReadingSessionService service;
+  private final ReadingSessionService readingSessionService;
   private final BookRepository bookRepo;
+  private final UserRepository userRepository;
 
   /**
    * Starts a new reading session for the authenticated user and given book.
@@ -34,15 +36,31 @@ public class ReadingSessionController {
    * @return the created reading session
    */
 
+//  @PostMapping("/start/{bookId}")
+//  public ReadingSession start(
+//      @PathVariable Long bookId,
+//      @AuthenticationPrincipal User user
+//  ) {
+//    Book book = bookRepo.findById(bookId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+//    ;
+//    return service.startSession(user, book);
+//  }
   @PostMapping("/start/{bookId}")
-  public ReadingSession start(
-      @PathVariable Long bookId,
-      @AuthenticationPrincipal User user
-  ) {
-    Book book = bookRepo.findById(bookId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    ;
-    return service.startSession(user, book);
+  public ReadingSession start(@PathVariable Long bookId) {
+
+    Authentication auth =
+        SecurityContextHolder.getContext().getAuthentication();
+
+    String email = auth.getName();
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+    Book book = bookRepo.findById(bookId)
+        .orElseThrow(() -> new RuntimeException("Book not found"));
+
+    return readingSessionService.startSession(user, book);
   }
+
 
   /**
    * Ends an existing reading session.
@@ -56,7 +74,15 @@ public class ReadingSessionController {
       @PathVariable Long sessionId,
       @AuthenticationPrincipal User user
   ) {
-    return service.endSession(sessionId, user);
+    Authentication auth =
+        SecurityContextHolder.getContext().getAuthentication();
+
+    String email = auth.getName();
+
+    user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+    return readingSessionService.endSession(sessionId, user);
   }
 
 }
