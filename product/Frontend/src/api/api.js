@@ -14,4 +14,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+export const startReadingSession = async (bookId) => {
+  const res = await api.post(`/reading-sessions/start/${bookId}`);
+  return res.data;
+};
+
+export const endReadingSession = async (sessionId) => {
+  await api.post(`/reading-sessions/end/${sessionId}`);
+};
 export default api;

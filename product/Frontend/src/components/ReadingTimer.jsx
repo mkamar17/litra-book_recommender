@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   startReadingSession,
   endReadingSession
-} from "../api/api";
+} from "../api/api.js";
 
 /**
  * Popup modal component that displays a live reading timer and synchronises reading sessions with the backend.
