@@ -122,9 +122,18 @@ public class ReadingSessionController {
 
     Book book = bookRepo.findById(bookId).orElseThrow();
 
-    if (progressRepo.findByUserAndBook(user, book).isPresent()) {
+//    if (progressRepo.findByUserAndBook(user, book).isPresent()) {
+//      return;
+//    }
+
+    Optional<UserBookProgress> existing = progressRepo.findByUserAndBook(user, book);
+
+    if (existing.isPresent()) {
+      System.out.println("Progress already exists! Current page: " + existing.get().getCurrentPage());
       return;
     }
+
+    System.out.println("Creating new progress for book " + bookId + " with " + totalPages + " pages");
 
     progressRepo.save(UserBookProgress.builder()
         .user(user)
@@ -132,6 +141,9 @@ public class ReadingSessionController {
         .totalPages(totalPages)
         .currentPage(0)
         .build());
+
+    System.out.println("Progress saved successfully!");
   }
+
 
 }

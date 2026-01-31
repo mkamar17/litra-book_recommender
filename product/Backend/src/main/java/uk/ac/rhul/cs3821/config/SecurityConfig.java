@@ -58,7 +58,7 @@ public class SecurityConfig {
             .requestMatchers("/v3/api-docs/**").permitAll()
             .requestMatchers("/api/books", "/api/books/**").permitAll()
             .requestMatchers("/api/library/**").permitAll()
-            .requestMatchers("/api/reading-sessions/**").authenticated()
+            //.requestMatchers("/api/reading-sessions/**").permitAll()
             .anyRequest().authenticated()
         )
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
