@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -143,6 +144,70 @@ public class ReadingSessionController {
         .build());
 
     System.out.println("Progress saved successfully!");
+  }
+
+//  /**
+//   * Fetches current progress on a book.
+//   *
+//   * @param bookId the unique book id.
+//   * @return the current progress, if it exists.
+//   */
+//  @GetMapping("/progress/{bookId}")
+//  public ResponseEntity<?> getProgress(@PathVariable Long bookId) {
+//
+//    Authentication auth =
+//        SecurityContextHolder.getContext().getAuthentication();
+//
+//    String email = auth.getName();
+//
+//    User user = userRepository.findByEmail(email)
+//        .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//    Book book = bookRepo.findById(bookId)
+//        .orElseThrow(() -> new RuntimeException("Book not found"));
+
+//    return readingSessionService
+//        .getProgress(user, book)
+//        .map(progress -> ResponseEntity.ok(Map.of(
+//            "current_page", progress.getCurrentPage(),
+//            "total_pages", progress.getTotalPages()
+//        )))
+//        .orElse(ResponseEntity.noContent().build());
+//    UserBookProgress progress = readingSessionService
+//        .getProgress(user, book)
+//        .orElse(null);
+//
+//    if (progress == null) {
+//      return ResponseEntity.ok(Map.of(
+//          "current_page", 0,
+//          "total_pages", 0
+//      ));
+//    }
+//
+//    return ResponseEntity.ok(Map.of(
+//        "current_page", progress.getCurrentPage(),
+//        "total_pages", progress.getTotalPages()
+//    ));
+//  }
+
+  @GetMapping("/progress/{bookId}")
+  public ResponseEntity<?> getProgress(
+      @PathVariable Long bookId,
+      @AuthenticationPrincipal User user
+  ) {
+    Book book = bookRepo.findById(bookId)
+        .orElseThrow(() -> new RuntimeException("Book not found"));
+
+    return readingSessionService
+        .getProgress(user, book)
+        .map(progress -> ResponseEntity.ok(Map.of(
+            "current_page", progress.getCurrentPage(),
+            "total_pages", progress.getTotalPages()
+        )))
+        .orElse(ResponseEntity.ok(Map.of(
+            "current_page", 0,
+            "total_pages", 0
+        )));
   }
 
 
