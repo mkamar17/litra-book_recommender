@@ -21,13 +21,14 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
   const [sessionId, setSessionId] = useState(null);
 
   const intervalRef = useRef(null);
+  const sessionEndedRef = useRef(false);
+
   const [showTotalPagesPrompt, setShowTotalPagesPrompt] = useState(false);
   const [totalPages, setTotalPages] = useState("");
 
   const [showPageReachedPrompt, setShowPageReachedPrompt] = useState(false);
   const [pageReached, setPageReached] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-
 
   /* Timer logic */
   useEffect(() => {
@@ -37,15 +38,6 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
     }, 1000);
     return () => clearInterval(intervalRef.current);
   }, [running]);
-
-  /* Cleanup on unmount */
-  useEffect(() => {
-    return () => {
-      if (sessionId) {
-        endReadingSession(sessionId);
-      }
-    };
-  }, [sessionId]);
 
   const formatTime = (totalSeconds) => {
     const h = Math.floor(totalSeconds / 3600);
@@ -88,8 +80,17 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
 
   const handleFinishSession = async () => {
     try {
-      await updatePageReached(sessionId, pageReached);
+      console.log("Ending session with pageReached:", pageReached); // ← Debug log
       
+      if (!pageReached || pageReached === "") {
+        alert("Please enter the page you reached");
+        return;
+      }
+      
+      await updatePageReached(sessionId, Number(pageReached));
+      
+      sessionEndedRef.current = true;
+      setRunning(false);
       setSessionId(null);
       setSeconds(0);
       setShowPageReachedPrompt(false);
@@ -99,6 +100,19 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
       console.error("Error finishing session:", error);
     }
   };
+
+  useEffect(() => {
+    async function fetchProgress() {
+      try {
+        const res = await api.get(`/reading-sessions/progress/${book.id}`);
+        setProgress(res.data);
+      } catch (err) {
+        // No progress yet → do nothing
+      }
+    }
+  
+    fetchProgress();
+  }, [book.id]);
 
   return (
     <>
