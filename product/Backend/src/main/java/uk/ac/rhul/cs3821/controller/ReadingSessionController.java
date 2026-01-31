@@ -97,6 +97,15 @@ public class ReadingSessionController {
     return readingSessionService.endSession(sessionId, user, pageReached);
   }
 
+  /**
+   * Creates a new reading progress record for the authenticated user and a given book.
+   * A new progress entry is created with the current page initialised to 0.
+   *
+   * @param bookId     the ID of the book for which progress is being created
+   * @param user       the authenticated user
+   * @param totalPages the total number of pages in the book
+   */
+
   @PostMapping("/progress/{bookId}")
   public void createProgress(
       @PathVariable Long bookId,
@@ -110,7 +119,7 @@ public class ReadingSessionController {
 
     user = userRepository.findByEmail(email)
         .orElseThrow(() -> new RuntimeException("User not found"));
-    
+
     Book book = bookRepo.findById(bookId).orElseThrow();
 
     if (progressRepo.findByUserAndBook(user, book).isPresent()) {

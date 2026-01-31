@@ -12,21 +12,23 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.ReadingSession;
 import uk.ac.rhul.cs3821.model.User;
+import uk.ac.rhul.cs3821.model.UserBookProgress;
 import uk.ac.rhul.cs3821.repository.BookRepository;
+import uk.ac.rhul.cs3821.repository.UserBookProgressRepository;
+import uk.ac.rhul.cs3821.repository.UserRepository;
 import uk.ac.rhul.cs3821.service.AppUserDetailsService;
 import uk.ac.rhul.cs3821.service.JwtService;
 import uk.ac.rhul.cs3821.service.ReadingSessionService;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ReadingSessionController.class)
-@AutoConfigureMockMvc(addFilters = false) // disables JWT/security filters
+@AutoConfigureMockMvc(addFilters = false)
 class ReadingSessionControllerTest {
 
   @Autowired
@@ -39,21 +41,35 @@ class ReadingSessionControllerTest {
   private BookRepository bookRepository;
 
   @MockitoBean
+  private UserRepository userRepository;
+
+  @MockitoBean
+  private UserBookProgressRepository progressRepository;
+
+  @MockitoBean
   private JwtService jwtService;
 
   @MockitoBean
   private AppUserDetailsService uds;
 
-  @Test
-  @WithMockUser
-  void startSession_returnsCreatedReadingSession() throws Exception {
-
-    Long bookId = 1L;
-    Book book = new Book();
-    book.setId(bookId);
-
+  private User createUser() {
     User user = new User();
-    user.setId(10L);
+    user.setId(1L);
+    user.setEmail("test@example.com");
+    return user;
+  }
+
+  private Book createBook(Long id) {
+    Book book = new Book();
+    book.setId(id);
+    return book;
+  }
+
+  @Test
+  @WithMockUser(username = "test@example.com")
+  void startSession_returnsSessionAndProgressInfo() throws Exception {
+    User user = createUser();
+    Book book = createBook(1L);
 
     ReadingSession session = ReadingSession.builder()
         .id(100L)
@@ -62,46 +78,91 @@ class ReadingSessionControllerTest {
         .startTime(Instant.now())
         .build();
 
-    when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
-    when(readingSessionService.startSession(any(), eq(book)))
+    UserBookProgress progress = UserBookProgress.builder()
+        .user(user)
+        .book(book)
+        .currentPage(20)
+        .build();
+
+    when(userRepository.findByEmail(user.getEmail()))
+        .thenReturn(Optional.of(user));
+    when(bookRepository.findById(1L))
+        .thenReturn(Optional.of(book));
+    when(readingSessionService.getProgress(user, book))
+        .thenReturn(Optional.of(progress));
+    when(readingSessionService.startSession(user, book))
         .thenReturn(session);
 
-    mockMvc.perform(post("/api/reading-sessions/start/{bookId}", bookId))
+    mockMvc.perform(post("/api/reading-sessions/start/{bookId}", 1L))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(100L));
-
-    verify(bookRepository).findById(bookId);
-    verify(readingSessionService).startSession(any(), eq(book));
+        .andExpect(jsonPath("$.sessionId").value(100L))
+        .andExpect(jsonPath("$.hasProgress").value(true))
+        .andExpect(jsonPath("$.currentPage").value(20));
   }
 
   @Test
-  void startSession_throwsException_whenBookDoesNotExist() throws Exception {
-
-    Long bookId = 99L;
-    when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
-
-
-    mockMvc.perform(post("/api/reading-sessions/start/{bookId}", bookId))
-        .andExpect(status().isNotFound());
-
-    verify(bookRepository).findById(bookId);
-    verifyNoInteractions(readingSessionService);
-  }
-
-  @Test
-  @WithMockUser
+  @WithMockUser(username = "test@example.com")
   void endSession_success() throws Exception {
+    User user = createUser();
     ReadingSession session = new ReadingSession();
     session.setId(1L);
 
-    when(readingSessionService.endSession(eq(1L), any()))
+    when(userRepository.findByEmail(user.getEmail()))
+        .thenReturn(Optional.of(user));
+    when(readingSessionService.endSession(1L, user, 50))
         .thenReturn(session);
 
-    mockMvc.perform(post("/api/reading-sessions/end/{id}", 1L))
+    mockMvc.perform(
+            post("/api/reading-sessions/end/{sessionId}", 1L)
+                .param("pageReached", "50")
+        )
         .andExpect(status().isOk());
 
     verify(readingSessionService)
-        .endSession(eq(1L), any());
+        .endSession(1L, user, 50);
   }
 
+  @Test
+  @WithMockUser(username = "test@example.com")
+  void createProgress_createsNewProgress_whenNoneExists() throws Exception {
+    User user = createUser();
+    Book book = createBook(2L);
+
+    when(userRepository.findByEmail(user.getEmail()))
+        .thenReturn(Optional.of(user));
+    when(bookRepository.findById(2L))
+        .thenReturn(Optional.of(book));
+    when(progressRepository.findByUserAndBook(user, book))
+        .thenReturn(Optional.empty());
+
+    mockMvc.perform(
+            post("/api/reading-sessions/progress/{bookId}", 2L)
+                .param("totalPages", "300")
+        )
+        .andExpect(status().isOk());
+
+    verify(progressRepository).save(any(UserBookProgress.class));
+  }
+
+  @Test
+  @WithMockUser(username = "test@example.com")
+  void createProgress_doesNothing_whenProgressAlreadyExists() throws Exception {
+    User user = createUser();
+    Book book = createBook(2L);
+
+    when(userRepository.findByEmail(user.getEmail()))
+        .thenReturn(Optional.of(user));
+    when(bookRepository.findById(2L))
+        .thenReturn(Optional.of(book));
+    when(progressRepository.findByUserAndBook(user, book))
+        .thenReturn(Optional.of(new UserBookProgress()));
+
+    mockMvc.perform(
+            post("/api/reading-sessions/progress/{bookId}", 2L)
+                .param("totalPages", "300")
+        )
+        .andExpect(status().isOk());
+
+    verify(progressRepository, never()).save(any());
+  }
 }
