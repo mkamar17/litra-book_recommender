@@ -27,7 +27,7 @@ export default function AuthPage() {
       const data = await res.json();
       localStorage.setItem("token", data.token);
 
-      navigate("/home"); // redirect home
+      navigate("/home"); 
     } catch (err) {
       setError(err.message);
     }

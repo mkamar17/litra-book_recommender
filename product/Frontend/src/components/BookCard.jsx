@@ -31,7 +31,6 @@ export default function BookCard({ book, onAddToLibrary, onSelectBook, refreshPr
         totalPages: res.total_pages,
       });
     } catch (err) {
-      // No progress yet → do nothing
     }
   }
 

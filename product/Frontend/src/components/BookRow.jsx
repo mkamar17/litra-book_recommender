@@ -47,11 +47,8 @@ export default function BookRow({ title, books, onAddToLibrary, onSelectBook, re
   useEffect(() => {
     const swiper = swiperRef.current;
     if (!swiper) return;
-
-    // Run once initially
     setupObserver(swiper);
-
-    // Re-run on every navigation / slide change
+    
     swiper.on("slideChangeTransitionEnd", () => setupObserver(swiper));
     swiper.on("resize", () => setupObserver(swiper));
 

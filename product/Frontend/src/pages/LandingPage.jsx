@@ -23,14 +23,6 @@ export default function LandingPage() {
   const [readingBook, setReadingBook] = useState(null);
   const [refreshProgress, setRefreshProgress] = useState(0);
   const [continueBooks, setContinueBooks] = useState([]);
-
-  useEffect(() => {
-    console.log("selectedBook changed:", selectedBook);
-  }, [selectedBook]);
-
-  useEffect(() => {
-    console.log("readingBook changed:", readingBook);
-  }, [readingBook]);
   
   useEffect(() => {
     async function fetchBooks() {
@@ -113,13 +105,11 @@ export default function LandingPage() {
     try {
       await api.post(`/library/add/${book.id}`);
     } catch (err) {
-      console.error("Error adding book:", err);
       alert("Failed to add book");
     }
   };
 
   const handleSelectBook = (book) => {
-    // Don't allow selecting a new book if already in a reading session
     if (readingBook) {
       console.log("Already in reading session");
       return;
@@ -164,7 +154,6 @@ export default function LandingPage() {
         )}
       </div>
 
-      {/* Book Modal - Keep this separate */}
       {selectedBook && !readingBook && (
         <div
           className="book-modal-overlay"
@@ -209,16 +198,14 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* Reading Timer - Render at top level */}
       {readingBook && (
         <ReadingTimer
           bookId={readingBook.id}
           title={readingBook.title}
           coverUrl={readingBook.coverUrl}
           onClose={() => {
-            console.log("Closing reading session");
             setReadingBook(null);
-            setRefreshProgress(prev => prev + 1); // ← Add this
+            setRefreshProgress(prev => prev + 1); 
           }}
         />
       )}

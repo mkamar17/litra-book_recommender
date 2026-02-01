@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   startReadingSession,
-  endReadingSession,
   setBookProgress,
   updatePageReached,
 } from "../api/api.js";
@@ -30,7 +29,6 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
   const [pageReached, setPageReached] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  /* Timer logic */
   useEffect(() => {
     if (!running) return;
     intervalRef.current = setInterval(() => {
@@ -46,14 +44,13 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
     return [h, m, s].map(v => String(v).padStart(2, "0")).join(":");
   };
 
-  /* Actions */
   const handleStart = async () => {
     if (running || sessionId) return;
     const res = await startReadingSession(bookId);
     
     if (!res.hasProgress) {
       setShowTotalPagesPrompt(true);
-      setSessionId(res.sessionId); // Store the session ID
+      setSessionId(res.sessionId); 
     } else {
       setSessionId(res.sessionId);
       setRunning(true);
@@ -80,8 +77,6 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
 
   const handleFinishSession = async () => {
     try {
-      console.log("Ending session with pageReached:", pageReached); // ← Debug log
-      
       if (!pageReached || pageReached === "") {
         alert("Please enter the page you reached");
         return;
@@ -103,13 +98,11 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
 
   return (
     <>
-      {/* Dialog for total pages - OUTSIDE main container */}
       <Dialog open={showTotalPagesPrompt} handler={() => setShowTotalPagesPrompt(false)}>
         <DialogHeader>Total pages in this book</DialogHeader>
         <DialogBody>
           <Input
             type="number"
-            //label="Total Pages"
             min="1"
             value={totalPages}
             onChange={(e) => setTotalPages(e.target.value)}
@@ -122,13 +115,11 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
         </DialogFooter>
       </Dialog>
 
-      {/* Dialog for page reached - OUTSIDE main container */}
       <Dialog open={showPageReachedPrompt} handler={() => setShowPageReachedPrompt(false)}>
         <DialogHeader>What page did you reach?</DialogHeader>
         <DialogBody>
           <Input
             type="number"
-            //label="Page Reached"
             min={currentPage}
             max={totalPages || undefined}
             value={pageReached}
@@ -142,7 +133,6 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
         </DialogFooter>
       </Dialog>
 
-      {/* Main timer overlay */}
       <div
         style={{
           position: 'fixed',
