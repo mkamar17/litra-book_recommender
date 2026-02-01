@@ -25,6 +25,7 @@ public class ReadingSessionService {
 
   private final ReadingSessionRepository sessionRepo;
   private final UserBookProgressRepository progressRepo;
+  private final GamificationService gamificationService;
 
   /**
    * Method handles starting new reading session.
@@ -82,7 +83,7 @@ public class ReadingSessionService {
     if (!session.getUser().getId().equals(user.getId())) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    
+
     Book book = session.getBook();
 
     UserBookProgress progress = progressRepo
@@ -97,8 +98,12 @@ public class ReadingSessionService {
       throw new IllegalArgumentException("Page exceeds total pages");
     }
 
+    int pagesReadThisSession = pageReached - progress.getCurrentPage();
+
     progress.setCurrentPage(pageReached);
     progressRepo.save(progress);
+
+    gamificationService.awardPointsForSession(user, pagesReadThisSession);
 
     return endSession(session);
   }
