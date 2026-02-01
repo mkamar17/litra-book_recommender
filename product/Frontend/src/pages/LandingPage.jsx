@@ -6,6 +6,7 @@ import api from "../api/api.js";
 import BookRow from "../components/BookRow";
 import NavBar from "../components/NavBar.jsx"
 import ReadingTimer from "../components/ReadingTimer";
+import { getAllProgress } from "../api/api.js";
 import '../App.css'
 import '../styles/BookModal.css'
 
@@ -21,6 +22,7 @@ export default function LandingPage() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [readingBook, setReadingBook] = useState(null);
   const [refreshProgress, setRefreshProgress] = useState(0);
+  const [continueBooks, setContinueBooks] = useState([]);
 
   useEffect(() => {
     console.log("selectedBook changed:", selectedBook);
@@ -56,6 +58,26 @@ export default function LandingPage() {
 
     fetchBooks();
   }, []);
+
+  useEffect(() => { async function fetchContinueBooks() {
+      try {
+        const progressList = await getAllProgress();
+
+        const booksInProgress = progressList
+          .filter(p => p.currentPage > 0 && p.currentPage < p.totalPages)
+          .map(p => books.find(b => b.id === p.book.id))
+          .filter(Boolean)
+
+        setContinueBooks(booksInProgress);
+      } catch (err) {
+        console.error("Failed to fetch continue books: ", err);
+      }
+  }
+    if (books.length > 0) {
+      fetchContinueBooks();
+    }
+
+  }, [books, refreshProgress]);
 
   const normalize = (str) =>
     str
@@ -130,6 +152,9 @@ export default function LandingPage() {
           <BookRow title="Search Results" books={filteredBooks} onSelectBook={handleSelectBook} />
         ) : (
           <>
+            {continueBooks.length > 0 && (
+              <BookRow title="Continue Reading" books={continueBooks} onSelectBook={handleSelectBook} refreshProgress={refreshProgress} />
+            )}
             <BookRow title="For You" books={books} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
             <BookRow title="BookTok Favourites" books={booktokBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
             <BookRow title="Psychological Thrillers" books={thrillerBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
@@ -200,5 +225,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-

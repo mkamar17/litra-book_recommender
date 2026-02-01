@@ -35,6 +35,11 @@ export const getBookProgress = async (bookId) => {
   return res.data;
 };
 
+export const getAllProgress = async () => {
+  const res = await api.get('/reading-sessions/progress');
+  return res.data;
+};
+
 // export const updatePageReached = async (sessionId, pageReached) => {
 //   const res = await api.post(`/reading-sessions/end/${sessionId}`, null, {
 //     params: { pageReached }
