@@ -196,3 +196,17 @@
 - Reflections:
 	- I do want to continue working on my project over the holiday as I feel I can do a lot more with the product but I struggled a lot with the time management and multitasking 
 	- This was definitely the most challenging academic piece of work I have had to do but I have grown a lot from it and I feel much better prepared for next term as I know what worked and what didn't.
+
+### 📅 19.01.26-23.01.26
+- What was achieved:
+	- Started working on the reading timer feature: User can now select "start reading" and a timer displays (hh:mm:ss) with start/stop buttons 
+	- Reading Sessions model, repo and controller set up in backend to manage the sessions
+	- Sessions are protected to ensure only authenticated users can start reading
+	- Researched how to implement my machine learning recommender system
+- Next steps:
+	- Update final report with research carried out for recommender system
+	- Allow the user to input their pages read and score them based on pages read
+	- Start working on the reading progress feature to display how far along the book they have read 
+- Reflections:
+	- I had two assignments to do over the holiday which made it difficult for me to progress on my FYP but I considered that in my plan
+	- I didn't manage to achieve all my objectives but I progressed well overall

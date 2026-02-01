@@ -5,48 +5,41 @@ import "swiper/css/effect-fade";
 import api from "../api/api.js";
 import BookRow from "../components/BookRow";
 import NavBar from "../components/NavBar.jsx"
+import ReadingTimer from "../components/ReadingTimer";
+import { getAllProgress } from "../api/api.js";
 import '../App.css'
 import '../styles/BookModal.css'
 
 export default function LandingPage() {
   const [books, setBooks] = useState([]);
-
-  // adding categories to display on homepage
-
   const [thrillerBooks, setThrillerBooks] = useState([]);
   const [fantasyBooks, setFantasyBooks] = useState([]);
   const [romanceBooks, setRomanceBooks] = useState([]);
   const [booktokBooks, setBooktokBooks] = useState([]);
-
-
-  const [filteredBooks, setFilteredBooks] = useState([]); // to handle search filtering 
+  const [filteredBooks, setFilteredBooks] = useState([]);
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null); 
-
-  // to handle selecting a book
   const [selectedBook, setSelectedBook] = useState(null);
-
-  useEffect(() => {
-    console.log("selectedBook changed:", selectedBook);
-  }, [selectedBook]);
+  const [readingBook, setReadingBook] = useState(null);
+  const [refreshProgress, setRefreshProgress] = useState(0);
+  const [continueBooks, setContinueBooks] = useState([]);
   
   useEffect(() => {
     async function fetchBooks() {
       try {
         console.log("Fetching books...");
         const [all, thriller, fantasy, romance, booktok] = await Promise.all([
-        api.get("/books"),
-        api.get("/books/genre/Psychological Thrillers"),
-        api.get("/books/genre/Fantasy & YA"),
-        api.get("/books/genre/Modern Romance"),
-        api.get("/books/genre/BookTok Favourites"),
-      ]);
-      setBooks(all.data);
-      setThrillerBooks(thriller.data);
-      setFantasyBooks(fantasy.data);
-      setRomanceBooks(romance.data);
-      setBooktokBooks(booktok.data);
-
+          api.get("/books"),
+          api.get("/books/genre/Psychological Thrillers"),
+          api.get("/books/genre/Fantasy & YA"),
+          api.get("/books/genre/Modern Romance"),
+          api.get("/books/genre/BookTok Favourites"),
+        ]);
+        setBooks(all.data);
+        setThrillerBooks(thriller.data);
+        setFantasyBooks(fantasy.data);
+        setRomanceBooks(romance.data);
+        setBooktokBooks(booktok.data);
       } catch (err) {
         console.error("Failed to fetch books:", err);
         setError("Could not load books. Please try again later.");
@@ -58,19 +51,36 @@ export default function LandingPage() {
     fetchBooks();
   }, []);
 
+  useEffect(() => { async function fetchContinueBooks() {
+      try {
+        const progressList = await getAllProgress();
+
+        const booksInProgress = progressList
+          .filter(p => p.currentPage > 0 && p.currentPage < p.totalPages)
+          .map(p => books.find(b => b.id === p.book.id))
+          .filter(Boolean)
+
+        setContinueBooks(booksInProgress);
+      } catch (err) {
+        console.error("Failed to fetch continue books: ", err);
+      }
+  }
+    if (books.length > 0) {
+      fetchContinueBooks();
+    }
+
+  }, [books, refreshProgress]);
 
   const normalize = (str) =>
-  str
-    .toLowerCase()
-    .replace(/[-'’\s]/g, '') // normalising hyphens, apostrophes, and spaces
-    .trim();
+    str
+      .toLowerCase()
+      .replace(/[-''\s]/g, '')
+      .trim();
 
   const handleSearch = (query) => {
     console.log("Search query:", query);
-
     const normalizedQuery = normalize(query);
 
-    // if query is empty, reset to main view
     if (normalizedQuery === "") {
       setFilteredBooks([]);
       return;
@@ -95,12 +105,17 @@ export default function LandingPage() {
     try {
       await api.post(`/library/add/${book.id}`);
     } catch (err) {
-      console.error("Error adding book:", err);
       alert("Failed to add book");
     }
   };
-  
-  
+
+  const handleSelectBook = (book) => {
+    if (readingBook) {
+      console.log("Already in reading session");
+      return;
+    }
+    setSelectedBook(book);
+  };
 
   if (loading) {
     return (
@@ -122,53 +137,78 @@ export default function LandingPage() {
     <div className="bg-[rgb(24,24,24)] min-h-screen text-white font-poppins">
       <NavBar onSearch={handleSearch} />
 
-    <div className="text-left space-y-10 px-10 mt-6">
-      {filteredBooks.length > 0 ? (
-        <BookRow title="Search Results" books={filteredBooks} />
-      ) : (
-        <>
-          <BookRow title="For You" books={books} onAddToLibrary={handleAddToLibrary} onSelectBook={setSelectedBook}/>
-          <BookRow title="BookTok Favourites" books={booktokBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={setSelectedBook}/>
-          <BookRow title="Psychological Thrillers" books={thrillerBooks} onAddToLibrary={handleAddToLibrary}onSelectBook={setSelectedBook}/>
-          <BookRow title="Fantasy & YA" books={fantasyBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={setSelectedBook}/>
-          <BookRow title="Modern Romance" books={romanceBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={setSelectedBook}/>
-        </>
+      <div className="text-left space-y-10 px-10 mt-6">
+        {filteredBooks.length > 0 ? (
+          <BookRow title="Search Results" books={filteredBooks} onSelectBook={handleSelectBook} />
+        ) : (
+          <>
+            {continueBooks.length > 0 && (
+              <BookRow title="Continue Reading" books={continueBooks} onSelectBook={handleSelectBook} refreshProgress={refreshProgress} />
+            )}
+            <BookRow title="For You" books={books} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="BookTok Favourites" books={booktokBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Psychological Thrillers" books={thrillerBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Fantasy & YA" books={fantasyBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Modern Romance" books={romanceBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+          </>
+        )}
+      </div>
+
+      {selectedBook && !readingBook && (
+        <div
+          className="book-modal-overlay"
+          onClick={() => setSelectedBook(null)}
+        >
+          <div className="book-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content-row">
+              <div className="modal-left">
+                <img
+                  src={selectedBook.coverUrl}
+                  className="modal-image"
+                  alt={selectedBook.title}
+                />
+                <button
+                  className="modal-start-book-btn"
+                  onClick={() => {
+                    console.log("Starting book:", selectedBook);
+                    setReadingBook(selectedBook);
+                    setSelectedBook(null);
+                  }}
+                >
+                  Start Book
+                </button>
+              </div>
+
+              <div className="modal-right">
+                <p className="modal-description">
+                  {selectedBook.description
+                    ? selectedBook.description.replace(/^(.{0,650}\b).*/, "$1") + "…"
+                    : "No description available."}
+                </p>
+              </div>
+
+              <button
+                className="modal-close-btn"
+                onClick={() => setSelectedBook(null)}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
-{selectedBook && (
-  <div className="book-modal-overlay" onClick={() => setSelectedBook(null)}>
-    <div className="book-modal" onClick={(e) => e.stopPropagation()}>
-    <div className="modal-content-row">
-
-{/* Book image and start reading  */}
-<div className="modal-left">
-  <img src={selectedBook.coverUrl} className="modal-image"/>
-
-  <button
-    className="modal-start-book-btn"
-    onClick={() => console.log("Start book:", selectedBook.id)}
-  >
-    Start Book
-  </button>
-</div>
-
-{/* Description */}
-<div className="modal-right">
-  <p className="modal-description">
-    {selectedBook.description
-      ? selectedBook.description.replace(/^(.{0,650}\b).*/, "$1") + "…"
-      : "No description available."}
-  </p>
-</div>
-
-{/* Close button */}
-<button className="modal-close-btn" onClick={() => setSelectedBook(null)}>✕</button>
-
-</div>
+      {readingBook && (
+        <ReadingTimer
+          bookId={readingBook.id}
+          title={readingBook.title}
+          coverUrl={readingBook.coverUrl}
+          onClose={() => {
+            setReadingBook(null);
+            setRefreshProgress(prev => prev + 1); 
+          }}
+        />
+      )}
     </div>
-  </div>
-)}
-    </div>
-    </div> );
-
+  );
 }
