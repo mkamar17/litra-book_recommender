@@ -6,7 +6,7 @@ import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.ReadingSession;
 import uk.ac.rhul.cs3821.model.User;
 
-/**
+/*
  * Repository for managing ReadingSession entities.
  * Includes querying for active (ongoing) reading sessions.
  */

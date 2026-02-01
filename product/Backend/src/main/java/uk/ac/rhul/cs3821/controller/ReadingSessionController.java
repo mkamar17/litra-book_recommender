@@ -192,9 +192,14 @@ public class ReadingSessionController {
 
   @GetMapping("/progress/{bookId}")
   public ResponseEntity<?> getProgress(
-      @PathVariable Long bookId,
-      @AuthenticationPrincipal User user
+      @PathVariable Long bookId
   ) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    String email = auth.getName();
+
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
     Book book = bookRepo.findById(bookId)
         .orElseThrow(() -> new RuntimeException("Book not found"));
 
