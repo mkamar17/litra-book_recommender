@@ -1,17 +1,19 @@
 package uk.ac.rhul.cs3821.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.User;
-import uk.ac.rhul.cs3821.model.UserBookProgress;
+import uk.ac.rhul.cs3821.repository.UserRepository;
 
 /**
  * Service responsible for handling gamification logic such as points, reading streaks, and badge eligibility.
  */
 @Service
+@RequiredArgsConstructor
 public class GamificationService {
 
   private final ReadingSessionService readingSessionService;
+  private final UserRepository userRepository;
 
   /**
    * Creates a new GamificationService.
@@ -22,25 +24,33 @@ public class GamificationService {
     this.readingSessionService = readingSessionService;
   }
 
+//  /**
+//   * Calculates the total points earned by a user.
+//   *
+//   * @param user the user whose points are calculated
+//   * @return total points earned
+//   */
+//  public int calculateUserPoints(User user, Book book) {
+//    UserBookProgress progress = readingSessionService
+//        .getProgress(user, book)
+//        .orElseThrow(() ->
+//            new IllegalStateException("User progress not found"));
+//
+//    int pagesRead = progress.getCurrentPage();
+//    return pagesRead * 5;
+//  }
+
   /**
-   * Calculates the total points earned by a user.
+   * Method used to calculate points based on pages read.
    *
-   * @param user the user whose points are calculated
-   * @return total points earned
+   * @param user      to represent user
+   * @param pagesRead the number of pages read in that reading session
    */
-  public int calculateUserPoints(User user, Book book) {
-    UserBookProgress progress = readingSessionService
-        .getProgress(user, book)
-        .orElseThrow(() ->
-            new IllegalStateException("User progress not found"));
-
-    int pagesRead = progress.getCurrentPage();
-    return pagesRead * 5;
-  }
-
   public void awardPointsForSession(User user, int pagesRead) {
-    int points = pagesRead * 5;
-    // store points, emit event, or just return value
+    int pointsEarned = pagesRead * 5;
+
+    user.setTotalPoints(user.getTotalPoints() + pointsEarned);
+    userRepository.save(user);
   }
 
   // streak , badges, reading speed etc. can be scaled
