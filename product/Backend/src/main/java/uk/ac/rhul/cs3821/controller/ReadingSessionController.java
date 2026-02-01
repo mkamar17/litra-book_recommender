@@ -1,5 +1,6 @@
 package uk.ac.rhul.cs3821.controller;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -213,6 +214,24 @@ public class ReadingSessionController {
             "current_page", 0,
             "total_pages", 0
         )));
+  }
+
+  /**
+   * This method returns a list of books currently in progress for a specific user.
+   *
+   * @return list of books in progress
+   */
+  @GetMapping("/progress")
+  public ResponseEntity<List<UserBookProgress>> getAllProgress() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    String email = auth.getName();
+
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+    List<UserBookProgress> progressList = progressRepo.findByUser(user);
+
+    return ResponseEntity.ok(progressList);
   }
 
 

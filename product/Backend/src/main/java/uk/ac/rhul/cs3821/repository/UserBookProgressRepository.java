@@ -1,5 +1,6 @@
 package uk.ac.rhul.cs3821.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import uk.ac.rhul.cs3821.model.Book;
@@ -20,4 +21,12 @@ public interface UserBookProgressRepository
    */
 
   Optional<UserBookProgress> findByUserAndBook(User user, Book book);
+
+  /**
+   * This method finds all book progress for a specific user.
+   *
+   * @param user the user
+   * @return a list of started books
+   */
+  List<UserBookProgress> findByUser(User user);
 }
