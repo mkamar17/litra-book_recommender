@@ -6,7 +6,7 @@ import "swiper/css/navigation";
 import BookCard from "./BookCard";
 import "../styles/BookRow.css";
 
-export default function BookRow({ title, books, onAddToLibrary, onSelectBook}) {
+export default function BookRow({ title, books, onAddToLibrary, onSelectBook, refreshProgress}) {
   const swiperRef = useRef(null);
   const observerRef = useRef(null);
   
@@ -88,7 +88,7 @@ export default function BookRow({ title, books, onAddToLibrary, onSelectBook}) {
         >
           {books.map((book) => (
             <SwiperSlide key={book.id || book.externalId}>
-              <BookCard book={book} onAddToLibrary={onAddToLibrary} onSelectBook={onSelectBook} />
+              <BookCard book={book} onAddToLibrary={onAddToLibrary} onSelectBook={onSelectBook} refreshProgress={refreshProgress}/>
             </SwiperSlide>
           ))}
         </Swiper>

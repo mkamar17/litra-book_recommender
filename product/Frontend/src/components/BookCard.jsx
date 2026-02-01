@@ -4,7 +4,7 @@ import {
   getBookProgress,
 } from "../api/api.js";
 
-export default function BookCard({ book, onAddToLibrary, onStartReading, onSelectBook }) {
+export default function BookCard({ book, onAddToLibrary, onSelectBook, refreshProgress}) {
   const [showPopup, setShowPopup] = useState(false);
 
   const showAddButton = !!onAddToLibrary;
@@ -20,25 +20,25 @@ export default function BookCard({ book, onAddToLibrary, onStartReading, onSelec
 
 
   useEffect(() => {
-    async function fetchProgress() {
-      try {
-        const res = await getBookProgress(book.id);
-        console.log("RAW progress response for book", book.id, res.data.current_page);
-        if (!data || data.total_pages === 0) return;
-        setProgress({
-          currentPage: res.data.current_page,
-          totalPages: res.data.total_pages,
-        });
-      } catch (err) {
-        // No progress yet → do nothing
-      }
-    }
-  
-    if (book?.id) {
-      fetchProgress();
-    }
-  }, [book?.id]);
+  async function fetchProgress() {
+    try {
+      const res = await getBookProgress(book.id);
+      if (res.current_page != 0) console.log("current page:", book.id, res.current_page) 
+      if (!res || res.total_pages === 0) return;
 
+      setProgress({
+        currentPage: res.current_page,
+        totalPages: res.total_pages,
+      });
+    } catch (err) {
+      // No progress yet → do nothing
+    }
+  }
+
+  if (book?.id) {
+    fetchProgress();
+  }
+}, [book.id, refreshProgress]);
 
   return (
     <div
@@ -67,7 +67,7 @@ export default function BookCard({ book, onAddToLibrary, onStartReading, onSelec
         </div>
       )}
 
-      {progress && (
+      {progress && !showPopup && (
         <div className="mt-2 w-full h-1 bg-gray-700 rounded">
           <div
             className="h-1 bg-red-600 rounded transition-all duration-300"

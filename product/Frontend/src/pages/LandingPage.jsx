@@ -20,6 +20,7 @@ export default function LandingPage() {
   const [error, setError] = useState(null); 
   const [selectedBook, setSelectedBook] = useState(null);
   const [readingBook, setReadingBook] = useState(null);
+  const [refreshProgress, setRefreshProgress] = useState(0);
 
   useEffect(() => {
     console.log("selectedBook changed:", selectedBook);
@@ -129,11 +130,11 @@ export default function LandingPage() {
           <BookRow title="Search Results" books={filteredBooks} onSelectBook={handleSelectBook} />
         ) : (
           <>
-            <BookRow title="For You" books={books} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook}/>
-            <BookRow title="BookTok Favourites" books={booktokBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook}/>
-            <BookRow title="Psychological Thrillers" books={thrillerBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook}/>
-            <BookRow title="Fantasy & YA" books={fantasyBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook}/>
-            <BookRow title="Modern Romance" books={romanceBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook}/>
+            <BookRow title="For You" books={books} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="BookTok Favourites" books={booktokBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Psychological Thrillers" books={thrillerBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Fantasy & YA" books={fantasyBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Modern Romance" books={romanceBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
           </>
         )}
       </div>
@@ -192,6 +193,7 @@ export default function LandingPage() {
           onClose={() => {
             console.log("Closing reading session");
             setReadingBook(null);
+            setRefreshProgress(prev => prev + 1); // ← Add this
           }}
         />
       )}

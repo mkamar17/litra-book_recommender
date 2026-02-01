@@ -101,19 +101,6 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
     }
   };
 
-  useEffect(() => {
-    async function fetchProgress() {
-      try {
-        const res = await api.get(`/reading-sessions/progress/${book.id}`);
-        setProgress(res.data);
-      } catch (err) {
-        // No progress yet → do nothing
-      }
-    }
-  
-    fetchProgress();
-  }, [book.id]);
-
   return (
     <>
       {/* Dialog for total pages - OUTSIDE main container */}
