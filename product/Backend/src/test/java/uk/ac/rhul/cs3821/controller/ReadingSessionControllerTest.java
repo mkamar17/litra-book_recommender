@@ -2,6 +2,7 @@ package uk.ac.rhul.cs3821.controller;
 
 import java.time.Instant;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -52,24 +53,28 @@ class ReadingSessionControllerTest {
   @MockitoBean
   private AppUserDetailsService uds;
 
-  private User createUser() {
-    User user = new User();
+  private User user;
+  private Book book;
+
+  @BeforeEach
+  void setUp() {
+    user = new User();
     user.setId(1L);
     user.setEmail("test@example.com");
-    return user;
+
+    book = new Book();
+    book.setId(1L);
+
+    // Common authentication lookup used by ALL controller methods
+    when(userRepository.findByEmail(user.getEmail()))
+        .thenReturn(Optional.of(user));
   }
 
-  private Book createBook(Long id) {
-    Book book = new Book();
-    book.setId(id);
-    return book;
-  }
+  /* -------------------- START SESSION -------------------- */
 
   @Test
   @WithMockUser(username = "test@example.com")
   void startSession_returnsSessionAndProgressInfo() throws Exception {
-    User user = createUser();
-    Book book = createBook(1L);
 
     ReadingSession session = ReadingSession.builder()
         .id(100L)
@@ -84,8 +89,6 @@ class ReadingSessionControllerTest {
         .currentPage(20)
         .build();
 
-    when(userRepository.findByEmail(user.getEmail()))
-        .thenReturn(Optional.of(user));
     when(bookRepository.findById(1L))
         .thenReturn(Optional.of(book));
     when(readingSessionService.getProgress(user, book))
@@ -100,15 +103,15 @@ class ReadingSessionControllerTest {
         .andExpect(jsonPath("$.currentPage").value(20));
   }
 
+  /* -------------------- END SESSION -------------------- */
+
   @Test
   @WithMockUser(username = "test@example.com")
   void endSession_success() throws Exception {
-    User user = createUser();
+
     ReadingSession session = new ReadingSession();
     session.setId(1L);
 
-    when(userRepository.findByEmail(user.getEmail()))
-        .thenReturn(Optional.of(user));
     when(readingSessionService.endSession(1L, user, 50))
         .thenReturn(session);
 
@@ -122,21 +125,19 @@ class ReadingSessionControllerTest {
         .endSession(1L, user, 50);
   }
 
+  /* -------------------- CREATE PROGRESS -------------------- */
+
   @Test
   @WithMockUser(username = "test@example.com")
   void createProgress_createsNewProgress_whenNoneExists() throws Exception {
-    User user = createUser();
-    Book book = createBook(2L);
 
-    when(userRepository.findByEmail(user.getEmail()))
-        .thenReturn(Optional.of(user));
-    when(bookRepository.findById(2L))
+    when(bookRepository.findById(1L))
         .thenReturn(Optional.of(book));
     when(progressRepository.findByUserAndBook(user, book))
         .thenReturn(Optional.empty());
 
     mockMvc.perform(
-            post("/api/reading-sessions/progress/{bookId}", 2L)
+            post("/api/reading-sessions/progress/{bookId}", 1L)
                 .param("totalPages", "300")
         )
         .andExpect(status().isOk());
@@ -147,22 +148,78 @@ class ReadingSessionControllerTest {
   @Test
   @WithMockUser(username = "test@example.com")
   void createProgress_doesNothing_whenProgressAlreadyExists() throws Exception {
-    User user = createUser();
-    Book book = createBook(2L);
 
-    when(userRepository.findByEmail(user.getEmail()))
-        .thenReturn(Optional.of(user));
-    when(bookRepository.findById(2L))
+    when(bookRepository.findById(1L))
         .thenReturn(Optional.of(book));
     when(progressRepository.findByUserAndBook(user, book))
         .thenReturn(Optional.of(new UserBookProgress()));
 
     mockMvc.perform(
-            post("/api/reading-sessions/progress/{bookId}", 2L)
+            post("/api/reading-sessions/progress/{bookId}", 1L)
                 .param("totalPages", "300")
         )
         .andExpect(status().isOk());
 
     verify(progressRepository, never()).save(any());
   }
+
+  /* -------------------- GET PROGRESS (SINGLE BOOK) -------------------- */
+
+  @Test
+  @WithMockUser(username = "test@example.com")
+  void getProgress_returnsProgress_whenExists() throws Exception {
+
+    UserBookProgress progress = UserBookProgress.builder()
+        .currentPage(42)
+        .totalPages(200)
+        .build();
+
+    when(bookRepository.findById(1L))
+        .thenReturn(Optional.of(book));
+    when(readingSessionService.getProgress(user, book))
+        .thenReturn(Optional.of(progress));
+
+    mockMvc.perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                .get("/api/reading-sessions/progress/{bookId}", 1L)
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.current_page").value(42))
+        .andExpect(jsonPath("$.total_pages").value(200));
+  }
+
+  @Test
+  @WithMockUser(username = "test@example.com")
+  void getProgress_returnsZeros_whenNoProgressExists() throws Exception {
+
+    when(bookRepository.findById(1L))
+        .thenReturn(Optional.of(book));
+    when(readingSessionService.getProgress(user, book))
+        .thenReturn(Optional.empty());
+
+    mockMvc.perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                .get("/api/reading-sessions/progress/{bookId}", 1L)
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.current_page").value(0))
+        .andExpect(jsonPath("$.total_pages").value(0));
+  }
+
+  /* -------------------- GET ALL PROGRESS -------------------- */
+
+  @Test
+  @WithMockUser(username = "test@example.com")
+  void getAllProgress_returnsList() throws Exception {
+
+    when(progressRepository.findByUser(user))
+        .thenReturn(java.util.List.of(new UserBookProgress()));
+
+    mockMvc.perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                .get("/api/reading-sessions/progress")
+        )
+        .andExpect(status().isOk());
+  }
 }
+

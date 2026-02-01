@@ -7,11 +7,19 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Config class to permit SwaggerUI to use JWT Bearer Auth.
+ */
 @Configuration
 public class OpenApiConfig {
 
+  /**
+   * Defines OpenAI config used by Swagger.
+   *
+   * @return an OpenAI instance configured with JWT Bearer Authentication.s
+   */
   @Bean
-  public OpenAPI openAPI() {
+  public OpenAPI openApi() {
     return new OpenAPI()
         .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
         .components(

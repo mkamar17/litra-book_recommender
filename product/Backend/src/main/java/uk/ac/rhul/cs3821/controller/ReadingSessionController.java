@@ -124,10 +124,6 @@ public class ReadingSessionController {
 
     Book book = bookRepo.findById(bookId).orElseThrow();
 
-//    if (progressRepo.findByUserAndBook(user, book).isPresent()) {
-//      return;
-//    }
-
     Optional<UserBookProgress> existing = progressRepo.findByUserAndBook(user, book);
 
     if (existing.isPresent()) {
@@ -147,49 +143,12 @@ public class ReadingSessionController {
     System.out.println("Progress saved successfully!");
   }
 
-//  /**
-//   * Fetches current progress on a book.
-//   *
-//   * @param bookId the unique book id.
-//   * @return the current progress, if it exists.
-//   */
-//  @GetMapping("/progress/{bookId}")
-//  public ResponseEntity<?> getProgress(@PathVariable Long bookId) {
-//
-//    Authentication auth =
-//        SecurityContextHolder.getContext().getAuthentication();
-//
-//    String email = auth.getName();
-//
-//    User user = userRepository.findByEmail(email)
-//        .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//    Book book = bookRepo.findById(bookId)
-//        .orElseThrow(() -> new RuntimeException("Book not found"));
-
-//    return readingSessionService
-//        .getProgress(user, book)
-//        .map(progress -> ResponseEntity.ok(Map.of(
-//            "current_page", progress.getCurrentPage(),
-//            "total_pages", progress.getTotalPages()
-//        )))
-//        .orElse(ResponseEntity.noContent().build());
-//    UserBookProgress progress = readingSessionService
-//        .getProgress(user, book)
-//        .orElse(null);
-//
-//    if (progress == null) {
-//      return ResponseEntity.ok(Map.of(
-//          "current_page", 0,
-//          "total_pages", 0
-//      ));
-//    }
-//
-//    return ResponseEntity.ok(Map.of(
-//        "current_page", progress.getCurrentPage(),
-//        "total_pages", progress.getTotalPages()
-//    ));
-//  }
+  /**
+   * Method returns the progress of a specific book.
+   *
+   * @param bookId to represent the unique book
+   * @return the book's progress
+   */
 
   @GetMapping("/progress/{bookId}")
   public ResponseEntity<?> getProgress(
@@ -217,10 +176,11 @@ public class ReadingSessionController {
   }
 
   /**
-   * This method returns a list of books currently in progress for a specific user.
+   * Method returns a list of books currently in progress for a specific user.
    *
    * @return list of books in progress
    */
+
   @GetMapping("/progress")
   public ResponseEntity<List<UserBookProgress>> getAllProgress() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -233,6 +193,4 @@ public class ReadingSessionController {
 
     return ResponseEntity.ok(progressList);
   }
-
-
 }
