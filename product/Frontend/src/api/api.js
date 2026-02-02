@@ -47,15 +47,34 @@ export const getAllProgress = async () => {
 //   return res.data;
 // };
 
+// export const updatePageReached = async (sessionId, pageReached) => {
+//   const res = await api.post(
+//     `/reading-sessions/end/${sessionId}`,
+//     null,
+//     {
+//       params: { pageReached: Number(pageReached) }
+//     }
+//   );
+//   return res.data;
+// };
+
 export const updatePageReached = async (sessionId, pageReached) => {
-  const res = await api.post(
-    `/reading-sessions/end/${sessionId}`,
-    null,
+  const response = await fetch(
+    `http://localhost:8080/api/reading-sessions/end/${sessionId}?pageReached=${pageReached}`,
     {
-      params: { pageReached: Number(pageReached) }
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
     }
   );
-  return res.data;
+
+  if (!response.ok) {
+    throw new Error('Failed to end reading session');
+  }
+
+  return await response.json(); // ✅ This returns your full response object
 };
 
 export default api;

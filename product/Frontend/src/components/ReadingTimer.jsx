@@ -29,6 +29,9 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
   const [pageReached, setPageReached] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
+  const [sessionResults, setSessionResults] = useState(null);
+
   useEffect(() => {
     if (!running) return;
     intervalRef.current = setInterval(() => {
@@ -82,18 +85,27 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
         return;
       }
       
-      await updatePageReached(sessionId, Number(pageReached));
+      //await updatePageReached(sessionId, Number(pageReached));
+      const result = await updatePageReached(sessionId, Number(pageReached));
       
       sessionEndedRef.current = true;
       setRunning(false);
       setSessionId(null);
       setSeconds(0);
       setShowPageReachedPrompt(false);
+
+      setSessionResults(result);
+      setShowSuccessCard(true);
       
-      if (onClose) onClose();
+      //if (onClose) onClose();
     } catch (error) {
       console.error("Error finishing session:", error);
     }
+  };
+
+  const handleCloseSuccessCard = () => {
+    setShowSuccessCard(false);
+    if (onClose) onClose();
   };
 
   return (
@@ -129,6 +141,33 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
         <DialogFooter>
           <Button onClick={handleFinishSession}>
             Finish
+          </Button>
+        </DialogFooter>
+      </Dialog>
+
+       {/* ✅ Success Card */}
+       <Dialog open={showSuccessCard} handler={handleCloseSuccessCard}>
+        <DialogHeader className="flex justify-center">
+          <span className="text-2xl">🎉 Well Done! 🎉</span>
+        </DialogHeader>
+        <DialogBody className="text-center">
+          {sessionResults && (
+            <div className="space-y-4">
+              <p className="text-lg">
+                You have read <span className="font-bold text-green-600">{sessionResults.pagesRead}</span> pages
+              </p>
+              <p className="text-lg">
+                and earned <span className="font-bold text-blue-600">{sessionResults.pointsAwarded}</span> points!
+              </p>
+              <p className="text-sm text-gray-600">
+                Reading time: {formatTime(sessionResults.durationSeconds)}
+              </p>
+            </div>
+          )}
+        </DialogBody>
+        <DialogFooter className="flex justify-center">
+          <Button color="green" onClick={handleCloseSuccessCard}>
+            Awesome!
           </Button>
         </DialogFooter>
       </Dialog>
