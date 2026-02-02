@@ -11,18 +11,19 @@ import uk.ac.rhul.cs3821.repository.UserRepository;
 @Service
 @RequiredArgsConstructor
 public class GamificationService {
-
-  private final ReadingSessionService readingSessionService;
+  
   private final UserRepository userRepository;
 
-  /**
-   * Creates a new GamificationService.
-   *
-   * @param readingSessionService service providing reading statistics
-   */
-  public GamificationService(ReadingSessionService readingSessionService) {
-    this.readingSessionService = readingSessionService;
-  }
+  // private int pointsEarned;
+
+//  /**
+//   * Creates a new GamificationService.
+//   *
+//   * @param readingSessionService service providing reading statistics
+//   */
+//  public GamificationService(ReadingSessionService readingSessionService) {
+//    this.readingSessionService = readingSessionService;
+//  }
 
 //  /**
 //   * Calculates the total points earned by a user.
@@ -46,12 +47,18 @@ public class GamificationService {
    * @param user      to represent user
    * @param pagesRead the number of pages read in that reading session
    */
-  public void awardPointsForSession(User user, int pagesRead) {
+  public int awardPointsForSession(User user, int pagesRead) {
     int pointsEarned = pagesRead * 5;
 
     user.setTotalPoints(user.getTotalPoints() + pointsEarned);
     userRepository.save(user);
+
+    return pointsEarned;
   }
+
+//  public int getPointsForSession() {
+//    return this.pointsEarned;
+//  }
 
   // streak , badges, reading speed etc. can be scaled
 

@@ -83,7 +83,7 @@ public class ReadingSessionController {
    */
 
   @PostMapping("/end/{sessionId}")
-  public ReadingSession end(
+  public ResponseEntity<?> end(
       @PathVariable Long sessionId,
       @AuthenticationPrincipal User user,
       @RequestParam int pageReached
@@ -96,7 +96,9 @@ public class ReadingSessionController {
     user = userRepository.findByEmail(email)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
-    return readingSessionService.endSession(sessionId, user, pageReached);
+    Map<String, Object> result = readingSessionService.endSession(sessionId, user, pageReached);
+
+    return ResponseEntity.ok(result);
   }
 
   /**
@@ -193,4 +195,19 @@ public class ReadingSessionController {
 
     return ResponseEntity.ok(progressList);
   }
+
+//  @GetMapping("/points/{sessionId}")
+//  public ResponseEntity<?> getPointsForSession() {
+//    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//    String email = auth.getName();
+//
+//    User user = userRepository.findByEmail(email)
+//        .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//    //List<UserBookProgress> progressList = sessionRepo.findByUser(user);
+//
+//    int pointsAwarded = gamificationService.awardPointsForSession(user, pagesRead);
+//
+//    return ResponseEntity.ok(pointsAwarded);
+//  }
 }
