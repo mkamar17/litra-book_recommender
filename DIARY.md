@@ -210,3 +210,16 @@
 - Reflections:
 	- I had two assignments to do over the holiday which made it difficult for me to progress on my FYP but I considered that in my plan
 	- I didn't manage to achieve all my objectives but I progressed well overall
+
+### 📅 26.01.26-01.02.26
+- What was achieved:
+	- Users are able to input total pages of a book on first reading session and input page reached after any reading session
+	- Users can see a red progress bar beneath a book they are currently reading which updates immediately after a reading session ends
+	- Points awarded (pages read * 5) after each reading session -- backend only 
+	- Supervisor meeting 1: Received further details about interim feedback and dicussed goals to achieve by next meeting (points system and simple machine learning recommendation algorithm)
+- Next steps:
+	- Display the points in the front-end in a UI-friendly way for user encouragement 
+	- Start working on binary classification recommendation algorithm 
+	- Focus on starting report writing 
+- Reflections:
+	- I decided that the reading streak feature is less of a priority and I want to focus on the recommendation system which requires more time and research 

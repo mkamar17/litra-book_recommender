@@ -35,6 +35,10 @@ public class User {
   @ElementCollection(fetch = FetchType.EAGER)
   private Set<String> roles;
 
+  // to represent all points earned
+  @Column(nullable = false)
+  private int totalPoints = 0;
+
   // this table represents the relation between user and book
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(

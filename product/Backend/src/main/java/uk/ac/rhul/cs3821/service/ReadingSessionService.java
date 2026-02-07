@@ -2,6 +2,7 @@ package uk.ac.rhul.cs3821.service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ public class ReadingSessionService {
 
   private final ReadingSessionRepository sessionRepo;
   private final UserBookProgressRepository progressRepo;
+  private final GamificationService gamificationService;
 
   /**
    * Method handles starting new reading session.
@@ -75,14 +77,14 @@ public class ReadingSessionService {
    * @param user      to represent the authenticated user
    * @return the session
    */
-  public ReadingSession endSession(Long sessionId, User user, int pageReached) {
+  public Map<String, Object> endSession(Long sessionId, User user, int pageReached) {
     ReadingSession session = sessionRepo.findById(sessionId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     if (!session.getUser().getId().equals(user.getId())) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    
+
     Book book = session.getBook();
 
     UserBookProgress progress = progressRepo
@@ -97,10 +99,25 @@ public class ReadingSessionService {
       throw new IllegalArgumentException("Page exceeds total pages");
     }
 
+    int pagesReadThisSession = pageReached - progress.getCurrentPage();
+
     progress.setCurrentPage(pageReached);
     progressRepo.save(progress);
 
-    return endSession(session);
+    int pointsAwarded = gamificationService.awardPointsForSession(user, pagesReadThisSession);
+
+    ReadingSession endedSession = endSession(session);
+
+    return Map.of(
+        "sessionId", endedSession.getId(),
+        "pointsAwarded", pointsAwarded,
+        "pagesRead", pagesReadThisSession,
+        "durationSeconds", endedSession.getDurationSeconds(),
+        "bookId", book.getId(),
+        "bookTitle", book.getTitle(),
+        "currentPage", pageReached,
+        "totalPages", progress.getTotalPages()
+    );
   }
 
   /**

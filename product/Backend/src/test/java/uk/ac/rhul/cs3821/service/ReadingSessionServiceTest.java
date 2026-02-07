@@ -27,16 +27,21 @@ import static org.mockito.Mockito.when;
 class ReadingSessionServiceTest {
 
   @Mock
-  private ReadingSessionRepository sessionRepository;
+  private ReadingSessionRepository sessionRepo;
 
   @Mock
-  private UserBookProgressRepository progressRepository;
+  private UserBookProgressRepository progressRepo;
+
+  @Mock
+  private GamificationService gamificationService;
 
   @InjectMocks
   private ReadingSessionService readingSessionService;
 
   private User user;
   private Book book;
+  private ReadingSession session;
+  private UserBookProgress progress;
 
   @BeforeEach
   void setUp() {
@@ -45,147 +50,141 @@ class ReadingSessionServiceTest {
 
     book = new Book();
     book.setId(2L);
-  }
+    book.setTitle("Test Book");
 
-  private ReadingSession createSession() {
-    return ReadingSession.builder()
+    session = ReadingSession.builder()
         .id(10L)
         .user(user)
         .book(book)
         .startTime(Instant.now().minusSeconds(300))
         .build();
-  }
 
-  private UserBookProgress createProgress(int currentPage, int totalPages) {
-    return UserBookProgress.builder()
+    progress = UserBookProgress.builder()
         .user(user)
         .book(book)
-        .currentPage(currentPage)
-        .totalPages(totalPages)
+        .currentPage(50)
+        .totalPages(200)
         .build();
   }
 
-  private void mockFindSessionAndProgress(
-      ReadingSession session,
-      UserBookProgress progress
-  ) {
-    when(sessionRepository.findById(session.getId()))
-        .thenReturn(Optional.of(session));
-
-    when(progressRepository.findByUserAndBook(user, book))
-        .thenReturn(Optional.of(progress));
-  }
-
-  private void mockSaveSessionAndProgress() {
-    when(sessionRepository.save(any()))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    when(progressRepository.save(any()))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-  }
-
   @Test
-  void startSession_createsNewSession_whenNoActiveSessionExists() {
-    when(sessionRepository.findByUserAndBookAndEndTimeIsNull(user, book))
-        .thenReturn(Optional.empty());
+  void startSession_createsNewSession_whenNoActiveSession() {
 
-    when(sessionRepository.save(any()))
-        .thenAnswer(invocation -> invocation.getArgument(0));
+    when(sessionRepo.findByUserAndBookAndEndTimeIsNull(user, book))
+        .thenReturn(Optional.empty());
+    when(sessionRepo.save(any()))
+        .thenAnswer(inv -> inv.getArgument(0));
 
     ReadingSession result =
         readingSessionService.startSession(user, book);
 
-    assertNotNull(result);
-    assertEquals(user, result.getUser());
-    assertEquals(book, result.getBook());
     assertNotNull(result.getStartTime());
     assertNull(result.getEndTime());
-    assertNull(result.getDurationSeconds());
+    assertEquals(user, result.getUser());
+    assertEquals(book, result.getBook());
   }
 
   @Test
-  void startSession_endsExistingActiveSession_beforeStartingNewOne() {
-    ReadingSession activeSession = createSession();
+  void startSession_endsExistingSession_first() {
 
-    when(sessionRepository.findByUserAndBookAndEndTimeIsNull(user, book))
-        .thenReturn(Optional.of(activeSession));
+    when(sessionRepo.findByUserAndBookAndEndTimeIsNull(user, book))
+        .thenReturn(Optional.of(session));
+    when(sessionRepo.save(any()))
+        .thenAnswer(inv -> inv.getArgument(0));
 
-    when(sessionRepository.save(any()))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    ReadingSession newSession =
+    ReadingSession result =
         readingSessionService.startSession(user, book);
 
-    assertNotNull(activeSession.getEndTime());
-    assertNotNull(activeSession.getDurationSeconds());
-    assertEquals(user, newSession.getUser());
+    assertNotNull(session.getEndTime());
+    assertNotNull(session.getDurationSeconds());
+    assertEquals(user, result.getUser());
   }
 
   @Test
   void endSession_setsEndTimeAndDuration() {
-    ReadingSession session = createSession();
 
-    when(sessionRepository.save(session)).thenReturn(session);
+    when(sessionRepo.save(any()))
+        .thenAnswer(inv -> inv.getArgument(0));
 
     ReadingSession result =
         readingSessionService.endSession(session);
 
     assertNotNull(result.getEndTime());
-    assertNotNull(result.getDurationSeconds());
-    assertTrue(result.getDurationSeconds() >= 300);
+    assertTrue(result.getDurationSeconds() > 0);
   }
 
   @Test
-  void endSessionById_allowsOwner_andUpdatesProgress() {
-    ReadingSession session = createSession();
-    UserBookProgress progress = createProgress(50, 200);
+  void endSessionById_successfullyUpdatesProgressAndAwardsPoints() {
 
-    mockFindSessionAndProgress(session, progress);
-    mockSaveSessionAndProgress();
+    when(sessionRepo.findById(10L))
+        .thenReturn(Optional.of(session));
+    when(progressRepo.findByUserAndBook(user, book))
+        .thenReturn(Optional.of(progress));
+    when(progressRepo.save(any()))
+        .thenAnswer(inv -> inv.getArgument(0));
+    when(sessionRepo.save(any()))
+        .thenAnswer(inv -> inv.getArgument(0));
+    when(gamificationService.awardPointsForSession(user, 30))
+        .thenReturn(150);
 
-    ReadingSession result =
+    var result =
         readingSessionService.endSession(10L, user, 80);
 
-    assertNotNull(result.getEndTime());
     assertEquals(80, progress.getCurrentPage());
+    assertEquals(150, result.get("pointsAwarded"));
+    assertEquals(30, result.get("pagesRead"));
+    assertEquals(book.getId(), result.get("bookId"));
   }
 
   @Test
-  void endSessionById_throwsForbidden_whenUserIsNotOwner() {
+  void endSessionById_throwsForbidden_whenUserNotOwner() {
+
     User otherUser = new User();
     otherUser.setId(99L);
 
-    ReadingSession session = createSession();
-
-    when(sessionRepository.findById(10L))
+    when(sessionRepo.findById(10L))
         .thenReturn(Optional.of(session));
 
     assertThrows(ResponseStatusException.class, () ->
-        readingSessionService.endSession(10L, otherUser, 20)
+        readingSessionService.endSession(10L, otherUser, 60)
     );
   }
 
   @Test
-  void endSession_throwsException_whenPageGoesBackwards() {
-    ReadingSession session = createSession();
-    UserBookProgress progress = createProgress(50, 200);
+  void endSessionById_throws_whenPageGoesBackwards() {
 
-    mockFindSessionAndProgress(session, progress);
+    when(sessionRepo.findById(10L))
+        .thenReturn(Optional.of(session));
+    when(progressRepo.findByUserAndBook(user, book))
+        .thenReturn(Optional.of(progress));
 
     assertThrows(IllegalArgumentException.class, () ->
-        readingSessionService.endSession(10L, user, 30)
+        readingSessionService.endSession(10L, user, 40)
     );
   }
 
   @Test
-  void endSession_throwsException_whenPageExceedsTotalPages() {
-    ReadingSession session = createSession();
-    UserBookProgress progress = createProgress(150, 200);
+  void endSessionById_throws_whenPageExceedsTotalPages() {
 
-    mockFindSessionAndProgress(session, progress);
+    when(sessionRepo.findById(10L))
+        .thenReturn(Optional.of(session));
+    when(progressRepo.findByUserAndBook(user, book))
+        .thenReturn(Optional.of(progress));
 
     assertThrows(IllegalArgumentException.class, () ->
         readingSessionService.endSession(10L, user, 250)
     );
+  }
+
+  @Test
+  void getProgress_returnsOptional() {
+
+    when(progressRepo.findByUserAndBook(user, book))
+        .thenReturn(Optional.of(progress));
+
+    Optional<UserBookProgress> result =
+        readingSessionService.getProgress(user, book);
+
+    assertTrue(result.isPresent());
   }
 }

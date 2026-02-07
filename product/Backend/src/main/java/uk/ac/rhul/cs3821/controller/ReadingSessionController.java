@@ -83,7 +83,7 @@ public class ReadingSessionController {
    */
 
   @PostMapping("/end/{sessionId}")
-  public ReadingSession end(
+  public ResponseEntity<?> end(
       @PathVariable Long sessionId,
       @AuthenticationPrincipal User user,
       @RequestParam int pageReached
@@ -96,7 +96,9 @@ public class ReadingSessionController {
     user = userRepository.findByEmail(email)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
-    return readingSessionService.endSession(sessionId, user, pageReached);
+    Map<String, Object> result = readingSessionService.endSession(sessionId, user, pageReached);
+
+    return ResponseEntity.ok(result);
   }
 
   /**
