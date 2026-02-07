@@ -74,7 +74,23 @@ export const updatePageReached = async (sessionId, pageReached) => {
     throw new Error('Failed to end reading session');
   }
 
-  return await response.json(); // ✅ This returns your full response object
+  return await response.json(); 
+};
+
+export const getUserTotalPoints = async () => {
+  const response = await fetch('http://localhost:8080/api/users/total-points', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch total points');
+  }
+
+  return await response.json();
 };
 
 export default api;

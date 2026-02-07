@@ -105,6 +105,7 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
 
   const handleCloseSuccessCard = () => {
     setShowSuccessCard(false);
+    window.dispatchEvent(new Event('pointsUpdated'));
     if (onClose) onClose();
   };
 
@@ -145,7 +146,7 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
         </DialogFooter>
       </Dialog>
 
-       {/* ✅ Success Card */}
+       {/* Success Card */}
        <Dialog open={showSuccessCard} handler={handleCloseSuccessCard}>
         <DialogHeader className="flex justify-center">
           <span className="text-2xl">🎉 Well Done! 🎉</span>

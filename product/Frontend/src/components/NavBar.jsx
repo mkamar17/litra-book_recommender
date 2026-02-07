@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
+import { getUserTotalPoints } from '../api/api.js';
 
 
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
@@ -24,7 +25,26 @@ function classNames(...classes) {
 
 export default function NavBar({ onSearch = () => {} }) { // to increase scalability add logic to App.jsx to handle search in all subpages
   const [query, setQuery] = useState('');
+  const [totalPoints, setTotalPoints] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchTotalPoints();
+
+    const handlePointsUpdate = () => fetchTotalPoints();
+    window.addEventListener('pointsUpdated', handlePointsUpdate);
+  
+    return () => window.removeEventListener('pointsUpdated', handlePointsUpdate);
+  }, []);
+
+  const fetchTotalPoints = async () => {
+    try {
+      const data = await getUserTotalPoints();
+      setTotalPoints(data.totalPoints);
+    } catch (error) {
+      console.error('Failed to fetch total points:', error);
+    }
+  };
 
   useEffect(() => {
     if (query.trim() === '') {
@@ -111,6 +131,11 @@ export default function NavBar({ onSearch = () => {} }) { // to increase scalabi
               <img src={search} alt="search" className="w-4 h-4" />
             </button>
           </form>
+
+          <div className="flex items-center gap-2 bg-[rgb(60,60,60)] rounded-full px-4 py-1.5">
+              <span className="text-yellow-400 text-lg">⭐</span>
+              <span className="text-white font-semibold text-sm">{totalPoints.toLocaleString()}</span>
+            </div>
 
             <button
               type="button"
