@@ -195,19 +195,4 @@ public class ReadingSessionController {
 
     return ResponseEntity.ok(progressList);
   }
-
-//  @GetMapping("/points/{sessionId}")
-//  public ResponseEntity<?> getPointsForSession() {
-//    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//    String email = auth.getName();
-//
-//    User user = userRepository.findByEmail(email)
-//        .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//    //List<UserBookProgress> progressList = sessionRepo.findByUser(user);
-//
-//    int pointsAwarded = gamificationService.awardPointsForSession(user, pagesRead);
-//
-//    return ResponseEntity.ok(pointsAwarded);
-//  }
 }
