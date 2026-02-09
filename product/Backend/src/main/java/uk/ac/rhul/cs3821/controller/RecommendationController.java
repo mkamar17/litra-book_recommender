@@ -42,16 +42,14 @@ public class RecommendationController {
     User user = userRepository.findByEmail(email)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
-    // Get recommendations for this user, ordered by score (highest first)
+    // recommendations for this user, ordered by score (highest first)
     List<Recommendation> recommendations =
         recommendationRepository.findByUserIdOrderByScoreDesc(user.getId());
 
-    // Extract book IDs from recommendations
     List<Long> bookIds = recommendations.stream()
         .map(Recommendation::getBookId)
         .collect(Collectors.toList());
-
-    // Fetch and return the actual book objects
+    
     return bookRepository.findAllById(bookIds);
   }
 }
