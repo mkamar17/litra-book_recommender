@@ -16,6 +16,7 @@ export default function LandingPage() {
   const [fantasyBooks, setFantasyBooks] = useState([]);
   const [romanceBooks, setRomanceBooks] = useState([]);
   const [booktokBooks, setBooktokBooks] = useState([]);
+  const [recommendedBooks, setRecommendedBooks] = useState([]); 
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null); 
@@ -28,18 +29,20 @@ export default function LandingPage() {
     async function fetchBooks() {
       try {
         console.log("Fetching books...");
-        const [all, thriller, fantasy, romance, booktok] = await Promise.all([
+        const [all, thriller, fantasy, romance, booktok, recommended] = await Promise.all([
           api.get("/books"),
           api.get("/books/genre/Psychological Thrillers"),
           api.get("/books/genre/Fantasy & YA"),
           api.get("/books/genre/Modern Romance"),
           api.get("/books/genre/BookTok Favourites"),
+          api.get("/recommendations")
         ]);
         setBooks(all.data);
         setThrillerBooks(thriller.data);
         setFantasyBooks(fantasy.data);
         setRomanceBooks(romance.data);
         setBooktokBooks(booktok.data);
+        setRecommendedBooks(recommended.data);
       } catch (err) {
         console.error("Failed to fetch books:", err);
         setError("Could not load books. Please try again later.");
@@ -145,7 +148,14 @@ export default function LandingPage() {
             {continueBooks.length > 0 && (
               <BookRow title="Continue Reading" books={continueBooks} onSelectBook={handleSelectBook} refreshProgress={refreshProgress} />
             )}
-            <BookRow title="For You" books={books} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+
+            <BookRow 
+  title="For You" 
+  books={recommendedBooks.length > 0 ? recommendedBooks : books} // show recommendations if available, otherwise all books
+  onAddToLibrary={handleAddToLibrary} 
+  onSelectBook={handleSelectBook} 
+  refreshProgress={refreshProgress}
+/>
             <BookRow title="BookTok Favourites" books={booktokBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
             <BookRow title="Psychological Thrillers" books={thrillerBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
             <BookRow title="Fantasy & YA" books={fantasyBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
