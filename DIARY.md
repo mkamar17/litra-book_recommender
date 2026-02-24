@@ -236,4 +236,24 @@
 	- Possibly new "add friends" feature
 - Reflections:
 	 - I still struggle to progress on both my report and implementation simultaneously, but I intend to work on setting up the report this week as a minimum
+
+### 📅 09.02.26-13.02.26
+- What was achieved:
+	- Recommendations fetched to backend
+	- JUnit tests for recommendations model and updated controller
+	- Frontend fetches recommendations from backend and displays them in For You feed  
+- Next steps:
+	- Optimise recommender model
+	- Set up report structure in Overleaf (was having problems with typst)
+	
+### 📅 16.02.26-20.02.26
+- What was achieved:
+	- Most of report moved to overleaf 
+- Next steps:
+	- Finish moving the report
+	- Continue working on recommender system
+- Reflections:
+	- I was unable to achieve much at all this week due to illness 
+
+	
 	
