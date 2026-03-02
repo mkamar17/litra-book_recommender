@@ -93,4 +93,9 @@ export const getUserTotalPoints = async () => {
   return await response.json();
 };
 
+export const getRecommendations = async () => {
+  const res = await api.get('/recommendations');
+  return res.data;
+};
+
 export default api;

@@ -346,4 +346,22 @@ psd
 thumb
 sketch
 
+# Python / ML
+product/ML/venv/
+product/ML/env/
+product/ML/__pycache__/
+product/ML/**/__pycache__/
+product/ML/*.py[cod]
+product/ML/**/*.py[cod]
+product/ML/.ipynb_checkpoints/
+product/ML/**/.ipynb_checkpoints/
+
+# ML Models (can be large)
+product/ML/models/*.pkl
+product/ML/models/*.joblib
+product/ML/models/*.h5
+
+# ML Data files (if you download datasets locally)
+product/ML/data/
+
 # End of https://www.toptal.com/developers/gitignore/api/maven,java,macos,intellij,react,node

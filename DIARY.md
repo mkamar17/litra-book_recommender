@@ -223,3 +223,37 @@
 	- Focus on starting report writing 
 - Reflections:
 	- I decided that the reading streak feature is less of a priority and I want to focus on the recommendation system which requires more time and research 
+	
+### 📅 02.02.26-08.02.26
+- What was achieved:
+	- Users can now view points achieved after each reading session with a success message and their total points on the navbar, which updates immediately after the reading session ends
+	- Set up new ML directory and pushed to GitLab which contains notebooks directory (with book_recommender.ipynb) and a requirements.txt file 
+	- Implemented a simple binary classficiation recommender using genre and author fetched from the database as features (model is 67% accurate due to the dataset being small)
+- Next steps:
+	- Add a new endpoint /api/recommendations/{userId} and fetch recommendations to backend 
+	- Display recommendations to frontend
+	- Work on optimising the model 
+	- Possibly new "add friends" feature
+- Reflections:
+	 - I still struggle to progress on both my report and implementation simultaneously, but I intend to work on setting up the report this week as a minimum
+
+### 📅 09.02.26-13.02.26
+- What was achieved:
+	- Recommendations fetched to backend
+	- JUnit tests for recommendations model and updated controller
+	- Frontend fetches recommendations from backend and displays them in For You feed  
+- Next steps:
+	- Optimise recommender model
+	- Set up report structure in Overleaf (was having problems with typst)
+	
+### 📅 16.02.26-20.02.26
+- What was achieved:
+	- Most of report moved to overleaf 
+- Next steps:
+	- Finish moving the report
+	- Continue working on recommender system
+- Reflections:
+	- I was unable to achieve much at all this week due to illness 
+
+	
+	
