@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import uk.ac.rhul.cs3821.model.enums.NotificationType;
 
 /**
  * Notification model to represent all notifications a user receives in their inbox.

@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import uk.ac.rhul.cs3821.model.enums.FriendshipStatus;
 
 /**
  * Friendship entity class to represent a user's added friends.
@@ -40,7 +41,7 @@ public class Friendship {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  //private FriendshipStatus status;  //pending, accepted, blocked
+  private FriendshipStatus status;  //pending, accepted, blocked
 
   @CreationTimestamp
   private LocalDateTime createdAt;

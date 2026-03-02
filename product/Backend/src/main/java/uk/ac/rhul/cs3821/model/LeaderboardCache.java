@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Getter;
+import uk.ac.rhul.cs3821.model.enums.LeaderboardPeriod;
 
 /**
  * Leaderboard cache model for user's leaderboard statistics.
