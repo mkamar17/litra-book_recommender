@@ -6,11 +6,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.ac.rhul.cs3821.dto.CommentDto;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.BookComment;
 import uk.ac.rhul.cs3821.model.enums.NotificationType;
 import uk.ac.rhul.cs3821.repository.BookCommentRepository;
 import uk.ac.rhul.cs3821.repository.BookRepository;
+import uk.ac.rhul.cs3821.repository.CommentLikeRepository;
 import uk.ac.rhul.cs3821.repository.FriendshipRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 
@@ -19,17 +21,18 @@ import uk.ac.rhul.cs3821.repository.UserRepository;
 public class CommentService {
 
   private final BookCommentRepository commentRepo;
-  //private final FriendshipRepository friendshipRepo;
   private final NotificationService notificationService;
   private final UserRepository userRepo;
   private final BookRepository bookRepository;
+  private final CommentLikeRepository commentLikeRepository;
+  //you might need friendship repo if you recieve notif that friend liked your comment
 
-  public CommentService(BookCommentRepository commentRepo, FriendshipRepository friendshipRepo, NotificationService notificationService, UserRepository userRepo, BookRepository bookRepository) {
+  public CommentService(BookCommentRepository commentRepo, FriendshipRepository friendshipRepo, NotificationService notificationService, UserRepository userRepo, BookRepository bookRepository, CommentLikeRepository commentLikeRepository) {
     this.commentRepo = commentRepo;
-    //this.friendshipRepo = friendshipRepo;
     this.notificationService = notificationService;
     this.userRepo = userRepo;
     this.bookRepository = bookRepository;
+    this.commentLikeRepository = commentLikeRepository;
   }
 
   public BookComment addComment(Long userId, Long bookId,
@@ -70,5 +73,11 @@ public class CommentService {
   @Transactional(readOnly = true)
   public Page<BookComment> getComments(Long bookId, Pageable pageable) {
     return commentRepo.findByBookIdAndParentCommentIsNullAndDeletedFalse(bookId, pageable);
+  }
+
+  @Transactional(readOnly = true)
+  public CommentDto toDto(BookComment comment) {
+    int likeCount = commentLikeRepository.countByCommentId(comment.getId());
+    return CommentDto.from(comment, likeCount);
   }
 }

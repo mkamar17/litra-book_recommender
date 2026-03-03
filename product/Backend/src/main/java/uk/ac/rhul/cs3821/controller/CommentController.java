@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.ac.rhul.cs3821.dto.CommentDto;
 import uk.ac.rhul.cs3821.model.BookComment;
 import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.repository.UserRepository;
@@ -37,23 +38,23 @@ public class CommentController {
 
   // Paginated top-level comments for a book
   @GetMapping
-  public ResponseEntity<Page<BookComment>> getComments(
+  public ResponseEntity<Page<CommentDto>> getComments(
       @PathVariable Long bookId,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size) {
     return ResponseEntity.ok(
-        commentService.getComments(bookId, PageRequest.of(page, size)));
+        commentService.getComments(bookId, PageRequest.of(page, size)).map(commentService::toDto));
   }
 
   // Post a comment — parentCommentId is optional, only needed for replies
   @PostMapping
-  public ResponseEntity<BookComment> postComment(
+  public ResponseEntity<CommentDto> postComment(
       @PathVariable Long bookId,
       @RequestBody CommentRequest request) {
     Long userId = getCurrentUser().getId();
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(commentService.addComment(userId, bookId,
-            request.content(), request.parentCommentId()));
+    BookComment saved = commentService.addComment(userId, bookId,
+        request.content(), request.parentCommentId());
+    return ResponseEntity.status(HttpStatus.CREATED).body(commentService.toDto(saved));
   }
 
   // Soft delete — only the comment author can do this
@@ -65,6 +66,6 @@ public class CommentController {
   }
 
   // Simple record for the request body — no need for a separate DTO file
-  record CommentRequest(String content, Long parentCommentId) {
+  public record CommentRequest(String content, Long parentCommentId) {
   }
 }

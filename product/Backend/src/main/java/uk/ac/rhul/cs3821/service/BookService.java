@@ -62,6 +62,10 @@ public class BookService {
    * @return list of stored {@link Book} entities
    */
   public List<Book> fetchAndStorePopularFiction(final int max) {
+    if (repo.count() > 0) {
+      return repo.findAll();
+    }
+
     List<Book> allBooks = new ArrayList<>();
 
     for (Map.Entry<String, String> entry : CATEGORIES.entrySet()) {
