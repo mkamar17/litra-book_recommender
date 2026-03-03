@@ -61,5 +61,11 @@ public class User {
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
   private LeaderboardCache leaderboardStats;
 
+  @Column(nullable = false)
+  private int weeklyPoints = 0;
+
+  @Column(nullable = false)
+  private int monthlyPoints = 0;
+
   private Set<Book> library;
 }

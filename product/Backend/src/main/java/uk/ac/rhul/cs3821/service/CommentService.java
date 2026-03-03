@@ -1,9 +1,11 @@
 package uk.ac.rhul.cs3821.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import java.nio.file.AccessDeniedException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.BookComment;
 import uk.ac.rhul.cs3821.model.enums.NotificationType;
@@ -63,5 +65,10 @@ public class CommentService {
 
     comment.setDeleted(true);  // soft delete — preserves reply threads
     commentRepo.save(comment);
+  }
+
+  @Transactional(readOnly = true)
+  public Page<BookComment> getComments(Long bookId, Pageable pageable) {
+    return commentRepo.findByBookIdAndParentCommentIsNullAndDeletedFalse(bookId, pageable);
   }
 }
