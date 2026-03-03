@@ -10,6 +10,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 /**
@@ -18,6 +20,8 @@ import org.hibernate.annotations.CreationTimestamp;
 @Entity
 @Table(name = "comment_likes",
     uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "comment_id"}))
+@Getter
+@Setter
 public class CommentLike {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
