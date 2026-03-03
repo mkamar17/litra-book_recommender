@@ -1,9 +1,9 @@
 package uk.ac.rhul.cs3821.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.nio.file.AccessDeniedException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.rhul.cs3821.model.Book;
@@ -56,7 +56,7 @@ public class CommentService {
     return commentRepo.save(comment);
   }
 
-  public void deleteComment(Long commentId, Long currentUserId) throws AccessDeniedException {
+  public void deleteComment(Long commentId, Long currentUserId) {
     BookComment comment = commentRepo.findById(commentId)
         .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
 

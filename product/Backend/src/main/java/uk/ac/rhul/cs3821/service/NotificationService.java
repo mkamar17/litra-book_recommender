@@ -1,8 +1,8 @@
 package uk.ac.rhul.cs3821.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.nio.file.AccessDeniedException;
 import java.util.List;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.rhul.cs3821.model.Notification;
@@ -84,7 +84,7 @@ public class NotificationService {
   /**
    * Marks a single notification as read.
    */
-  public void markAsRead(Long notificationId, Long currentUserId) throws AccessDeniedException {
+  public void markAsRead(Long notificationId, Long currentUserId) {
     Notification notification = notificationRepository.findById(notificationId)
         .orElseThrow(() -> new EntityNotFoundException("Notification not found"));
 

@@ -19,6 +19,7 @@ import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.model.enums.NotificationType;
 import uk.ac.rhul.cs3821.repository.BookCommentRepository;
 import uk.ac.rhul.cs3821.repository.BookRepository;
+import uk.ac.rhul.cs3821.repository.FriendshipRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

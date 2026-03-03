@@ -77,8 +77,8 @@ class FriendshipServiceTest {
 
     FriendshipDto result = friendshipService.sendRequest(1L, 2L);
 
-    assertEquals(FriendshipStatus.PENDING, result.status());
-    assertEquals(2L, result.userId());
+    assertEquals(FriendshipStatus.PENDING, result.status);
+    assertEquals(2L, result.userId);
     verify(notificationService).send(2L, NotificationType.FRIEND_REQUEST, 10L);
   }
 
@@ -117,7 +117,7 @@ class FriendshipServiceTest {
 
     FriendshipDto result = friendshipService.acceptRequest(10L, 2L);
 
-    assertEquals(FriendshipStatus.ACCEPTED, result.status());
+    assertEquals(FriendshipStatus.ACCEPTED, result.status);
   }
 
   @Test
@@ -174,8 +174,8 @@ class FriendshipServiceTest {
     List<UserSummaryDto> result = friendshipService.getFriends(1L);
 
     assertEquals(1, result.size());
-    assertEquals("addressee@example.com", result.get(0).email());
-    assertEquals(200, result.get(0).totalPoints());
+    assertEquals("addressee@example.com", result.getFirst().email);
+    assertEquals(200, result.getFirst().totalPoints);
   }
 
   @Test
@@ -195,6 +195,6 @@ class FriendshipServiceTest {
     List<FriendshipDto> result = friendshipService.getPendingRequests(2L);
 
     assertEquals(1, result.size());
-    assertEquals(FriendshipStatus.PENDING, result.get(0).status());
+    assertEquals(FriendshipStatus.PENDING, result.getFirst().status);
   }
 }

@@ -2,7 +2,6 @@ package uk.ac.rhul.cs3821.controller;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,18 +48,18 @@ class CommentControllerTest {
 
     SecurityContextHolder.getContext()
         .setAuthentication(new UsernamePasswordAuthenticationToken("test@example.com", null));
+    
+  }
 
+  // Add this helper and call it manually in tests that need it
+  private void mockCurrentUser() {
     when(userRepository.findByEmail("test@example.com"))
         .thenReturn(Optional.of(currentUser));
   }
 
-  @AfterEach
-  void clear() {
-    SecurityContextHolder.clearContext();
-  }
-
   @Test
   void getCommentsReturnsPagedResults() {
+    // No mockCurrentUser() needed — getComments doesn't auth-check
     BookComment comment = new BookComment();
     comment.setContent("Great book!");
     comment.setUser(currentUser);
@@ -77,6 +76,7 @@ class CommentControllerTest {
 
   @Test
   void postCommentReturns201() {
+    mockCurrentUser();  // needs auth
     BookComment comment = new BookComment();
     comment.setContent("Loved it!");
     comment.setUser(currentUser);
@@ -93,6 +93,7 @@ class CommentControllerTest {
 
   @Test
   void postReplyCommentReturns201() {
+    mockCurrentUser();  // needs auth
     BookComment reply = new BookComment();
     reply.setContent("I agree!");
     reply.setUser(currentUser);
@@ -109,6 +110,7 @@ class CommentControllerTest {
 
   @Test
   void deleteCommentReturns204() throws Exception {
+    mockCurrentUser();  // needs auth
     var response = controller.deleteComment(10L);
 
     verify(commentService).deleteComment(10L, 1L);
@@ -121,7 +123,7 @@ class CommentControllerTest {
 
     org.junit.jupiter.api.Assertions.assertThrows(
         jakarta.persistence.EntityNotFoundException.class,
-        () -> controller.getComments(1L, 0, 20)
+        () -> controller.postComment(1L, new CommentController.CommentRequest("test", null))
     );
   }
 }
