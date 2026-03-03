@@ -76,9 +76,9 @@ class LeaderboardServiceTest {
         leaderboardService.getFriendsLeaderboard(1L, LeaderboardPeriod.WEEKLY);
 
     assertEquals(2, result.size());
-    assertEquals("friend@example.com", result.get(0).email());
-    assertEquals(200, result.get(0).points());
-    assertEquals("WEEKLY", result.get(0).period());
+    assertEquals("friend@example.com", result.getFirst().email);
+    assertEquals(200, result.getFirst().points);
+    assertEquals("WEEKLY", result.getFirst().period);
   }
 
   @Test
