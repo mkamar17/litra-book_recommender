@@ -3,6 +3,7 @@ package uk.ac.rhul.cs3821.service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.nio.file.AccessDeniedException;
+import org.springframework.stereotype.Service;
 import uk.ac.rhul.cs3821.model.Friendship;
 import uk.ac.rhul.cs3821.model.enums.FriendshipStatus;
 import uk.ac.rhul.cs3821.model.enums.NotificationType;

@@ -4,9 +4,11 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.nio.file.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.BookComment;
 import uk.ac.rhul.cs3821.model.enums.NotificationType;
 import uk.ac.rhul.cs3821.repository.BookCommentRepository;
+import uk.ac.rhul.cs3821.repository.BookRepository;
 import uk.ac.rhul.cs3821.repository.FriendshipRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 
@@ -18,19 +20,24 @@ public class CommentService {
   //private final FriendshipRepository friendshipRepo;
   private final NotificationService notificationService;
   private final UserRepository userRepo;
+  private final BookRepository bookRepository;
 
-  public CommentService(BookCommentRepository commentRepo, FriendshipRepository friendshipRepo, NotificationService notificationService, UserRepository userRepo) {
+  public CommentService(BookCommentRepository commentRepo, FriendshipRepository friendshipRepo, NotificationService notificationService, UserRepository userRepo, BookRepository bookRepository) {
     this.commentRepo = commentRepo;
     //this.friendshipRepo = friendshipRepo;
     this.notificationService = notificationService;
     this.userRepo = userRepo;
+    this.bookRepository = bookRepository;
   }
 
-  public BookComment addComment(Long userId, String bookId,
+  public BookComment addComment(Long userId, Long bookId,
                                 String content, Long parentCommentId) {
     BookComment comment = new BookComment();
     comment.setUser(userRepo.getReferenceById(userId));
-    comment.setBookId(bookId);
+
+    Book book = bookRepository.findById(bookId).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+    comment.setBook(book);
+
     comment.setContent(content);
 
     if (parentCommentId != null) {
