@@ -1,8 +1,7 @@
 package uk.ac.rhul.cs3821.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,8 +70,8 @@ public class CommentService {
   }
 
   @Transactional(readOnly = true)
-  public Page<BookComment> getComments(Long bookId, Pageable pageable) {
-    return commentRepo.findByBookIdAndParentCommentIsNullAndDeletedFalse(bookId, pageable);
+  public List<CommentDto> getComments(Long bookId) {
+    return commentRepo.findByBookIdAndParentCommentIsNullAndDeletedFalse(bookId).stream().map(this::toDto).toList();
   }
 
   @Transactional(readOnly = true)
