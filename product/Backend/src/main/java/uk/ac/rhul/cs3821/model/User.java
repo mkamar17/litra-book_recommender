@@ -1,5 +1,6 @@
 package uk.ac.rhul.cs3821.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -55,8 +56,10 @@ public class User {
   private Set<Book> library;
 
   @OneToMany(mappedBy = "requester", cascade = CascadeType.ALL)
+  @JsonIgnore
   private List<Friendship> sentRequests = new ArrayList<>();
 
   @OneToMany(mappedBy = "addressee", cascade = CascadeType.ALL)
+  @JsonIgnore
   private List<Friendship> receivedRequests = new ArrayList<>();
 }

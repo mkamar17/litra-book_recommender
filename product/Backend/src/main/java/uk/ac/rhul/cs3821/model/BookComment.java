@@ -16,6 +16,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * BookComment model for the social experience - users can interact with other readers.
@@ -39,6 +40,7 @@ public class BookComment {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "parent_comment_id")
+  @JsonIgnore // to prevent infinite recursion
   private BookComment parentComment;  // null = top-level, non-null = reply
 
   @OneToMany(mappedBy = "parentComment")
