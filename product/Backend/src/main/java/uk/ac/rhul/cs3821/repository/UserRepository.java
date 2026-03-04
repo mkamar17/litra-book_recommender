@@ -1,5 +1,6 @@
 package uk.ac.rhul.cs3821.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import uk.ac.rhul.cs3821.model.User;
@@ -26,4 +27,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
    */
 
   boolean existsByEmail(String email);
+
+  //dont forget to add to tests - this and the new method in friendship service+controller
+  List<User> findByEmailContainingIgnoreCase(String email);
 }

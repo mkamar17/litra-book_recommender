@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.rhul.cs3821.dto.FriendshipDto;
 import uk.ac.rhul.cs3821.dto.UserSummaryDto;
@@ -69,5 +70,11 @@ public class FriendshipController {
   public ResponseEntity<List<FriendshipDto>> getPendingRequests() {
     Long userId = getCurrentUser().getId();
     return ResponseEntity.ok(friendshipService.getPendingRequests(userId));
+  }
+
+  @GetMapping("/search")
+  public ResponseEntity<List<UserSummaryDto>> searchUsers(
+      @RequestParam String query) {
+    return ResponseEntity.ok(friendshipService.searchUsers(query));
   }
 }

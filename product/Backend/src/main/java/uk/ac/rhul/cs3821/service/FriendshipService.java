@@ -103,4 +103,11 @@ public class FriendshipService {
     return new FriendshipDto(f.getId(), otherUser.getId(),
         otherUser.getEmail(), f.getStatus());
   }
+
+  public List<UserSummaryDto> searchUsers(String query) {
+    return userRepo.findByEmailContainingIgnoreCase(query)
+        .stream()
+        .map(u -> new UserSummaryDto(u.getId(), u.getEmail(), u.getTotalPoints()))
+        .toList();
+  }
 }
