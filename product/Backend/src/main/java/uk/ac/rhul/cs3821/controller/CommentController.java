@@ -20,6 +20,10 @@ import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 import uk.ac.rhul.cs3821.service.CommentService;
 
+/**
+ * REST controller for managing book comments.
+ * Handles top-level comments and threaded replies on books.
+ */
 @RestController
 @RequestMapping("/api/books/{bookId}/comments")
 @RequiredArgsConstructor
@@ -28,19 +32,35 @@ public class CommentController {
   private final CommentService commentService;
   private final UserRepository userRepository;
 
+  /**
+   * Gets the current authenticated user from security context.
+   *
+   * @return the authenticated user.
+   */
   private User getCurrentUser() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     return userRepository.findByEmail(auth.getName())
         .orElseThrow(() -> new EntityNotFoundException("User not found"));
   }
 
-  // Paginated top-level comments for a book
+  /**
+   * Returns all top-level comments for a book.
+   *
+   * @param bookId the id of the book
+   * @return list of comments
+   */
   @GetMapping
   public ResponseEntity<List<CommentDto>> getComments(@PathVariable Long bookId) {
     return ResponseEntity.ok(commentService.getComments(bookId));
   }
 
-  // Post a comment — parentCommentId is optional, only needed for replies
+  /**
+   * Posts a comment on a book. If parentCommentId is provided, the comment is treated as a reply.
+   *
+   * @param bookId  the id of the book
+   * @param request the comment content and optional parent comment id
+   * @return the created CommentDto
+   */
   @PostMapping
   public ResponseEntity<CommentDto> postComment(
       @PathVariable Long bookId,
@@ -51,7 +71,13 @@ public class CommentController {
     return ResponseEntity.status(HttpStatus.CREATED).body(commentService.toDto(saved));
   }
 
-  // Soft delete — only the comment author can do this
+  /**
+   * Soft deletes a comment. Only the comment author can delete their own comment.
+   *
+   * @param commentId the id of the comment to delete
+   * @return success HTTP
+   * @throws Exception if error on delete
+   */
   @DeleteMapping("/{commentId}")
   public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) throws Exception {
     Long userId = getCurrentUser().getId();
@@ -59,7 +85,12 @@ public class CommentController {
     return ResponseEntity.noContent().build();
   }
 
-  // Simple record for the request body — no need for a separate DTO file
+  /**
+   * Request body for posting a comment or reply.
+   *
+   * @param content         the comment text
+   * @param parentCommentId optional id of the parent comment; null for top-level comments
+   */
   public record CommentRequest(String content, Long parentCommentId) {
   }
 }

@@ -16,6 +16,10 @@ import uk.ac.rhul.cs3821.model.enums.LeaderboardPeriod;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 import uk.ac.rhul.cs3821.service.LeaderboardService;
 
+/**
+ * Controller retrieves leaderboard data.
+ * Returns precomputed rankings from the leaderboard cache.
+ */
 @RestController
 @RequestMapping("/api/leaderboard")
 @RequiredArgsConstructor
@@ -30,7 +34,13 @@ public class LeaderboardController {
         .orElseThrow(() -> new EntityNotFoundException("User not found"));
   }
 
-  // Friends leaderboard — defaults to weekly, frontend can pass ?period=MONTHLY etc
+  /**
+   * Returns the friends leaderboard for the current user.
+   * Defaults to WEEKLY if no period is specified.
+   *
+   * @param period the leaderboard period — WEEKLY, MONTHLY, or ALL_TIME
+   * @return ranked list of LeaderboardEntryDto for the user's friends
+   */
   @GetMapping("/friends")
   public ResponseEntity<List<LeaderboardEntryDto>> getFriendsLeaderboard(
       @RequestParam(defaultValue = "WEEKLY") LeaderboardPeriod period) {

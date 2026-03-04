@@ -6,13 +6,20 @@ import org.springframework.stereotype.Component;
 import uk.ac.rhul.cs3821.model.enums.LeaderboardPeriod;
 import uk.ac.rhul.cs3821.service.LeaderboardService;
 
+/**
+ * Scheduled job that periodically recomputes leaderboard cache entries.
+ * Runs every 15 minutes to keep friend leaderboards up to date.
+ */
 @Component
 @RequiredArgsConstructor
 public class LeaderboardScheduler {
 
   private final LeaderboardService leaderboardService;
 
-  // Runs every 15 minutes — recomputes weekly and monthly caches
+  /**
+   * Recomputes leaderboard caches for all periods.
+   * Triggered automatically every 15 minutes.
+   */
   @Scheduled(fixedRate = 900000)
   public void refreshLeaderboards() {
     leaderboardService.recomputeAll(LeaderboardPeriod.WEEKLY);

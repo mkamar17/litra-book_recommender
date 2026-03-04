@@ -23,7 +23,8 @@ import uk.ac.rhul.cs3821.repository.UserRepository;
 import uk.ac.rhul.cs3821.service.FriendshipService;
 
 /**
- * Controller handles actions user can do for the friends feature.
+ * Controller manages friendships between users.
+ * Supports sending, accepting, and removing friendships, as well as user search.
  */
 @RestController
 @RequestMapping("/api/friends")
@@ -33,13 +34,24 @@ public class FriendshipController {
   private final FriendshipService friendshipService;
   private final UserRepository userRepository;
 
-  // Reusable — mirrors exactly what UserController does
+  /**
+   * Resolves the currently authenticated user from the security context.
+   *
+   * @return the authenticated user
+   * @throws EntityNotFoundException if the user is not found
+   */
   private User getCurrentUser() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     return userRepository.findByEmail(auth.getName())
         .orElseThrow(() -> new EntityNotFoundException("User not found"));
   }
 
+  /**
+   * Sends a friend request to the specified user.
+   *
+   * @param addresseeId the id of the user to send the request to
+   * @return the created FriendshipDto
+   */
   @PostMapping("/request/{addresseeId}")
   public ResponseEntity<FriendshipDto> sendRequest(@PathVariable Long addresseeId) {
     Long requesterId = getCurrentUser().getId();
@@ -47,12 +59,24 @@ public class FriendshipController {
         .body(friendshipService.sendRequest(requesterId, addresseeId));
   }
 
+  /**
+   * Accepts an incoming friend request. Only the address may accept.
+   *
+   * @param friendshipId the id of the friendship to accept
+   * @return the updated FriendshipDto
+   */
   @PutMapping("/accept/{friendshipId}")
   public ResponseEntity<FriendshipDto> acceptRequest(@PathVariable Long friendshipId) throws AccessDeniedException {
     Long userId = getCurrentUser().getId();
     return ResponseEntity.ok(friendshipService.acceptRequest(friendshipId, userId));
   }
 
+  /**
+   * Removes a friendship or rejects a pending request. Only a participant in the friendship may perform this action.
+   *
+   * @param friendshipId the id of the friendship to accept
+   * @return the updated FriendshipDto
+   */
   @DeleteMapping("/{friendshipId}")
   public ResponseEntity<Void> removeFriend(@PathVariable Long friendshipId) throws AccessDeniedException {
     Long userId = getCurrentUser().getId();
@@ -60,18 +84,34 @@ public class FriendshipController {
     return ResponseEntity.noContent().build();
   }
 
+  /**
+   * Returns all accepted friends for the current user.
+   *
+   * @return list of UserSummaryDto representing each friend
+   */
   @GetMapping
   public ResponseEntity<List<UserSummaryDto>> getMyFriends() {
     Long userId = getCurrentUser().getId();
     return ResponseEntity.ok(friendshipService.getFriends(userId));
   }
 
+  /**
+   * Returns all incoming pending friend requests for the current user.
+   *
+   * @return list of FriendshipDto with status PENDING
+   */
   @GetMapping("/pending")
   public ResponseEntity<List<FriendshipDto>> getPendingRequests() {
     Long userId = getCurrentUser().getId();
     return ResponseEntity.ok(friendshipService.getPendingRequests(userId));
   }
 
+  /**
+   * Searches for users by email. Used to find users to send friend requests to.
+   *
+   * @param query partial email string to search by
+   * @return list of matching UserSummaryDto
+   */
   @GetMapping("/search")
   public ResponseEntity<List<UserSummaryDto>> searchUsers(
       @RequestParam String query) {
