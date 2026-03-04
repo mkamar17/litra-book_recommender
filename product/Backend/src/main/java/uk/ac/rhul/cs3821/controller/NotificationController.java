@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.ac.rhul.cs3821.model.Notification;
+import uk.ac.rhul.cs3821.dto.NotificationDto;
 import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 import uk.ac.rhul.cs3821.service.NotificationService;
@@ -32,14 +32,14 @@ public class NotificationController {
 
   // All notifications — frontend uses this to populate the notification panel
   @GetMapping
-  public ResponseEntity<List<Notification>> getAll() {
+  public ResponseEntity<List<NotificationDto>> getAll() {
     Long userId = getCurrentUser().getId();
     return ResponseEntity.ok(notificationService.getAllForUser(userId));
   }
 
   // Unread only — poll this every 30s for the bell badge
   @GetMapping("/unread")
-  public ResponseEntity<List<Notification>> getUnread() {
+  public ResponseEntity<List<NotificationDto>> getUnread() {
     Long userId = getCurrentUser().getId();
     return ResponseEntity.ok(notificationService.getUnreadForUser(userId));
   }

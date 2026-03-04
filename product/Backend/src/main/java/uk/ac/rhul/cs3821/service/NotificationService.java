@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.ac.rhul.cs3821.dto.NotificationDto;
 import uk.ac.rhul.cs3821.model.Notification;
 import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.model.enums.NotificationType;
@@ -50,16 +51,16 @@ public class NotificationService {
    * Returns all notifications for a user, newest first.
    */
   @Transactional(readOnly = true)
-  public List<Notification> getAllForUser(Long userId) {
-    return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId);
+  public List<NotificationDto> getAllForUser(Long userId) {
+    return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId).stream().map(NotificationDto::from).toList();
   }
 
   /**
    * Returns only unread notifications for a user.
    */
   @Transactional(readOnly = true)
-  public List<Notification> getUnreadForUser(Long userId) {
-    return notificationRepository.findByRecipientIdAndReadFalse(userId);
+  public List<NotificationDto> getUnreadForUser(Long userId) {
+    return notificationRepository.findByRecipientIdAndReadFalse(userId).stream().map(NotificationDto::from).toList();
   }
 
   /**
