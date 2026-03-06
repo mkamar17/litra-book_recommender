@@ -26,6 +26,7 @@ export default function AuthPage() {
 
       const data = await res.json();
       localStorage.setItem("token", data.token);
+      localStorage.setItem("email", email);
 
       navigate("/home"); 
     } catch (err) {

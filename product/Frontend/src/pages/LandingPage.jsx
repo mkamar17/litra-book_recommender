@@ -6,6 +6,7 @@ import api from "../api/api.js";
 import BookRow from "../components/BookRow";
 import NavBar from "../components/NavBar.jsx"
 import ReadingTimer from "../components/ReadingTimer";
+import CommentSection from "../components/CommentSection";
 import { getAllProgress } from "../api/api.js";
 import '../App.css'
 import '../styles/BookModal.css'
@@ -24,6 +25,23 @@ export default function LandingPage() {
   const [readingBook, setReadingBook] = useState(null);
   const [refreshProgress, setRefreshProgress] = useState(0);
   const [continueBooks, setContinueBooks] = useState([]);
+  const [selectedBookProgress, setSelectedBookProgress] = useState(0);
+
+  // Add this useEffect — runs when a book is selected
+  useEffect(() => {
+    if (!selectedBook) return;
+    async function fetchSelectedProgress() {
+      try {
+        const res = await getBookProgress(selectedBook.id);
+        if (!res || res.total_pages === 0) return;
+        const pct = Math.min(100, (res.current_page / res.total_pages) * 100);
+        setSelectedBookProgress(pct);
+      } catch (err) {
+        setSelectedBookProgress(0);
+      }
+    }
+    fetchSelectedProgress();
+  }, [selectedBook]);
   
   useEffect(() => {
     async function fetchBooks() {
@@ -195,6 +213,8 @@ export default function LandingPage() {
                     ? selectedBook.description.replace(/^(.{0,650}\b).*/, "$1") + "…"
                     : "No description available."}
                 </p>
+
+                <CommentSection bookId={selectedBook.id} bookProgress={selectedBookProgress} />
               </div>
 
               <button

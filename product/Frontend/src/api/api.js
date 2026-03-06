@@ -40,24 +40,6 @@ export const getAllProgress = async () => {
   return res.data;
 };
 
-// export const updatePageReached = async (sessionId, pageReached) => {
-//   const res = await api.post(`/reading-sessions/end/${sessionId}`, null, {
-//     params: { pageReached }
-//   });
-//   return res.data;
-// };
-
-// export const updatePageReached = async (sessionId, pageReached) => {
-//   const res = await api.post(
-//     `/reading-sessions/end/${sessionId}`,
-//     null,
-//     {
-//       params: { pageReached: Number(pageReached) }
-//     }
-//   );
-//   return res.data;
-// };
-
 export const updatePageReached = async (sessionId, pageReached) => {
   const response = await fetch(
     `http://localhost:8080/api/reading-sessions/end/${sessionId}?pageReached=${pageReached}`,
@@ -94,8 +76,23 @@ export const getUserTotalPoints = async () => {
 };
 
 export const getRecommendations = async () => {
-  const res = await api.get('/recommendations');
+  const res = await api.get(`/recommendations`);
   return res.data;
+};
+
+export const getComments = async (bookId) => {
+  const res = await api.get(`/books/${bookId}/comments`);
+  return res.data;
+};
+
+export const postComment = async (bookId, content, parentCommentId = null) => {
+  const body = parentCommentId ? {content, parentCommentId} : {content};
+  const res = await api.post(`/books/${bookId}/comments`, body);
+  return res.data;
+};
+
+export const deleteComment = async (bookId, commentId) => {
+  await api.delete(`/books/${bookId}/comments/${commentId}`);
 };
 
 export default api;
