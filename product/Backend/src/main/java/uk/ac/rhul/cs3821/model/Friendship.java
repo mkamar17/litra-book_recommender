@@ -41,7 +41,7 @@ public class Friendship {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private FriendshipStatus status;  //pending, accepted, blocked
+  private FriendshipStatus status;  // pending, accepted, blocked
 
   @CreationTimestamp
   private LocalDateTime createdAt;

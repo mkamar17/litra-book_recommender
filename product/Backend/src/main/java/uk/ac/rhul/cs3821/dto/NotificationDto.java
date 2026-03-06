@@ -4,6 +4,10 @@ import java.time.LocalDateTime;
 import uk.ac.rhul.cs3821.model.Notification;
 import uk.ac.rhul.cs3821.model.enums.NotificationType;
 
+/**
+ * Data transfer object for returning notification data in API responses.
+ * Replaces the full Notification entity to avoid exposing recipient user data.
+ */
 public class NotificationDto {
   public Long id;
   public NotificationType type;
@@ -11,6 +15,15 @@ public class NotificationDto {
   public boolean read;
   public LocalDateTime createdAt;
 
+  /**
+   * Constructs a NotificationDto with all fields.
+   *
+   * @param id          the notification ID
+   * @param type        the notification type
+   * @param referenceId the ID of the related entity
+   * @param read        whether the notification has been read
+   * @param createdAt   the creation timestamp
+   */
   public NotificationDto(Long id, NotificationType type, Long referenceId,
                          boolean read, LocalDateTime createdAt) {
     this.id = id;
@@ -20,6 +33,12 @@ public class NotificationDto {
     this.createdAt = createdAt;
   }
 
+  /**
+   * Converts a Notification entity to a NotificationDto.
+   *
+   * @param n the notification entity to convert
+   * @return the mapped {@code NotificationDto}
+   */
   public static NotificationDto from(Notification n) {
     return new NotificationDto(n.getId(), n.getType(), n.getReferenceId(),
         n.isRead(), n.getCreatedAt());

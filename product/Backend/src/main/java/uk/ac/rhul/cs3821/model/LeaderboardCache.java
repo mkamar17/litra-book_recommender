@@ -43,7 +43,7 @@ public class LeaderboardCache {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private LeaderboardPeriod period;  // WEEKLY, MONTHLY, ALL_TIME
+  private LeaderboardPeriod period;
 
   @Column(nullable = false)
   private LocalDateTime computedAt;

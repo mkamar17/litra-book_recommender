@@ -19,6 +19,9 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Entity represents a user.
+ */
 @Entity
 @Table(name = "app_user")
 @Getter
@@ -46,7 +49,6 @@ public class User {
   @Column(nullable = false)
   private int monthlyPoints = 0;
 
-  // @ManyToMany and @JoinTable must stay together directly above library
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
       name = "use_library",

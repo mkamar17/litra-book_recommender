@@ -10,13 +10,13 @@ import uk.ac.rhul.cs3821.model.User;
  */
 public interface UserRepository extends JpaRepository<User, Long> {
 
-
   /**
    * Retrieves a User entity by email.
    *
    * @param email the email address of the User.
    * @return an Optional containing the matching User if found or empty.
    */
+
   Optional<User> findByEmail(String email);
 
   /**
@@ -27,7 +27,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
    */
 
   boolean existsByEmail(String email);
-
-  //dont forget to add to tests - this and the new method in friendship service+controller
+  
+  /**
+   * Returns all users whose email contains the given string, case-insensitively.
+   * Used for friend search functionality.
+   *
+   * @param email partial email string to search by
+   * @return list of matching users
+   */
   List<User> findByEmailContainingIgnoreCase(String email);
 }

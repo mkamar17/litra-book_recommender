@@ -22,6 +22,12 @@ public class NotificationService {
   private final NotificationRepository notificationRepository;
   private final UserRepository userRepository;
 
+  /**
+   * Constructor with the following parameters.
+   *
+   * @param notificationRepository notificationRepository
+   * @param userRepository         userRepository
+   */
   public NotificationService(NotificationRepository notificationRepository,
                              UserRepository userRepository) {
     this.notificationRepository = notificationRepository;

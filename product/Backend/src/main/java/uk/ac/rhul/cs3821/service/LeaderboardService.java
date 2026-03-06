@@ -12,6 +12,9 @@ import uk.ac.rhul.cs3821.model.enums.LeaderboardPeriod;
 import uk.ac.rhul.cs3821.repository.LeaderboardCacheRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 
+/**
+ * Service manages Leaderboard logic.
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -57,6 +60,7 @@ public class LeaderboardService {
         case WEEKLY -> cache.setPoints(user.getWeeklyPoints());
         case MONTHLY -> cache.setPoints(user.getMonthlyPoints());
         case ALL_TIME -> cache.setPoints(user.getTotalPoints());
+        default -> throw new IllegalArgumentException("Unknown period: " + period);
       }
 
       leaderboardCacheRepository.save(cache);
