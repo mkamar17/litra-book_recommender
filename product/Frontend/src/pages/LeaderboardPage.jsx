@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import NavBar from "../components/NavBar.jsx";
+import { getUserTotalPoints } from '../api/api.js';
 import "../styles/LeaderboardPage.css";
 import { getLeaderboard } from "../api/api.js";
 
@@ -40,12 +41,48 @@ export default function LeaderboardPage() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentUserTotalPoints, setCurrentUserTotalPoints] = useState(0);
 
   const currentUserEmail = localStorage.getItem("email");
 
+  // const fetchCurrentUserTotalPoints = async () => {
+  //   try {
+  //     const data = await getUserTotalPoints();
+  //     setCurrentUserTotalPoints(data.totalPoints);
+  //   } catch (error) {
+  //     console.error('Failed to fetch total points:', error);
+  //   }
+  // };
+
   useEffect(() => {
-    fetchLeaderboard();
-  }, [period]);
+  async function loadAll() {
+    setLoading(true);
+    setError(null);
+    try {
+      const [leaderboardData, pointsData] = await Promise.all([
+        getLeaderboard(period),
+        getUserTotalPoints(),
+      ]);
+
+      const userPoints = pointsData.totalPoints;
+      setCurrentUserTotalPoints(userPoints);
+
+      const sorted = [...leaderboardData].sort((a, b) => {
+        const aPoints = a.email === currentUserEmail ? userPoints : a.points;
+        const bPoints = b.email === currentUserEmail ? userPoints : b.points;
+        return bPoints - aPoints;
+      });
+
+      setEntries(sorted);
+    } catch (err) {
+      setError("Could not load leaderboard.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadAll();
+}, [period]);
 
   async function fetchLeaderboard() {
     setLoading(true);
@@ -61,9 +98,9 @@ export default function LeaderboardPage() {
   }
 
   const chartData = entries.slice(0, 8).map((e) => ({
-    name: getUsername(e.email),
-    points: e.points,
-  }));
+  name: e.email === currentUserEmail ? "You" : getUsername(e.email),
+  points: e.email === currentUserEmail ? currentUserTotalPoints : e.points,
+}));
 
   return (
     <div className="lb-page">
@@ -140,7 +177,11 @@ export default function LeaderboardPage() {
                         </span>
                       </td>
                       <td className="lb-points">
-                        <span className="lb-points-badge">{entry.points.toLocaleString()}</span>
+                        <span className="lb-points-badge">
+                          {entry.email === currentUserEmail 
+                            ? currentUserTotalPoints.toLocaleString() 
+                            : entry.points.toLocaleString()}
+                        </span>
                       </td>
                       <td className="lb-stat">{entry.pagesRead.toLocaleString()}</td>
                       <td className="lb-stat">{entry.booksCompleted}</td>
