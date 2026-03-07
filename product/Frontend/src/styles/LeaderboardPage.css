@@ -1,0 +1,278 @@
+.lb-page {
+  background: rgb(24, 24, 24);
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.lb-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* Header */
+.lb-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.lb-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+.lb-subtitle {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+/* Tabs */
+.lb-tabs {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.lb-tab {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 7px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s;
+}
+
+.lb-tab:hover {
+  color: #fff;
+}
+
+.lb-tab--active {
+  background: #e63946;
+  color: #fff;
+}
+
+/* Content layout */
+.lb-content {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* Table */
+.lb-table-wrapper {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.lb-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lb-table thead tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.lb-table th {
+  padding: 14px 16px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: left;
+}
+
+.lb-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.15s;
+  animation: lb-row-in 0.3s ease both;
+}
+
+.lb-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lb-row--top {
+  background: rgba(230, 57, 70, 0.04);
+}
+
+.lb-row:last-child {
+  border-bottom: none;
+}
+
+@keyframes lb-row-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.lb-table td {
+  padding: 12px 16px;
+  font-size: 0.85rem;
+}
+
+/* Rank cell */
+.lb-rank {
+  width: 60px;
+  text-align: center;
+}
+
+.lb-rank-emoji {
+  font-size: 1.3rem;
+}
+
+.lb-rank-num {
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Player cell */
+.lb-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lb-avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e63946, #c1121f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.lb-username {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* Points badge */
+.lb-points {
+  text-align: left;
+}
+
+.lb-points-badge {
+  background: rgba(230, 57, 70, 0.15);
+  color: #e63946;
+  border: 1px solid rgba(230, 57, 70, 0.25);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* Stat cells */
+.lb-stat {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.82rem;
+  text-align: left;
+}
+
+/* Chart */
+.lb-chart-wrapper {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 24px 20px 16px;
+}
+
+.lb-chart-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 16px;
+}
+
+/* Tooltip */
+.lb-tooltip {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.lb-tooltip-name {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  margin: 0 0 2px;
+}
+
+.lb-tooltip-value {
+  color: #e63946;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* States */
+.lb-loading,
+.lb-error {
+  text-align: center;
+  padding: 60px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.9rem;
+}
+
+.lb-error {
+  color: #e63946;
+}
+
+.lb-empty {
+  text-align: center;
+  padding: 80px 24px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.95rem;
+}
+
+.lb-empty-sub {
+  font-size: 0.82rem;
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.lb-row--you {
+  background: rgba(230, 57, 70, 0.12);
+  border-left: 3px solid #e63946;
+}
+
+.lb-row--you:hover {
+  background: rgba(230, 57, 70, 0.18);
+}
+
+.lb-row--you .lb-username {
+  color: #e63946;
+  font-weight: 700;
+}
+
+.lb-row--you .lb-avatar {
+  background: linear-gradient(135deg, #FFD700, #e63946);
+}

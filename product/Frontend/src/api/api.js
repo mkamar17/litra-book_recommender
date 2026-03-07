@@ -95,4 +95,22 @@ export const deleteComment = async (bookId, commentId) => {
   await api.delete(`/books/${bookId}/comments/${commentId}`);
 };
 
+export const getNotifications = async () => {
+  const res = await api.get("/notifications");
+  return res.data;
+};
+
+export const markAllNotificationsRead = async () => {
+  await api.put("/notifications/read-all");
+};
+
+export const markNotificationRead = async (notificationId) => {
+  await api.put(`/notifications/${notificationId}/read`);
+};
+
+export const getLeaderboard = async (period = "WEEKLY") => {
+  const res = await api.get(`/leaderboard/friends?period=${period}`);
+  return res.data;
+};
+
 export default api;

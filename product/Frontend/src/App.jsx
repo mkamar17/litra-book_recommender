@@ -5,6 +5,7 @@ import AuthPage from "./pages/AuthPage";
 import RegisterPage from "./pages/RegisterPage";
 import GenrePage from "./pages/GenrePage";
 import MyLibraryPage from "./pages/MyLibraryPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/genre" element={<GenrePage />} />
         <Route path="/library" element={<MyLibraryPage />} />
         <Route path="/" element={<Navigate to="/auth" />} />
+        <Route path="/leaderboard" element={<LeaderboardPage/>}/>
       </Routes>
     </BrowserRouter>
   );

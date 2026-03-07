@@ -1,12 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
 import { getUserTotalPoints } from '../api/api.js';
-
+import NotificationDropdown from "./NotificationDropdown";
 
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-
 
 import logo from '../assets/logo.png';
 import pfp from '../assets/user_pfp.png';
@@ -132,19 +130,24 @@ export default function NavBar({ onSearch = () => {} }) { // to increase scalabi
             </button>
           </form>
 
-          <div className="flex items-center gap-2 bg-[rgb(60,60,60)] rounded-full px-4 py-1.5">
-              <span className="text-yellow-400 text-lg">⭐</span>
-              <span className="text-white font-semibold text-sm">{totalPoints.toLocaleString()}</span>
-            </div>
+          <div
+            className="flex items-center gap-2 bg-[rgb(60,60,60)] rounded-full px-4 py-1.5 cursor-pointer hover:bg-[rgb(80,80,80)] transition"
+            onClick={() => navigate("/leaderboard")}
+          >
+            <span className="text-yellow-400 text-lg">⭐</span>
+            <span className="text-white font-semibold text-sm">{totalPoints.toLocaleString()}</span>
+          </div>
 
-            <button
+            {/* <button
               type="button"
               className="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
             >
               <span className="absolute -inset-1.5" />
               <span className="sr-only">View notifications</span>
               <BellIcon aria-hidden="true" className="size-6" />
-            </button>
+            </button> */}
+
+            <NotificationDropdown/>
 
             {/* Profile dropdown */}
             <Menu as="div" className="relative -ml-2">
