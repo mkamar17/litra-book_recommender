@@ -1,6 +1,8 @@
 package uk.ac.rhul.cs3821.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,8 +30,15 @@ public class LeaderboardService {
    */
   @Transactional(readOnly = true)
   public List<LeaderboardEntryDto> getFriendsLeaderboard(Long userId, LeaderboardPeriod period) {
-    return leaderboardCacheRepository.findFriendsLeaderboard(userId, period)
-        .stream()
+    List<LeaderboardCache> friendEntries = leaderboardCacheRepository
+        .findFriendsLeaderboard(userId, period);
+
+    List<LeaderboardCache> all = new ArrayList<>(friendEntries);
+    leaderboardCacheRepository.findByUserIdAndPeriod(userId, period)
+        .ifPresent(all::add);
+
+    return all.stream()
+        .sorted(Comparator.comparingInt(LeaderboardCache::getPoints).reversed())
         .map(l -> new LeaderboardEntryDto(
             l.getUser().getEmail(),
             l.getPoints(),
@@ -38,6 +47,18 @@ public class LeaderboardService {
             l.getPeriod().name()))
         .toList();
   }
+//  @Transactional(readOnly = true)
+//  public List<LeaderboardEntryDto> getFriendsLeaderboard(Long userId, LeaderboardPeriod period) {
+//    return leaderboardCacheRepository.findFriendsLeaderboard(userId, period)
+//        .stream()
+//        .map(l -> new LeaderboardEntryDto(
+//            l.getUser().getEmail(),
+//            l.getPoints(),
+//            l.getPagesRead(),
+//            l.getBooksCompleted(),
+//            l.getPeriod().name()))
+//        .toList();
+//  }
 
   /**
    * Recomputes leaderboard cache for all users for a given period.

@@ -7,9 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.ac.rhul.cs3821.config.LeaderboardScheduler;
 import uk.ac.rhul.cs3821.dto.LeaderboardEntryDto;
 import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.model.enums.LeaderboardPeriod;
@@ -27,6 +29,7 @@ public class LeaderboardController {
 
   private final LeaderboardService leaderboardService;
   private final UserRepository userRepository;
+  private final LeaderboardScheduler leaderboardScheduler;
 
   private User getCurrentUser() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -46,5 +49,11 @@ public class LeaderboardController {
       @RequestParam(defaultValue = "WEEKLY") LeaderboardPeriod period) {
     Long userId = getCurrentUser().getId();
     return ResponseEntity.ok(leaderboardService.getFriendsLeaderboard(userId, period));
+  }
+
+  @PostMapping("/refresh")
+  public ResponseEntity<Void> refresh() {
+    leaderboardScheduler.refreshLeaderboards();
+    return ResponseEntity.noContent().build();
   }
 }
