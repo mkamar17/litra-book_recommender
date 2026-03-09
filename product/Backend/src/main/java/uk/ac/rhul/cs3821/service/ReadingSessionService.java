@@ -89,7 +89,8 @@ public class ReadingSessionService {
 
     UserBookProgress progress = progressRepo
         .findByUserAndBook(user, book)
-        .orElseThrow();
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "No progress record found for this book"));
 
     if (pageReached < progress.getCurrentPage()) {
       throw new IllegalArgumentException("Page cannot go backwards");
