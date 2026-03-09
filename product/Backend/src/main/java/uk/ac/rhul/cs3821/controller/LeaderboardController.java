@@ -51,6 +51,11 @@ public class LeaderboardController {
     return ResponseEntity.ok(leaderboardService.getFriendsLeaderboard(userId, period));
   }
 
+  /**
+   * Used for testing - manual leaderboard recomputation for all periods.
+   *
+   * @return success or fail
+   */
   @PostMapping("/refresh")
   public ResponseEntity<Void> refresh() {
     leaderboardScheduler.refreshLeaderboards();

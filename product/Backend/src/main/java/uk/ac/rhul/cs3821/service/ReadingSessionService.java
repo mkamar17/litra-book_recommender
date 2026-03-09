@@ -108,6 +108,10 @@ public class ReadingSessionService {
 
     ReadingSession endedSession = endSession(session);
 
+    // updating the reading streak if needed (-1 if session too short, >0 means streak updated)
+
+    int streakDays = gamificationService.updateStreak(user, endedSession.getDurationSeconds());
+
     return Map.of(
         "sessionId", endedSession.getId(),
         "pointsAwarded", pointsAwarded,
@@ -116,7 +120,8 @@ public class ReadingSessionService {
         "bookId", book.getId(),
         "bookTitle", book.getTitle(),
         "currentPage", pageReached,
-        "totalPages", progress.getTotalPages()
+        "totalPages", progress.getTotalPages(),
+        "streakDays", streakDays
     );
   }
 

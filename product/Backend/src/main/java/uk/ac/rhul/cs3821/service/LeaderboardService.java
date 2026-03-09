@@ -47,18 +47,6 @@ public class LeaderboardService {
             l.getPeriod().name()))
         .toList();
   }
-//  @Transactional(readOnly = true)
-//  public List<LeaderboardEntryDto> getFriendsLeaderboard(Long userId, LeaderboardPeriod period) {
-//    return leaderboardCacheRepository.findFriendsLeaderboard(userId, period)
-//        .stream()
-//        .map(l -> new LeaderboardEntryDto(
-//            l.getUser().getEmail(),
-//            l.getPoints(),
-//            l.getPagesRead(),
-//            l.getBooksCompleted(),
-//            l.getPeriod().name()))
-//        .toList();
-//  }
 
   /**
    * Recomputes leaderboard cache for all users for a given period.

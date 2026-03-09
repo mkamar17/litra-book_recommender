@@ -1,5 +1,6 @@
 package uk.ac.rhul.cs3821.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import uk.ac.rhul.cs3821.model.Book;
@@ -23,4 +24,13 @@ public interface ReadingSessionRepository
    */
 
   Optional<ReadingSession> findByUserAndBookAndEndTimeIsNull(User user, Book book);
+
+  /**
+   * Returns all completed reading sessions for a specific user.
+   *
+   * @param userId the unique user
+   * @return the list of reading sessions
+   */
+  List<ReadingSession> findByUserIdAndEndTimeIsNotNull(Long userId);
+
 }

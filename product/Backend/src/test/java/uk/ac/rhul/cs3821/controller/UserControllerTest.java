@@ -10,6 +10,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.ac.rhul.cs3821.model.User;
+import uk.ac.rhul.cs3821.repository.ReadingSessionRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 import uk.ac.rhul.cs3821.service.AppUserDetailsService;
 import uk.ac.rhul.cs3821.service.JwtService;
@@ -33,6 +34,9 @@ class UserControllerTest {
 
   @MockitoBean
   private AppUserDetailsService uds;
+
+  @MockitoBean
+  private ReadingSessionRepository readingSessionRepository;
 
   private User user;
 

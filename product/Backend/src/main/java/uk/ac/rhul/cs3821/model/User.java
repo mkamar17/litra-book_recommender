@@ -13,6 +13,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +49,15 @@ public class User {
 
   @Column(nullable = false)
   private int monthlyPoints = 0;
+
+  @Column(nullable = false)
+  private int currentStreak = 0;
+
+  @Column(nullable = false)
+  private int longestStreak = 0;
+
+  @Column
+  private LocalDate lastReadDate;
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
