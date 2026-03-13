@@ -10,11 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.repository.ReadingSessionRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
+import uk.ac.rhul.cs3821.service.GamificationService;
 
 /**
  * REST controller for managing user-related endpoints.
@@ -27,6 +30,7 @@ public class UserController {
 
   private final UserRepository userRepository;
   private final ReadingSessionRepository readingSessionRepository;
+  private final GamificationService gamificationService;
 
   /**
    * Gets the total accumulated points for the authenticated user.
@@ -75,6 +79,15 @@ public class UserController {
     return ResponseEntity.ok(response);
   }
 
+  @PostMapping("/test/streak/add")
+  public ResponseEntity<?> addStreak(@RequestParam int days) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    User user = userRepository.findByEmail(auth.getName())
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+    gamificationService.addStreakDays(user, days);
+    return ResponseEntity.ok(Map.of("currentStreak", user.getCurrentStreak()));
+  }
   // Future endpoints you might add:
 
   // @GetMapping("/profile")
