@@ -17,6 +17,7 @@ import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.repository.ReadingSessionRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 import uk.ac.rhul.cs3821.service.AppUserDetailsService;
+import uk.ac.rhul.cs3821.service.GamificationService;
 import uk.ac.rhul.cs3821.service.JwtService;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -41,6 +42,9 @@ class UserControllerTest {
 
   @MockitoBean
   private ReadingSessionRepository readingSessionRepository;
+
+  @MockitoBean
+  private GamificationService gamificationService;
 
   private User user;
 

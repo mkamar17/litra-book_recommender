@@ -76,16 +76,7 @@ public class UserController {
 
     return ResponseEntity.ok(response);
   }
-
-//  @PostMapping("/test/streak/add")
-//  public ResponseEntity<?> addStreak(@RequestParam int days) {
-//    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//    User user = userRepository.findByEmail(auth.getName())
-//        .orElseThrow(() -> new EntityNotFoundException("User not found"));
-//
-//    gamificationService.addStreakDays(user, days);
-//    return ResponseEntity.ok(Map.of("currentStreak", user.getCurrentStreak()));
-//  }
+  
   // Future endpoints you might add:
 
   // @GetMapping("/profile")
