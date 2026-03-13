@@ -113,4 +113,43 @@ export const getLeaderboard = async (period = "WEEKLY") => {
   return res.data;
 };
 
+export const getFriends = async () => {
+  const res = await api.get("/friends");
+  return res.data;
+};
+
+export const getPendingRequests = async () => {
+  const res = await api.get("/friends/pending");
+  return res.data;
+};
+
+export const searchUsers = async (query) => {
+  const res = await api.get("/friends/search", { params: { query } });
+  return res.data;
+};
+
+export const sendFriendRequest = async (addresseeId) => {
+  const res = await api.post(`/friends/request/${addresseeId}`);
+  return res.data;
+};
+
+export const acceptFriendRequest = async (friendshipId) => {
+  const res = await api.put(`/friends/accept/${friendshipId}`);
+  return res.data;
+};
+
+export const removeFriend = async (friendshipId) => {
+  await api.delete(`/friends/${friendshipId}`);
+};
+
+export const updateUsername = async (username) => {
+  const res = await api.put("/users/username", { username });
+  return res.data;
+};
+
+export const toggleCommentLike = async (bookId, commentId) => {
+  const res = await api.post(`/books/${bookId}/comments/${commentId}/like`);
+  return res.data;
+};
+
 export default api;

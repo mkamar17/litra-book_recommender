@@ -169,6 +169,7 @@ export default function NavBar({ onSearch = () => {} }) { // to increase scalabi
                 <MenuItem>
                   <a
                     href="#"
+                    onClick={() => navigate("/profile")}
                     className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
                   >
                     Your profile
