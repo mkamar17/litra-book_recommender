@@ -10,6 +10,8 @@ import logo from '../assets/logo.png';
 import pfp from '../assets/user_pfp.png';
 import search from '../assets/search.png';
 
+import StreakCalendar from "./StreakCalendar";
+
 
 const navigation = [
   { name: 'Home', path: '/home' },
@@ -138,14 +140,7 @@ export default function NavBar({ onSearch = () => {} }) { // to increase scalabi
             <span className="text-white font-semibold text-sm">{totalPoints.toLocaleString()}</span>
           </div>
 
-            {/* <button
-              type="button"
-              className="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
-            >
-              <span className="absolute -inset-1.5" />
-              <span className="sr-only">View notifications</span>
-              <BellIcon aria-hidden="true" className="size-6" />
-            </button> */}
+          <StreakCalendar/>
 
             <NotificationDropdown/>
 

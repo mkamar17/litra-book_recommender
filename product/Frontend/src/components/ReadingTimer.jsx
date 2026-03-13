@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import StreakPopup from "./StreakPopup"
+
 import {
   startReadingSession,
   setBookProgress,
@@ -31,6 +33,8 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
 
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [sessionResults, setSessionResults] = useState(null);
+
+  const [streakPopup, setStreakPopup] = useState(null);
 
   useEffect(() => {
     if (!running) return;
@@ -84,8 +88,7 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
         alert("Please enter the page you reached");
         return;
       }
-      
-      //await updatePageReached(sessionId, Number(pageReached));
+    
       const result = await updatePageReached(sessionId, Number(pageReached));
       
       sessionEndedRef.current = true;
@@ -96,8 +99,11 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
 
       setSessionResults(result);
       setShowSuccessCard(true);
+
+      if (result.streakDays && result.streakDays > 0){
+        setStreakPop(result.streakDays);
+      }
       
-      //if (onClose) onClose();
     } catch (error) {
       console.error("Error finishing session:", error);
     }
@@ -105,6 +111,7 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
 
   const handleCloseSuccessCard = () => {
     setShowSuccessCard(false);
+    setStreakPopup(null);
     window.dispatchEvent(new Event('pointsUpdated'));
     if (onClose) onClose();
   };
@@ -242,6 +249,13 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
           </div>
         </div>
       </div>
+
+      {streakPopup && (
+        <StreakPopup
+          streak = {streakPopup}
+          onClose={() => setStreakPopup(null)}
+        />
+      )}
     </>
   );
 }
