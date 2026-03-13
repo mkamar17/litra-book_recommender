@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import NavBar from "../components/NavBar";
 import {
   getFriends,
   getPendingRequests,
@@ -10,6 +11,7 @@ import {
   updateUsername,
 } from "../api/api.js";
 import "../styles/ProfilePage.css";
+import { Navbar } from "@material-tailwind/react";
 
 const getInitial = (email) => (email ? email[0].toUpperCase() : "?");
 const getUsername = (email) => (email ? email.split("@")[0] : "");
@@ -147,6 +149,7 @@ export default function ProfilePage() {
   return (
     <div className="profile-page">
       {/* Header */}
+      <Navbar />
       <div className="profile-header">
         <div className="profile-avatar-wrap">
           <div
