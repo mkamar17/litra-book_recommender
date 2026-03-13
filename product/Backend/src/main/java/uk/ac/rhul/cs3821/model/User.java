@@ -36,6 +36,9 @@ public class User {
   @Column(unique = true, nullable = false)
   private String email;
 
+  @Column
+  private String username;
+  
   private String password;
 
   @ElementCollection(fetch = FetchType.EAGER)

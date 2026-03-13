@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.rhul.cs3821.model.User;
@@ -76,7 +78,29 @@ public class UserController {
 
     return ResponseEntity.ok(response);
   }
-  
+
+  /**
+   * Updates the display username for the authenticated user.
+   *
+   * @param body map containing the new username
+   * @return updated username
+   */
+  @PutMapping("/username")
+  public ResponseEntity<Map<String, Object>> updateUsername(@RequestBody Map<String, String> body) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    User user = userRepository.findByEmail(auth.getName())
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+    String newUsername = body.get("username");
+    if (newUsername == null || newUsername.isBlank()) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    user.setUsername(newUsername.trim());
+    userRepository.save(user);
+
+    return ResponseEntity.ok(Map.of("username", user.getUsername()));
+  }
   // Future endpoints you might add:
 
   // @GetMapping("/profile")

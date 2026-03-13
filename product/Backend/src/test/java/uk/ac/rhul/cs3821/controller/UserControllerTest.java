@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +22,7 @@ import uk.ac.rhul.cs3821.service.GamificationService;
 import uk.ac.rhul.cs3821.service.JwtService;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -131,4 +133,15 @@ class UserControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.readDates.length()").value(1));
   }
+
+  @Test
+  @WithMockUser(username = "test@example.com")
+  void updateUsername_savesAndReturnsUsername() throws Exception {
+    mockMvc.perform(put("/api/users/username")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"username\": \"bookworm99\"}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.username").value("bookworm99"));
+  }
+
 }
