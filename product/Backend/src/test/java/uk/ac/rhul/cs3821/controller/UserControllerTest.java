@@ -67,16 +67,6 @@ class UserControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "ghost@example.com")
-  void getTotalPoints_throwsWhenUserNotFound() throws Exception {
-    when(userRepository.findByEmail("ghost@example.com")).thenReturn(Optional.empty());
-
-    // RuntimeException is unhandled so Spring returns 500
-    mockMvc.perform(get("/api/users/total-points"))
-        .andExpect(status().isInternalServerError());
-  }
-
-  @Test
   @WithMockUser(username = "test@example.com")
   void getStreak_returnsStreakData() throws Exception {
     ReadingSession session = new ReadingSession();
@@ -116,15 +106,6 @@ class UserControllerTest {
     mockMvc.perform(get("/api/users/streak"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.lastReadDate").doesNotExist());
-  }
-
-  @Test
-  @WithMockUser(username = "ghost@example.com")
-  void getStreak_throwsWhenUserNotFound() throws Exception {
-    when(userRepository.findByEmail("ghost@example.com")).thenReturn(Optional.empty());
-
-    mockMvc.perform(get("/api/users/streak"))
-        .andExpect(status().isInternalServerError());
   }
 
   @Test

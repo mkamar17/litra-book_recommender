@@ -39,7 +39,7 @@ public class UserController {
     String email = auth.getName();
 
     User user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
     return ResponseEntity.ok(Map.of("totalPoints", user.getTotalPoints()));
   }
@@ -62,12 +62,17 @@ public class UserController {
         .distinct()
         .toList();
 
-    return ResponseEntity.ok(Map.of(
-        "currentStreak", user.getCurrentStreak(),
-        "longestStreak", user.getLongestStreak(),
-        "lastReadDate", user.getLastReadDate() != null ? user.getLastReadDate().toString() : null,
-        "readDates", readDates.stream().map(LocalDate::toString).toList()
-    ));
+    Map<String, Object> response = new java.util.HashMap<>();
+    response.put("currentStreak", user.getCurrentStreak());
+    response.put("longestStreak", user.getLongestStreak());
+    response.put("readDates", readDates.stream().map(LocalDate::toString).toList());
+
+    if (user.getLastReadDate() != null) {
+      response.put("lastReadDate", user.getLastReadDate().toString());
+    }
+    // if null, key is simply absent — matches your test: .andExpect(jsonPath("$.lastReadDate").doesNotExist())
+
+    return ResponseEntity.ok(response);
   }
 
   // Future endpoints you might add:
