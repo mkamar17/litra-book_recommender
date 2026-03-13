@@ -100,10 +100,9 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
       setSessionResults(result);
       setShowSuccessCard(true);
 
-      setStreakPopup(5);
-      // if (result.streakDays && result.streakDays > 0){
-      //   setStreakPopup(result.streakDays);
-      // }
+      if (result.streakDays && result.streakDays > 0){
+        setStreakPopup(result.streakDays);
+      }
       
     } catch (error) {
       console.error("Error finishing session:", error);
