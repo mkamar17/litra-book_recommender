@@ -73,12 +73,12 @@ public class GamificationService {
     return user.getCurrentStreak();
   }
 
-  public void addStreakDays(User user, int days) {
-    user.setCurrentStreak(user.getCurrentStreak() + days);
-    if (user.getCurrentStreak() > user.getLongestStreak()) {
-      user.setLongestStreak(user.getCurrentStreak());
-    }
-    userRepository.save(user);
-  }
+//  public void addStreakDays(User user, int days) {
+//    user.setCurrentStreak(user.getCurrentStreak() + days);
+//    if (user.getCurrentStreak() > user.getLongestStreak()) {
+//      user.setLongestStreak(user.getCurrentStreak());
+//    }
+//    userRepository.save(user);
+//  }
 
 }
