@@ -1,6 +1,7 @@
 package uk.ac.rhul.cs3821.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +86,7 @@ public class AuthController {
    * @return {@link ResponseEntity} indicating success or failure
    */
   @PostMapping("/register")
-  public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
+  public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
     if (repo.existsByEmail(req.email())) {
       return ResponseEntity.badRequest().body("Email taken");
     }
