@@ -88,7 +88,7 @@ public class AuthController {
   @PostMapping("/register")
   public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
     if (repo.existsByEmail(req.email())) {
-      return ResponseEntity.badRequest().body("Email taken");
+      return ResponseEntity.badRequest().body("Registration failed. Please try again.");
     }
     var u = new User();
     u.setEmail(req.email());
