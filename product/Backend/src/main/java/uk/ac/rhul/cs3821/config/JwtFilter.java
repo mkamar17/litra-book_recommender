@@ -1,5 +1,6 @@
 package uk.ac.rhul.cs3821.config;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,7 +44,14 @@ public class JwtFilter extends OncePerRequestFilter {
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
       final String token = authHeader.substring(7);
-      final String username = jwt.extractUserName(token);
+      final String username;
+
+      try {
+        username = jwt.extractUserName(token);
+      } catch (JwtException e) {
+        res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+        return;
+      }
 
       // check the user isn't already authenticated
       if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

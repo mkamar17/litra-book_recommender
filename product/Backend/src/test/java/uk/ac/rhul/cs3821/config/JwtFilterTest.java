@@ -1,5 +1,6 @@
 package uk.ac.rhul.cs3821.config;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import uk.ac.rhul.cs3821.service.JwtService;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -138,5 +140,20 @@ public class JwtFilterTest {
 
     assertNull(SecurityContextHolder.getContext().getAuthentication());
     verify(chain).doFilter(req, res);
+  }
+
+  // NEW: covers the security fix — malformed/expired tokens must return 401
+  // and must never continue down the filter chain
+  @Test
+  void shouldReturn401WhenJwtExceptionThrown() throws ServletException, IOException {
+
+    when(req.getHeader("Authorization")).thenReturn("Bearer malformed.token");
+    when(jwt.extractUserName("malformed.token")).thenThrow(new JwtException("Invalid token"));
+
+    filter.doFilterInternal(req, res, chain);
+
+    assertNull(SecurityContextHolder.getContext().getAuthentication());
+    verify(res).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+    verify(chain, never()).doFilter(req, res); // critical: chain must NOT proceed
   }
 }

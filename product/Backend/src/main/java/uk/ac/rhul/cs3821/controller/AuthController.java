@@ -118,6 +118,12 @@ public class AuthController {
     return ResponseEntity.ok(new TokenResponse(token));
   }
 
+  /**
+   * Handles failed authentication attempts by returning a 401 Unauthorized response.
+   *
+   * @param e the exception thrown when credentials are invalid
+   * @return ResponseEntity with a 401 status and error message
+   */
   @ExceptionHandler(BadCredentialsException.class)
   public ResponseEntity<?> handleBadCredentials(BadCredentialsException e) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
