@@ -117,7 +117,7 @@ class UserControllerTest {
   @Test
   @WithMockUser(username = "test@example.com")
   void getStreak_deduplicatesSessionsOnSameDay() throws Exception {
-    Instant today = Instant.now();
+    Instant today = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(12, ChronoUnit.HOURS);
     ReadingSession s1 = new ReadingSession();
     s1.setStartTime(today);
     s1.setEndTime(today.plus(30, ChronoUnit.MINUTES));

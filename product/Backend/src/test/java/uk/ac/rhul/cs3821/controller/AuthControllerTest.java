@@ -87,7 +87,7 @@ class AuthControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(REGISTER_JSON))
         .andExpect(status().isBadRequest())
-        .andExpect(content().string("Email taken"));
+        .andExpect(content().string("Registration failed. Please try again."));
   }
 
   @Test
