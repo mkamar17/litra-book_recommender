@@ -46,15 +46,9 @@ public class RecommendationController {
     List<Recommendation> recommendations =
         recommendationRepository.findByUserIdOrderByScoreDesc(user.getId());
 
-    //List<Long> bookIds = recommendations.stream()
-    // .map(Recommendation::getBookId)
-    // .collect(Collectors.toList());
-
     return recommendations.stream()
         .map(rec -> bookRepository.findById(rec.getBookId()).orElse(null))
         .filter(book -> book != null)
         .collect(Collectors.toList());
-
-    //return bookRepository.findAllById(bookIds);
   }
 }

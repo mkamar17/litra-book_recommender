@@ -64,8 +64,8 @@ class RecommendationControllerTest {
         .thenReturn(Optional.of(user));
     when(recommendationRepository.findByUserIdOrderByScoreDesc(1L))
         .thenReturn(List.of(r1, r2));
-    when(bookRepository.findAllById(List.of(1L, 2L)))
-        .thenReturn(List.of(b1, b2));
+    when(bookRepository.findById(1L)).thenReturn(Optional.of(b1));
+    when(bookRepository.findById(2L)).thenReturn(Optional.of(b2));
 
     List<Book> result = controller.getRecommendations();
 
