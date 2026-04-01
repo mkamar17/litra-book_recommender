@@ -1,6 +1,6 @@
 package uk.ac.rhul.cs3821.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
+import java.security.Principal;
 import java.util.HashSet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,6 @@ import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.repository.BookRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
-import uk.ac.rhul.cs3821.service.JwtService;
 
 /**
  * Controller responsible for managing users' My Library.
@@ -25,24 +24,19 @@ public class LibraryController {
 
   private final UserRepository userRepo;
   private final BookRepository bookRepo;
-  private final JwtService jwt;
 
   /**
    * Adds a specified book to users' My Library.
    *
    * <p>If the user or book cannot be found, an exception is thrown.</p>
    *
-   * @param bookId  the id of the book to add.
-   * @param request the incoming HTTP request containing the JWT
+   * @param bookId    the id of the book to add.
+   * @param principal to give the email
    * @return a ResponseEntity indicating success.
    */
   @PostMapping("/add/{bookId}")
-  public ResponseEntity<?> addBookToLibrary(@PathVariable Long bookId, HttpServletRequest request) {
-    final String authHeader = request.getHeader("Authorization");
-    final String token = authHeader.substring(7);
-    final String email = jwt.extractUserName(token);
-
-    User user = userRepo.findByEmail(email)
+  public ResponseEntity<?> addBookToLibrary(@PathVariable Long bookId, Principal principal) {
+    User user = userRepo.findByEmail(principal.getName())
         .orElseThrow(() -> new RuntimeException("User not found"));
 
     Book book = bookRepo.findById(bookId)
@@ -61,17 +55,12 @@ public class LibraryController {
   /**
    * Retrieves all the books saved in a user's library.
    *
-   * @param request the HTTP request containing JWT
+   * @param principal to give the email
    * @return the list of books
    */
   @GetMapping
-  public ResponseEntity<?> getUserLibrary(HttpServletRequest request) {
-    final String authHeader = request.getHeader("Authorization");
-    final String token = authHeader.substring(7);
-
-    final String email = jwt.extractUserName(token);
-
-    User user = userRepo.findByEmail(email)
+  public ResponseEntity<?> getUserLibrary(Principal principal) {
+    User user = userRepo.findByEmail(principal.getName())
         .orElseThrow(() -> new RuntimeException("User not found"));
 
     return ResponseEntity.ok(user.getLibrary());
