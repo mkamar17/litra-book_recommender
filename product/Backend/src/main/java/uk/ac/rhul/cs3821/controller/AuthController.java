@@ -1,11 +1,18 @@
 package uk.ac.rhul.cs3821.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,10 +31,13 @@ import uk.ac.rhul.cs3821.service.JwtService;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+  private static final int MAX_ATTEMPTS = 5;
+  private static final long WINDOW_MS = 60_000;
   private final AuthenticationManager authManager;
   private final JwtService jwt;
   private final UserRepository repo;
   private final PasswordEncoder encoder;
+  private final Map<String, List<Long>> loginAttempts = new ConcurrentHashMap<>();
 
   /**
    * Public constructor for AuthController.
@@ -43,6 +53,28 @@ public class AuthController {
     this.jwt = jwt;
     this.repo = repo;
     this.encoder = enc;
+  }
+
+  /**
+   * Checks whether the given IP has exceeded the allowed login attempts
+   * within the time window. Adds the current attempt timestamp if not blocked.
+   *
+   * @param ip the client's IP address
+   * @return true if the IP is rate limited, false otherwise
+   */
+  private boolean isRateLimited(String ip) {
+    long now = System.currentTimeMillis();
+    loginAttempts.putIfAbsent(ip, new ArrayList<>());
+    List<Long> attempts = loginAttempts.get(ip);
+
+    synchronized (attempts) {
+      attempts.removeIf(t -> now - t > WINDOW_MS);
+      if (attempts.size() >= MAX_ATTEMPTS) {
+        return true;
+      }
+      attempts.add(now);
+    }
+    return false;
   }
 
   /**
@@ -71,13 +103,23 @@ public class AuthController {
    * access protected endpoints.
    *
    * @param req the login request containing the user's email and password
-   * @return {@link ResponseEntity} containing a generated {@link TokenResponse}
+   * @return a ResponseEntity containing a generated TokenResponse or 429 too many requests error if IP rate is limited
    */
   @PostMapping("/login")
-  public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest req) {
+  public ResponseEntity<?> login(@RequestBody LoginRequest req, HttpServletRequest request) {
+    String ip = request.getRemoteAddr();
+    if (isRateLimited(ip)) {
+      return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many login attempts. Please try again later.");
+    }
+
     Authentication auth = authManager.authenticate(
         new UsernamePasswordAuthenticationToken(req.email(), req.password()));
     String token = jwt.generate(auth.getName(), Map.of("roles", auth.getAuthorities()));
     return ResponseEntity.ok(new TokenResponse(token));
+  }
+
+  @ExceptionHandler(BadCredentialsException.class)
+  public ResponseEntity<?> handleBadCredentials(BadCredentialsException e) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
   }
 }
