@@ -40,7 +40,9 @@ public class LeaderboardService {
     return all.stream()
         .sorted(Comparator.comparingInt(LeaderboardCache::getPoints).reversed())
         .map(l -> new LeaderboardEntryDto(
-            l.getUser().getEmail(),
+            l.getUser().getUsername() != null
+                ? l.getUser().getUsername()
+                : l.getUser().getEmail(),
             l.getPoints(),
             l.getPagesRead(),
             l.getBooksCompleted(),
@@ -64,12 +66,55 @@ public class LeaderboardService {
       cache.setPeriod(period);
       cache.setComputedAt(LocalDateTime.now());
 
-      // Pull points from the correct period field on the user
       switch (period) {
-        case WEEKLY -> cache.setPoints(user.getWeeklyPoints());
-        case MONTHLY -> cache.setPoints(user.getMonthlyPoints());
-        case ALL_TIME -> cache.setPoints(user.getTotalPoints());
+        case WEEKLY -> {
+          cache.setPoints(user.getWeeklyPoints());
+          cache.setPagesRead(user.getWeeklyPagesRead());
+          cache.setBooksCompleted(user.getWeeklyBooksCompleted());
+        }
+        case MONTHLY -> {
+          cache.setPoints(user.getMonthlyPoints());
+          cache.setPagesRead(user.getMonthlyPagesRead());
+          cache.setBooksCompleted(user.getMonthlyBooksCompleted());
+        }
+        case ALL_TIME -> {
+          cache.setPoints(user.getTotalPoints());
+          cache.setPagesRead(user.getTotalPagesRead());
+          cache.setBooksCompleted(user.getTotalBooksCompleted());
+        }
         default -> throw new IllegalArgumentException("Unknown period: " + period);
+      }
+
+      leaderboardCacheRepository.save(cache);
+    }
+  }
+
+  public void recomputeForUser(User user) {
+    for (LeaderboardPeriod period : LeaderboardPeriod.values()) {
+      LeaderboardCache cache = leaderboardCacheRepository
+          .findByUserIdAndPeriod(user.getId(), period)
+          .orElse(new LeaderboardCache());
+
+      cache.setUser(user);
+      cache.setPeriod(period);
+      cache.setComputedAt(LocalDateTime.now());
+
+      switch (period) {
+        case WEEKLY -> {
+          cache.setPoints(user.getWeeklyPoints());
+          cache.setPagesRead(user.getWeeklyPagesRead());
+          cache.setBooksCompleted(user.getWeeklyBooksCompleted());
+        }
+        case MONTHLY -> {
+          cache.setPoints(user.getMonthlyPoints());
+          cache.setPagesRead(user.getMonthlyPagesRead());
+          cache.setBooksCompleted(user.getMonthlyBooksCompleted());
+        }
+        case ALL_TIME -> {
+          cache.setPoints(user.getTotalPoints());
+          cache.setPagesRead(user.getTotalPagesRead());
+          cache.setBooksCompleted(user.getTotalBooksCompleted());
+        }
       }
 
       leaderboardCacheRepository.save(cache);

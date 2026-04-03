@@ -27,6 +27,7 @@ public class ReadingSessionService {
   private final ReadingSessionRepository sessionRepo;
   private final UserBookProgressRepository progressRepo;
   private final GamificationService gamificationService;
+  private final LeaderboardService leaderboardService;
 
   /**
    * Method handles starting new reading session.
@@ -105,7 +106,9 @@ public class ReadingSessionService {
     progress.setCurrentPage(pageReached);
     progressRepo.save(progress);
 
-    int pointsAwarded = gamificationService.awardPointsForSession(user, pagesReadThisSession);
+    boolean bookCompleted = pageReached >= progress.getTotalPages();
+    int pointsAwarded = gamificationService.awardPointsForSession(user, pagesReadThisSession, bookCompleted);
+    leaderboardService.recomputeForUser(user);
 
     ReadingSession endedSession = endSession(session);
 

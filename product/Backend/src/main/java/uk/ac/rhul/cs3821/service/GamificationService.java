@@ -21,10 +21,23 @@ public class GamificationService {
    * @param user      to represent user
    * @param pagesRead the number of pages read in that reading session
    */
-  public int awardPointsForSession(User user, int pagesRead) {
+  public int awardPointsForSession(User user, int pagesRead, boolean bookCompleted) {
     int pointsEarned = pagesRead * 5;
 
     user.setTotalPoints(user.getTotalPoints() + pointsEarned);
+    user.setWeeklyPoints(user.getWeeklyPoints() + pointsEarned);
+    user.setMonthlyPoints(user.getMonthlyPoints() + pointsEarned);
+
+    user.setTotalPagesRead(user.getTotalPagesRead() + pagesRead);
+    user.setWeeklyPagesRead(user.getWeeklyPagesRead() + pagesRead);
+    user.setMonthlyPagesRead(user.getMonthlyPagesRead() + pagesRead);
+
+    if (bookCompleted) {
+      user.setTotalBooksCompleted(user.getTotalBooksCompleted() + 1);
+      user.setWeeklyBooksCompleted(user.getWeeklyBooksCompleted() + 1);
+      user.setMonthlyBooksCompleted(user.getMonthlyBooksCompleted() + 1);
+    }
+
     userRepository.save(user);
 
     return pointsEarned;

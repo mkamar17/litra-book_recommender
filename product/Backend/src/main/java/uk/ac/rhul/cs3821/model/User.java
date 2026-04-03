@@ -38,7 +38,7 @@ public class User {
 
   @Column
   private String username;
-  
+
   private String password;
 
   @ElementCollection(fetch = FetchType.EAGER)
@@ -58,6 +58,24 @@ public class User {
 
   @Column(nullable = false)
   private int longestStreak = 0;
+
+  @Column(nullable = false)
+  private int totalPagesRead = 0;
+
+  @Column(nullable = false)
+  private int weeklyPagesRead = 0;
+
+  @Column(nullable = false)
+  private int monthlyPagesRead = 0;
+
+  @Column(nullable = false)
+  private int totalBooksCompleted = 0;
+
+  @Column(nullable = false)
+  private int weeklyBooksCompleted = 0;
+
+  @Column(nullable = false)
+  private int monthlyBooksCompleted = 0;
 
   @Column
   private LocalDate lastReadDate;
