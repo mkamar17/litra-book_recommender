@@ -19,10 +19,6 @@ function getRankEmoji(index) {
   return null;
 }
 
-function getUsername(email) {
-  return email ? email.split("@")[0] : email;
-}
-
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -45,62 +41,40 @@ export default function LeaderboardPage() {
 
   const currentUserEmail = localStorage.getItem("email");
 
-  // const fetchCurrentUserTotalPoints = async () => {
-  //   try {
-  //     const data = await getUserTotalPoints();
-  //     setCurrentUserTotalPoints(data.totalPoints);
-  //   } catch (error) {
-  //     console.error('Failed to fetch total points:', error);
-  //   }
-  // };
-
   useEffect(() => {
-  async function loadAll() {
-    setLoading(true);
-    setError(null);
-    try {
-      const [leaderboardData, pointsData] = await Promise.all([
-        getLeaderboard(period),
-        getUserTotalPoints(),
-      ]);
+    async function loadAll() {
+      setLoading(true);
+      setError(null);
+      try {
+        const [leaderboardData, pointsData] = await Promise.all([
+          getLeaderboard(period),
+          getUserTotalPoints(),
+        ]);
 
-      const userPoints = pointsData.totalPoints;
-      setCurrentUserTotalPoints(userPoints);
+        const userPoints = pointsData.totalPoints;
+        setCurrentUserTotalPoints(userPoints);
 
-      const sorted = [...leaderboardData].sort((a, b) => {
-        const aPoints = a.email === currentUserEmail ? userPoints : a.points;
-        const bPoints = b.email === currentUserEmail ? userPoints : b.points;
-        return bPoints - aPoints;
-      });
+        const sorted = [...leaderboardData].sort((a, b) => {
+          const aPoints = a.displayName === currentUserEmail ? userPoints : a.points;
+          const bPoints = b.displayName === currentUserEmail ? userPoints : b.points;
+          return bPoints - aPoints;
+        });
 
-      setEntries(sorted);
-    } catch (err) {
-      setError("Could not load leaderboard.");
-    } finally {
-      setLoading(false);
+        setEntries(sorted);
+      } catch (err) {
+        setError("Could not load leaderboard.");
+      } finally {
+        setLoading(false);
+      }
     }
-  }
 
-  loadAll();
-}, [period]);
-
-  async function fetchLeaderboard() {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getLeaderboard(period);
-      setEntries(data);
-    } catch (err) {
-      setError("Could not load leaderboard.");
-    } finally {
-      setLoading(false);
-    }
-  }
+    loadAll();
+  }, [period]);
 
   const chartData = entries.slice(0, 8).map((e) => ({
-  name: e.email === currentUserEmail ? "You" : getUsername(e.email),
-  points: e.email === currentUserEmail ? currentUserTotalPoints : e.points,
-}));
+    name: e.displayName === currentUserEmail ? "You" : e.displayName,
+    points: e.displayName === currentUserEmail ? currentUserTotalPoints : e.points,
+  }));
 
   return (
     <div className="lb-page">
@@ -152,8 +126,8 @@ export default function LeaderboardPage() {
                 <tbody>
                   {entries.map((entry, index) => (
                     <tr
-                      key={entry.email}
-                      className={`lb-row ${index < 3 ? "lb-row--top" : ""} ${entry.email === currentUserEmail ? "lb-row--you" : ""}`}
+                      key={entry.displayName}
+                      className={`lb-row ${index < 3 ? "lb-row--top" : ""} ${entry.displayName === currentUserEmail ? "lb-row--you" : ""}`}
                       style={{ animationDelay: `${index * 0.05}s` }}
                     >
                       <td className="lb-rank">
@@ -170,16 +144,16 @@ export default function LeaderboardPage() {
                       </td>
                       <td className="lb-player">
                         <div className="lb-avatar">
-                          {getUsername(entry.email)[0].toUpperCase()}
+                          {(entry.displayName?.[0] ?? "?").toUpperCase()}
                         </div>
                         <span className="lb-username">
-                          {entry.email === currentUserEmail ? "You" : getUsername(entry.email)}
+                          {entry.displayName === currentUserEmail ? "You" : entry.displayName}
                         </span>
                       </td>
                       <td className="lb-points">
                         <span className="lb-points-badge">
-                          {entry.email === currentUserEmail 
-                            ? currentUserTotalPoints.toLocaleString() 
+                          {entry.displayName === currentUserEmail
+                            ? currentUserTotalPoints.toLocaleString()
                             : entry.points.toLocaleString()}
                         </span>
                       </td>
