@@ -34,7 +34,7 @@ export default function BookCard({ book, onAddToLibrary, onSelectBook, refreshPr
     }
   }
 
-  if (book?.id) {
+  if (book?.id && book?.inLibrary) {
     fetchProgress();
   }
 }, [book.id, refreshProgress]);
@@ -46,7 +46,7 @@ export default function BookCard({ book, onAddToLibrary, onSelectBook, refreshPr
       onMouseLeave={() => setShowPopup(false)}
       onClick={() => onSelectBook(book)}
     >
-      <img src={book.coverUrl} alt={book.title} className="book-cover" />
+      <img src={book.coverUrl} alt={book.title} className="book-cover" referrerPolicy="no-referrer" />
 
       {showPopup && (
         <div className="book-popup">

@@ -49,10 +49,10 @@ export default function LandingPage() {
         console.log("Fetching books...");
         const [all, thriller, fantasy, romance, booktok, recommended] = await Promise.all([
           api.get("/books"),
-          api.get("/books/genre/Psychological Thrillers"),
-          api.get("/books/genre/Fantasy & YA"),
-          api.get("/books/genre/Modern Romance"),
-          api.get("/books/genre/BookTok Favourites"),
+          api.get("/books/genre/horror"),
+          api.get("/books/genre/fantasy"),
+          api.get("/books/genre/romance"),
+          api.get("/books/genre/fiction"),
           api.get("/recommendations")
         ]);
         setBooks(all.data);
@@ -154,6 +154,10 @@ export default function LandingPage() {
     );
   }
 
+  const continueBookIds = new Set(continueBooks.map(b => b.id));
+
+  const forYouBooks = (recommendedBooks.length > 0 ? recommendedBooks : books).filter(b => !continueBookIds.has(b.id)).slice(0,50);
+
   return (
     <div className="bg-[rgb(24,24,24)] min-h-screen text-white font-poppins">
       <NavBar onSearch={handleSearch} />
@@ -164,20 +168,20 @@ export default function LandingPage() {
         ) : (
           <>
             {continueBooks.length > 0 && (
-              <BookRow title="Continue Reading" books={continueBooks} onSelectBook={handleSelectBook} refreshProgress={refreshProgress} />
+              <BookRow title="Continue Reading" books={continueBooks} onSelectBook={handleSelectBook} refreshProgress={refreshProgress} inLibrary={true} />
             )}
 
             <BookRow 
   title="For You" 
-  books={recommendedBooks.length > 0 ? recommendedBooks : books} // show recommendations if available, otherwise all books
+  books={forYouBooks} // show recommendations if available, otherwise all books
   onAddToLibrary={handleAddToLibrary} 
   onSelectBook={handleSelectBook} 
   refreshProgress={refreshProgress}
 />
-            <BookRow title="BookTok Favourites" books={booktokBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
-            <BookRow title="Psychological Thrillers" books={thrillerBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
-            <BookRow title="Fantasy & YA" books={fantasyBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
-            <BookRow title="Modern Romance" books={romanceBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Mixed Collection" books={booktokBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Horror" books={thrillerBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Fantasy" books={fantasyBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Romance" books={romanceBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
           </>
         )}
       </div>
