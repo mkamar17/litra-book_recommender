@@ -65,6 +65,11 @@ export default function RegisterPage() {
       });
 
       if (!res.ok) {
+        if (res.status === 409){
+          setServerError("A user with this email already exists. Sign in?");
+          return;
+        }
+
         const body = await res.json().catch(() => null);
   
         const message =
