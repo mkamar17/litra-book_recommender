@@ -88,7 +88,8 @@ public class AuthController {
   @PostMapping("/register")
   public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
     if (repo.existsByEmail(req.email())) {
-      return ResponseEntity.badRequest().body("Registration failed. Please try again.");
+      return ResponseEntity.status(HttpStatus.CONFLICT)
+          .body(Map.of("message", "A user with this email already exists."));
     }
     var u = new User();
     u.setEmail(req.email());
