@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/AuthPage.css";
@@ -9,9 +9,26 @@ export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
+
+  useEffect(() => {
+    if (lockoutSeconds <=0) return;
+    const timer = setInterval(() => {
+      setLockoutSeconds(prev => {
+        if (prev <= 1){
+          clearInterval(timer);
+          setError("");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lockoutSeconds]);
 
   async function handleLogin(e) {
     e.preventDefault();
+    if (lockoutSeconds > 0) return;
 
     try {
       const res = await fetch("http://localhost:8080/auth/login", {
@@ -20,8 +37,15 @@ export default function AuthPage() {
         body: JSON.stringify({ email, password })
       });
 
+      if (res.status == 429) {
+        setLockoutSeconds(60);
+        setError("Too many login attempts. Please wait 60 seconds.")
+        return;
+      }
+      
       if (!res.ok) {
-        throw new Error("Invalid credentials");
+        setError("Invalid email or password.");
+        return;
       }
 
       const data = await res.json();
@@ -30,9 +54,11 @@ export default function AuthPage() {
 
       navigate("/home"); 
     } catch (err) {
-      setError(err.message);
+      setError("Something went wrong. Please try again.");
     }
   }
+
+  const isLocked = lockoutSeconds > 0;
 
   return (
     <div className="auth-background">
@@ -45,6 +71,7 @@ export default function AuthPage() {
               placeholder="Email or phone number"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isLocked}
             />
   
             <input
@@ -52,9 +79,10 @@ export default function AuthPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLocked}
             />
   
-            <button type="submit" className="auth-button">Sign In</button>
+            <button type="submit" className="auth-button" disabled={isLocked}>{isLocked ? `Try again in ${lockoutSeconds}s` : "Sign In"}</button>
           </form>
   
           {error && <p className="error">{error}</p>}
