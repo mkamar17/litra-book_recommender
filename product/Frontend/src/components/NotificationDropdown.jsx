@@ -3,12 +3,13 @@ import { BellIcon } from "@heroicons/react/24/outline";
 import { getNotifications, markAllNotificationsRead } from "../api/api.js";
 import "../styles/NotificationDropdown.css";
 
-function formatType(type) {
-  switch (type) {
-    case "FRIEND_REQUEST": return "sent you a friend request";
-    case "COMMENT_REPLY": return "replied to your comment";
-    case "MILESTONE": return "you reached a milestone!";
-    default: return type;
+function formatType(n) {
+  const who = n.triggererName ?? "Someone";
+  switch (n.type) {
+    case "FRIEND_REQUEST": return `${who} sent you a friend request`;
+    case "COMMENT_REPLY": return `${who} replied to your comment`;
+    case "MILESTONE": return `${who} you reached a milestone!`;
+    default: return n.type;
   }
 }
 
@@ -38,6 +39,7 @@ export default function NotificationDropdown() {
 
     try {
         const data = await getNotifications();
+        console.log(data);
         setNotifications(data);
         const unread = data.filter((n) => !n.read).length;
         setUnreadCount(unread);
@@ -95,7 +97,7 @@ export default function NotificationDropdown() {
                 >
                   <div className="notif-dot-row">
                     {!n.read && <span className="notif-dot" />}
-                    <p className="notif-text">{formatType(n.type)}</p>
+                    <p className="notif-text">{formatType(n)}</p>
                   </div>
                   <span className="notif-date">{formatDate(n.createdAt)}</span>
                 </li>
