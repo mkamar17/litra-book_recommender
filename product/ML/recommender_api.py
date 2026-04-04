@@ -32,6 +32,42 @@ filtered_df = filtered_df[
     (~filtered_df["image_url"].str.contains("nophoto", na=False))
 ]
 
+# Extract author
+authors_df = pd.read_json(
+    "datasets/goodreads_book_authors.json.gz", lines=True
+)
+authors_df["author_id"] = authors_df["author_id"].astype(str)
+
+filtered_df["author_id"] = filtered_df["authors"].apply(
+    lambda x: x[0]["author_id"] if isinstance(x, list) and len(x) > 0 else None
+)
+filtered_df = filtered_df.merge(
+    authors_df[["author_id", "name"]], on="author_id", how="left"
+)
+filtered_df = filtered_df.rename(columns={"name": "author"})
+filtered_df = filtered_df.drop(columns=["authors", "author_id"])
+
+# Extract genre
+GENRE_SHELVES = {
+    "fantasy", "romance", "science-fiction", "sci-fi", "mystery", "thriller",
+    "horror", "dystopia", "paranormal", "urban-fantasy", "historical-fiction",
+    "contemporary", "adventure", "fiction", "non-fiction", "humor", "comedy",
+    "paranormal-romance", "sci-fi-fantasy", "teen-fiction", "young-adult-fiction"
+}
+
+def extract_genre(shelves):
+    if not isinstance(shelves, list):
+        return "unknown"
+    for shelf in shelves:
+        if shelf["name"] in GENRE_SHELVES:
+            return shelf["name"]
+    return "unknown"
+
+filtered_df["genre"] = filtered_df["popular_shelves"].apply(extract_genre)
+filtered_df = filtered_df.drop(columns=["popular_shelves"])
+
+print(f"Data ready: {filtered_df['user_id'].nunique()} users, {filtered_df['book_id'].nunique()} books")
+
 reader = Reader(rating_scale=(1, 5))
 data = Dataset.load_from_df(
     filtered_df[["user_id", "book_id", "rating"]], reader
@@ -63,17 +99,16 @@ popular_df = (
     .reset_index(drop=True)
 )
 
-
 def get_app_user_ratings(internal_user_id):
-    """Read this user's ratings from book_rating table."""
-    df = pd.read_sql("""
-        SELECT br.user_id, b.external_id AS book_id, br.rating
-        FROM book_rating br
-        JOIN book b ON b.id = br.book_id
-        WHERE br.user_id = :uid
-    """, engine, params={"uid": internal_user_id})
-    return df
-
+    with engine.connect() as conn:
+        result = conn.execute(text("""
+            SELECT br.user_id, b.external_id AS book_id, br.rating
+            FROM book_rating br
+            JOIN book b ON b.id = br.book_id
+            WHERE br.user_id = :uid
+        """), {"uid": internal_user_id})
+        rows = result.fetchall()
+    return pd.DataFrame(rows, columns=["user_id", "book_id", "rating"])
 
 def get_svd_recommendations(proxy_user_id, rated_book_ids, n=10):
     all_books = filtered_df["book_id"].unique()
