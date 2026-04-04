@@ -146,209 +146,211 @@ export default function ProfilePage() {
   }
 
   return (
-    //<NavBar />
-    <div className="profile-page">
-        
-      {/* Header */}
-      <div className="profile-header">
-        <div className="profile-avatar-wrap">
-          <div
-            className="profile-avatar"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {profilePic ? (
-              <img src={profilePic} alt="profile" className="profile-avatar-img" />
-            ) : (
-              <span className="profile-avatar-initial">
-                {getInitial(currentEmail)}
-              </span>
-            )}
-            <div className="profile-avatar-overlay">
-              <span>📷</span>
+    <>
+      <NavBar />
+      <div className="profile-page">
+
+        {/* Header */}
+        <div className="profile-header">
+          <div className="profile-avatar-wrap">
+            <div
+              className="profile-avatar"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {profilePic ? (
+                <img src={profilePic} alt="profile" className="profile-avatar-img" />
+              ) : (
+                <span className="profile-avatar-initial">
+                  {getInitial(currentEmail)}
+                </span>
+              )}
+              <div className="profile-avatar-overlay">
+                <span>📷</span>
+              </div>
             </div>
-          </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleProfilePicChange}
-          />
-        </div>
-        <div className="profile-header-info">
-          <h1 className="profile-name">{username}</h1>
-          <p className="profile-email">{currentEmail}</p>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="profile-tabs">
-        <button
-          className={`profile-tab ${tab === "friends" ? "profile-tab--active" : ""}`}
-          onClick={() => setTab("friends")}
-        >
-          👥 Friends {friends.length > 0 && <span className="profile-tab-badge">{friends.length}</span>}
-        </button>
-        <button
-          className={`profile-tab ${tab === "settings" ? "profile-tab--active" : ""}`}
-          onClick={() => setTab("settings")}
-        >
-          ⚙️ Settings
-        </button>
-      </div>
-
-      {/* Friends Tab */}
-      {tab === "friends" && (
-        <div className="profile-section">
-          {/* Search */}
-          <div className="profile-search-wrap">
             <input
-              className="profile-search"
-              placeholder="Search users by email..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleProfilePicChange}
             />
           </div>
-
-          {/* Search Results */}
-          {searchResults.length > 0 && (
-            <div className="profile-list-section">
-              <h3 className="profile-list-title">Search Results</h3>
-              {searchResults.map((u) => (
-                <div key={u.id} className="profile-friend-row">
-                  <div className="profile-friend-avatar">{getInitial(u.email)}</div>
-                  <div className="profile-friend-info">
-                    <p className="profile-friend-name">{getUsername(u.email)}</p>
-                    <p className="profile-friend-email">{u.email}</p>
-                  </div>
-                  <button
-                    className={`profile-action-btn ${sentRequests.has(u.id) ? "profile-action-btn--sent" : "profile-action-btn--add"}`}
-                    onClick={() => handleSendRequest(u.id)}
-                    disabled={sentRequests.has(u.id)}
-                  >
-                    {sentRequests.has(u.id) ? "Sent ✓" : "+ Add"}
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {searching && <p className="profile-hint">Searching...</p>}
-          {searchQuery && !searching && searchResults.length === 0 && (
-            <p className="profile-hint">No users found.</p>
-          )}
-
-          {/* Pending Requests */}
-          {pending.length > 0 && (
-            <div className="profile-list-section">
-              <h3 className="profile-list-title">
-                Pending Requests
-                <span className="profile-tab-badge">{pending.length}</span>
-              </h3>
-              {pending.map((req) => (
-                <div key={req.id} className="profile-friend-row">
-                  <div className="profile-friend-avatar profile-friend-avatar--pending">
-                    {getInitial(req.requesterEmail)}
-                  </div>
-                  <div className="profile-friend-info">
-                    <p className="profile-friend-name">{getUsername(req.requesterEmail)}</p>
-                    <p className="profile-friend-email">{req.requesterEmail}</p>
-                  </div>
-                  <button
-                    className="profile-action-btn profile-action-btn--accept"
-                    onClick={() => handleAccept(req.id)}
-                  >
-                    Accept
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Friends List */}
-          <div className="profile-list-section">
-            <h3 className="profile-list-title">My Friends</h3>
-            {friends.length === 0 ? (
-              <p className="profile-hint">No friends yet. Search above to add some!</p>
-            ) : (
-              friends.map((f) => (
-                <div key={f.id} className="profile-friend-row">
-                  <div className="profile-friend-avatar">{getInitial(f.email)}</div>
-                  <div className="profile-friend-info">
-                    <p className="profile-friend-name">{getUsername(f.email)}</p>
-                    <p className="profile-friend-email">{f.email}</p>
-                  </div>
-                  <button
-                    className="profile-action-btn profile-action-btn--remove"
-                    onClick={() => handleRemove(f.friendshipId)}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))
-            )}
+          <div className="profile-header-info">
+            <h1 className="profile-name">{username}</h1>
+            <p className="profile-email">{currentEmail}</p>
           </div>
         </div>
-      )}
 
-      {/* Settings Tab */}
-      {tab === "settings" && (
-        <div className="profile-section">
-          <div className="profile-list-section">
-            <h3 className="profile-list-title">Display Name</h3>
-            <p className="profile-hint">This is how your name appears on the leaderboard and to friends.</p>
-            <div className="profile-username-row">
+        {/* Tabs */}
+        <div className="profile-tabs">
+          <button
+            className={`profile-tab ${tab === "friends" ? "profile-tab--active" : ""}`}
+            onClick={() => setTab("friends")}
+          >
+            👥 Friends {friends.length > 0 && <span className="profile-tab-badge">{friends.length}</span>}
+          </button>
+          <button
+            className={`profile-tab ${tab === "settings" ? "profile-tab--active" : ""}`}
+            onClick={() => setTab("settings")}
+          >
+            ⚙️ Settings
+          </button>
+        </div>
+
+        {/* Friends Tab */}
+        {tab === "friends" && (
+          <div className="profile-section">
+            {/* Search */}
+            <div className="profile-search-wrap">
               <input
-                className="profile-username-input"
-                value={usernameInput}
-                onChange={(e) => setUsernameInput(e.target.value)}
-                maxLength={30}
-                placeholder="Enter username..."
+                className="profile-search"
+                placeholder="Search users by email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button
-                className="profile-action-btn profile-action-btn--save"
-                onClick={handleSaveUsername}
-                disabled={savingUsername || usernameInput === username}
-              >
-                {savingUsername ? "Saving..." : usernameSaved ? "Saved ✓" : "Save"}
-              </button>
             </div>
-          </div>
 
-          <div className="profile-list-section">
-            <h3 className="profile-list-title">Profile Picture</h3>
-            <p className="profile-hint">Stored locally on your device.</p>
-            <div className="profile-pic-preview-row">
-              <div className="profile-pic-preview">
-                {profilePic ? (
-                  <img src={profilePic} alt="profile" className="profile-avatar-img" />
-                ) : (
-                  <span className="profile-avatar-initial">{getInitial(currentEmail)}</span>
-                )}
+            {/* Search Results */}
+            {searchResults.length > 0 && (
+              <div className="profile-list-section">
+                <h3 className="profile-list-title">Search Results</h3>
+                {searchResults.map((u) => (
+                  <div key={u.id} className="profile-friend-row">
+                    <div className="profile-friend-avatar">{getInitial(u.email)}</div>
+                    <div className="profile-friend-info">
+                      <p className="profile-friend-name">{getUsername(u.email)}</p>
+                      <p className="profile-friend-email">{u.email}</p>
+                    </div>
+                    <button
+                      className={`profile-action-btn ${sentRequests.has(u.id) ? "profile-action-btn--sent" : "profile-action-btn--add"}`}
+                      onClick={() => handleSendRequest(u.id)}
+                      disabled={sentRequests.has(u.id)}
+                    >
+                      {sentRequests.has(u.id) ? "Sent ✓" : "+ Add"}
+                    </button>
+                  </div>
+                ))}
               </div>
-              <div className="profile-pic-actions">
+            )}
+
+            {searching && <p className="profile-hint">Searching...</p>}
+            {searchQuery && !searching && searchResults.length === 0 && (
+              <p className="profile-hint">No users found.</p>
+            )}
+
+            {/* Pending Requests */}
+            {pending.length > 0 && (
+              <div className="profile-list-section">
+                <h3 className="profile-list-title">
+                  Pending Requests
+                  <span className="profile-tab-badge">{pending.length}</span>
+                </h3>
+                {pending.map((req) => (
+                  <div key={req.id} className="profile-friend-row">
+                    <div className="profile-friend-avatar profile-friend-avatar--pending">
+                      {getInitial(req.requesterEmail)}
+                    </div>
+                    <div className="profile-friend-info">
+                      <p className="profile-friend-name">{getUsername(req.requesterEmail)}</p>
+                      <p className="profile-friend-email">{req.requesterEmail}</p>
+                    </div>
+                    <button
+                      className="profile-action-btn profile-action-btn--accept"
+                      onClick={() => handleAccept(req.id)}
+                    >
+                      Accept
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Friends List */}
+            <div className="profile-list-section">
+              <h3 className="profile-list-title">My Friends</h3>
+              {friends.length === 0 ? (
+                <p className="profile-hint">No friends yet. Search above to add some!</p>
+              ) : (
+                friends.map((f) => (
+                  <div key={f.id} className="profile-friend-row">
+                    <div className="profile-friend-avatar">{getInitial(f.email)}</div>
+                    <div className="profile-friend-info">
+                      <p className="profile-friend-name">{getUsername(f.email)}</p>
+                      <p className="profile-friend-email">{f.email}</p>
+                    </div>
+                    <button
+                      className="profile-action-btn profile-action-btn--remove"
+                      onClick={() => handleRemove(f.friendshipId)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Settings Tab */}
+        {tab === "settings" && (
+          <div className="profile-section">
+            <div className="profile-list-section">
+              <h3 className="profile-list-title">Display Name</h3>
+              <p className="profile-hint">This is how your name appears on the leaderboard and to friends.</p>
+              <div className="profile-username-row">
+                <input
+                  className="profile-username-input"
+                  value={usernameInput}
+                  onChange={(e) => setUsernameInput(e.target.value)}
+                  maxLength={30}
+                  placeholder="Enter username..."
+                />
                 <button
-                  className="profile-action-btn profile-action-btn--add"
-                  onClick={() => fileInputRef.current?.click()}
+                  className="profile-action-btn profile-action-btn--save"
+                  onClick={handleSaveUsername}
+                  disabled={savingUsername || usernameInput === username}
                 >
-                  {profilePic ? "Change Photo" : "Upload Photo"}
+                  {savingUsername ? "Saving..." : usernameSaved ? "Saved ✓" : "Save"}
                 </button>
-                {profilePic && (
+              </div>
+            </div>
+
+            <div className="profile-list-section">
+              <h3 className="profile-list-title">Profile Picture</h3>
+              <p className="profile-hint">Stored locally on your device.</p>
+              <div className="profile-pic-preview-row">
+                <div className="profile-pic-preview">
+                  {profilePic ? (
+                    <img src={profilePic} alt="profile" className="profile-avatar-img" />
+                  ) : (
+                    <span className="profile-avatar-initial">{getInitial(currentEmail)}</span>
+                  )}
+                </div>
+                <div className="profile-pic-actions">
                   <button
-                    className="profile-action-btn profile-action-btn--remove"
-                    onClick={() => {
-                      setProfilePic(null);
-                      localStorage.removeItem("profilePic");
-                    }}
+                    className="profile-action-btn profile-action-btn--add"
+                    onClick={() => fileInputRef.current?.click()}
                   >
-                    Remove
+                    {profilePic ? "Change Photo" : "Upload Photo"}
                   </button>
-                )}
+                  {profilePic && (
+                    <button
+                      className="profile-action-btn profile-action-btn--remove"
+                      onClick={() => {
+                        setProfilePic(null);
+                        localStorage.removeItem("profilePic");
+                      }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
