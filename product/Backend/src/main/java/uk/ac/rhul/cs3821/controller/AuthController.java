@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 import uk.ac.rhul.cs3821.dto.auth.LoginRequest;
 import uk.ac.rhul.cs3821.dto.auth.RegisterRequest;
 import uk.ac.rhul.cs3821.dto.auth.TokenResponse;
@@ -39,6 +40,9 @@ public class AuthController {
   private final UserRepository repo;
   private final PasswordEncoder encoder;
   private final Map<String, List<Long>> loginAttempts = new ConcurrentHashMap<>();
+  private final WebClient recommenderClient = WebClient.builder()
+      .baseUrl("http://localhost:5001")
+      .build();
 
   /**
    * Public constructor for AuthController.
@@ -78,6 +82,17 @@ public class AuthController {
     return false;
   }
 
+  private void seedRecommendations(Long userId) {
+    recommenderClient.post()
+        .uri("/recommend/" + userId)
+        .retrieve()
+        .bodyToMono(String.class)
+        .subscribe(
+            res -> System.out.println("Seeded recommendations for new user " + userId + ": " + res),
+            err -> System.err.println("Failed to seed recommendations for user " + userId + ": " + err.getMessage())
+        );
+  }
+
   /**
    * Handles user registration requests. If the provided email is already in use,
    * the request is rejected. Otherwise, a new user record is created and persisted.
@@ -96,6 +111,9 @@ public class AuthController {
     u.setPassword(encoder.encode(req.password()));
     u.setRoles(java.util.Set.of("USER"));
     repo.save(u);
+
+    seedRecommendations(u.getId());
+
     return ResponseEntity.ok().build();
   }
 

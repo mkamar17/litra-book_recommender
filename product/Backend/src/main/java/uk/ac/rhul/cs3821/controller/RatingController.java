@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 import uk.ac.rhul.cs3821.dto.RatingDto;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.BookRating;
@@ -30,6 +31,9 @@ public class RatingController {
   private final BookRatingRepository ratingRepo;
   private final BookRepository bookRepo;
   private final UserRepository userRepo;
+  private final WebClient recommenderClient = WebClient.builder()
+      .baseUrl("http://localhost:5001")
+      .build();
 
   private User getCurrentUser() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -74,6 +78,7 @@ public class RatingController {
     double avg = ratingRepo.findAvgRatingByBookId(bookId).orElse(0.0);
     long count = ratingRepo.countByBookId(bookId);
 
+    triggerRecommenderUpdate(user.getId());
     return ResponseEntity.ok(Map.of(
         "userRating", rating.getRating(),
         "avgRating", Math.round(avg * 10.0) / 10.0,
@@ -86,6 +91,23 @@ public class RatingController {
     User user = getCurrentUser();
     ratingRepo.findByUserIdAndBookId(user.getId(), bookId)
         .ifPresent(ratingRepo::delete);
+
+    triggerRecommenderUpdate(user.getId());
     return ResponseEntity.noContent().build();
+  }
+
+  private void triggerRecommenderUpdate(Long userId) {
+    try {
+      recommenderClient.post()
+          .uri("/recommend/" + userId)
+          .retrieve()
+          .bodyToMono(String.class)
+          .subscribe(
+              res -> System.out.println("Recommender updated for user " + userId + ": " + res),
+              err -> System.err.println("Recommender call failed: " + err.getMessage())
+          );
+    } catch (Exception e) {
+      System.err.println("Could not reach recommender: " + e.getMessage());
+    }
   }
 }
