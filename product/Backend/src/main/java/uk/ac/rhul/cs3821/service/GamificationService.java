@@ -1,6 +1,7 @@
 package uk.ac.rhul.cs3821.service;
 
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uk.ac.rhul.cs3821.model.User;
@@ -55,9 +56,11 @@ public class GamificationService {
    */
 
   public int updateStreak(User user, long durationSeconds) {
-    if (durationSeconds < 300) {
-      return -1;
-    }
+
+    // five minute minimum for valid session
+//    if (durationSeconds < 300) {
+//      return -1;
+//    }
 
     LocalDate today = LocalDate.now();
     LocalDate lastRead = user.getLastReadDate();
@@ -81,6 +84,12 @@ public class GamificationService {
     }
 
     user.setLastReadDate(today);
+
+    List<LocalDate> readDates = user.getReadDates();
+    if (!readDates.contains(today)) {
+      readDates.add(today);
+    }
+
     userRepository.save(user);
 
     return user.getCurrentStreak();

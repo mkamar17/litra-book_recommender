@@ -64,20 +64,69 @@ public class UserController {
         .stream()
         .map(s -> s.getStartTime().atZone(ZoneId.systemDefault()).toLocalDate())
         .distinct()
+        .sorted()
         .toList();
 
-    Map<String, Object> response = new java.util.HashMap<>();
-    response.put("currentStreak", user.getCurrentStreak());
-    response.put("longestStreak", user.getLongestStreak());
-    response.put("readDates", readDates.stream().map(LocalDate::toString).toList());
+    // Calculate current streak live
+    int currentStreak = 0;
+    LocalDate today = LocalDate.now();
+    LocalDate check = readDates.contains(today) ? today : today.minusDays(1);
 
-    if (user.getLastReadDate() != null) {
-      response.put("lastReadDate", user.getLastReadDate().toString());
+    for (int i = readDates.size() - 1; i >= 0; i--) {
+      if (readDates.get(i).equals(check)) {
+        currentStreak++;
+        check = check.minusDays(1);
+      } else if (readDates.get(i).isBefore(check)) {
+        break;
+      }
     }
-    // if null, key is simply absent — matches your test: .andExpect(jsonPath("$.lastReadDate").doesNotExist())
+
+    // Calculate longest streak live
+    int longestStreak = 0;
+    int current = 1;
+    for (int i = 1; i < readDates.size(); i++) {
+      if (readDates.get(i).equals(readDates.get(i - 1).plusDays(1))) {
+        current++;
+      } else {
+        longestStreak = Math.max(longestStreak, current);
+        current = 1;
+      }
+    }
+    longestStreak = Math.max(longestStreak, current);
+
+    Map<String, Object> response = new java.util.HashMap<>();
+    response.put("currentStreak", currentStreak);
+    response.put("longestStreak", longestStreak);
+    response.put("readDates", readDates.stream().map(LocalDate::toString).toList());
 
     return ResponseEntity.ok(response);
   }
+
+//  @GetMapping("/streak")
+//  public ResponseEntity<Map<String, Object>> getStreak() {
+//    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//    User user = userRepository.findByEmail(auth.getName())
+//        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+//
+//    List<LocalDate> readDates = readingSessionRepository
+//        .findByUserIdAndEndTimeIsNotNull(user.getId())
+//        .stream()
+//        .map(s -> s.getStartTime().atZone(ZoneId.systemDefault()).toLocalDate())
+//        .distinct()
+//        .toList();
+//
+//    Map<String, Object> response = new java.util.HashMap<>();
+//    response.put("currentStreak", user.getCurrentStreak());
+//    response.put("longestStreak", user.getLongestStreak());
+//    response.put("readDates", readDates.stream().map(LocalDate::toString).toList());
+//
+//    if (user.getLastReadDate() != null) {
+//      response.put("lastReadDate", user.getLastReadDate().toString());
+//    }
+//    // if null, key is simply absent — matches your test: .andExpect(jsonPath("$.lastReadDate").doesNotExist())
+//
+//    return ResponseEntity.ok(response);
+//  }
 
   /**
    * Updates the display username for the authenticated user.

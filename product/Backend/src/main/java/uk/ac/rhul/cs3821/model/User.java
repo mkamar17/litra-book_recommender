@@ -80,6 +80,10 @@ public class User {
   @Column
   private LocalDate lastReadDate;
 
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Column(name = "read_date")
+  private List<LocalDate> readDates = new ArrayList<>();
+
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
       name = "use_library",
