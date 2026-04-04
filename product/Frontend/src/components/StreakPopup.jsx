@@ -5,7 +5,7 @@ export default function StreakPopup({ streak, onClose }) {
   useEffect(() => {
     const timer = setTimeout(onClose, 4000); // auto-close after 4s
     return () => clearTimeout(timer);
-  }, []);
+  }, [onClose]);
 
   return (
     <div className="streak-popup-overlay" onClick={onClose}>

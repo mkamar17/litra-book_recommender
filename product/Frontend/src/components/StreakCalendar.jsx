@@ -21,9 +21,20 @@ export default function StreakCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const ref = useRef(null);
 
+  // useEffect(() => {
+  //   // fetch streak count for navbar badge on mount
+  //   fetchStreak().then(setStreakData).catch(() => {});
+  // }, []);
+
   useEffect(() => {
-    // fetch streak count for navbar badge on mount
     fetchStreak().then(setStreakData).catch(() => {});
+
+    const handleStreakUpdate = () => {
+      fetchStreak().then(setStreakData).catch(() => {});
+    };
+
+    window.addEventListener('streakUpdated', handleStreakUpdate);
+    return () => window.removeEventListener('streakUpdated', handleStreakUpdate);
   }, []);
 
   useEffect(() => {
@@ -34,14 +45,18 @@ export default function StreakCalendar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // async function handleOpen() {
+  //   if (open) { setOpen(false); return; }
+  //   try {
+  //     const data = await fetchStreak();
+  //     setStreakData(data);
+  //   } catch (e) {}
+  //   setOpen(true);
+  // }
+
   async function handleOpen() {
-    if (open) { setOpen(false); return; }
-    try {
-      const data = await fetchStreak();
-      setStreakData(data);
-    } catch (e) {}
-    setOpen(true);
-  }
+    setOpen(prev => !prev); // just toggle, no fetch
+  } 
 
   function getDaysInMonth(date) {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -54,9 +69,11 @@ export default function StreakCalendar() {
   }
 
   function isReadDate(day) {
-    if (!streakData?.readDates) return false;
-    const d = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    const str = d.toISOString().split("T")[0];
+    if (!Array.isArray(streakData?.readDates)) return false;
+    const yyyy = currentMonth.getFullYear();
+    const mm = String(currentMonth.getMonth() + 1).padStart(2, "0");
+    const dd = String(day).padStart(2, "0");
+    const str = `${yyyy}-${mm}-${dd}`;
     return streakData.readDates.includes(str);
   }
 

@@ -113,6 +113,7 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
     setShowSuccessCard(false);
     setStreakPopup(null);
     window.dispatchEvent(new Event('pointsUpdated'));
+    window.dispatchEvent(new Event('streakUpdated'))
     if (onClose) onClose();
   };
 
