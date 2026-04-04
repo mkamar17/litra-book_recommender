@@ -80,7 +80,7 @@ public class CommentService {
       // notify the original commenter of the reply
       if (!parent.getUser().getId().equals(userId)) {
         notificationService.send(parent.getUser().getId(),
-            NotificationType.COMMENT_REPLY, parent.getId());
+            NotificationType.COMMENT_REPLY, parent.getId(), userId);
       }
     }
 

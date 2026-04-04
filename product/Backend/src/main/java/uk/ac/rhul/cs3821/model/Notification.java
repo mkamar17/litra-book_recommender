@@ -43,6 +43,9 @@ public class Notification {
   @Column(nullable = false)
   private boolean read = false;
 
+  @Column(name = "triggerer_id")
+  private Long triggererId; // the user who triggered the notification
+
   @CreationTimestamp
   private LocalDateTime createdAt;
 }

@@ -71,7 +71,7 @@ public class FriendshipService {
     friendship.setStatus(FriendshipStatus.PENDING);
 
     Friendship saved = friendshipRepo.save(friendship);
-    notificationService.send(addresseeId, NotificationType.FRIEND_REQUEST, saved.getId());
+    notificationService.send(addresseeId, NotificationType.FRIEND_REQUEST, saved.getId(), requesterId);
 
     return toDto(saved, addressee);
   }
@@ -118,7 +118,7 @@ public class FriendshipService {
     if (!isRequester && !isAddressee) {
       throw new AccessDeniedException("You are not part of this friendship");
     }
-    
+
     friendshipRepo.delete(friendship);
   }
 

@@ -41,13 +41,14 @@ public class NotificationService {
    * @param type        the type of notification
    * @param referenceId the ID of the related entity (friendshipId, commentId etc)
    */
-  public void send(Long recipientId, NotificationType type, Long referenceId) {
+  public void send(Long recipientId, NotificationType type, Long referenceId, Long triggererId) {
     User recipient = userRepository.getReferenceById(recipientId);
 
     Notification notification = new Notification();
     notification.setRecipient(recipient);
     notification.setType(type);
     notification.setReferenceId(referenceId);
+    notification.setTriggererId(triggererId);
     notification.setRead(false);
 
     notificationRepository.save(notification);
@@ -58,7 +59,7 @@ public class NotificationService {
    */
   @Transactional(readOnly = true)
   public List<NotificationDto> getAllForUser(Long userId) {
-    return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId).stream().map(NotificationDto::from).toList();
+    return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId).stream().map(this::toDto).toList();
   }
 
   /**
@@ -66,7 +67,7 @@ public class NotificationService {
    */
   @Transactional(readOnly = true)
   public List<NotificationDto> getUnreadForUser(Long userId) {
-    return notificationRepository.findByRecipientIdAndReadFalse(userId).stream().map(NotificationDto::from).toList();
+    return notificationRepository.findByRecipientIdAndReadFalse(userId).stream().map(this::toDto).toList();
   }
 
   /**
@@ -102,5 +103,19 @@ public class NotificationService {
 
     notification.setRead(true);
     notificationRepository.save(notification);
+  }
+
+  /**
+   * Helper method to link to Dto.
+   *
+   * @param n the notification
+   * @return the full dto
+   */
+  private NotificationDto toDto(Notification n) {
+    System.out.println("triggererId = " + n.getTriggererId());
+    User triggerer = (n.getTriggererId() != null && n.getTriggererId() != 0)
+        ? userRepository.findById(n.getTriggererId()).orElse(null)
+        : null;
+    return NotificationDto.from(n, triggerer);
   }
 }
