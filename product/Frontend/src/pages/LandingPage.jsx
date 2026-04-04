@@ -10,6 +10,7 @@ import CommentSection from "../components/CommentSection";
 import { getAllProgress } from "../api/api.js";
 import '../App.css'
 import '../styles/BookModal.css'
+import StarRating from "../components/StarRating.jsx";
 
 export default function LandingPage() {
   const [books, setBooks] = useState([]);
@@ -199,6 +200,9 @@ export default function LandingPage() {
                   className="modal-image"
                   alt={selectedBook.title}
                 />
+
+                <StarRating bookId={selectedBook.id} />
+                
                 <button
                   className="modal-start-book-btn"
                   onClick={() => {

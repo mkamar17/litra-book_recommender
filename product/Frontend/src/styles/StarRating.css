@@ -1,0 +1,83 @@
+/* StarRating.css */
+
+.sr-skeleton {
+  height: 24px;
+  width: 120px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  animation: sr-pulse 1.4s ease infinite;
+  margin: 10px auto;
+}
+
+@keyframes sr-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1;   }
+}
+
+.sr-full {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0;
+  width: 100%;
+}
+
+.sr-stars {
+  display: flex;
+  gap: 4px;
+}
+
+/* Default: yellow outline, hollow */
+.sr-star {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 28px;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px #f5c518;
+  transition: color 0.1s ease, transform 0.1s ease;
+}
+
+/* Hover: fill yellow */
+.sr-star:hover {
+  color: #f5c518;
+  transform: scale(1.2);
+}
+
+/* Clicked / rated: filled yellow */
+.sr-star--filled {
+  color: #f5c518;
+  -webkit-text-stroke: 1.5px #f5c518;
+}
+
+.sr-star--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.sr-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.sr-meta__yours {
+  font-size: 12px;
+  color: #f5c518;
+  font-weight: 600;
+}
+
+.sr-meta__prompt {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  font-style: italic;
+}
+
+.sr-meta__avg {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+}

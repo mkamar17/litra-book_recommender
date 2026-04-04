@@ -152,4 +152,18 @@ export const toggleCommentLike = async (bookId, commentId) => {
   return res.data;
 };
 
+export const getBookRating = async (bookId) => {
+  const res = await api.get(`/books/${bookId}/rating`);
+  return res.data;
+};
+
+export const submitBookRating = async (bookId, rating) => {
+  const res = await api.post(`/books/${bookId}/rating`, { rating });
+  return res.data;
+};
+
+export const deleteBookRating = async (bookId) => {
+  await api.delete(`/books/${bookId}/rating`);
+};
+
 export default api;
