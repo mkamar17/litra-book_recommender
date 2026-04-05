@@ -112,7 +112,6 @@ public class NotificationService {
    * @return the full dto
    */
   private NotificationDto toDto(Notification n) {
-    System.out.println("triggererId = " + n.getTriggererId());
     User triggerer = (n.getTriggererId() != null && n.getTriggererId() != 0)
         ? userRepository.findById(n.getTriggererId()).orElse(null)
         : null;
