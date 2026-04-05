@@ -1,6 +1,8 @@
 package uk.ac.rhul.cs3821.controller;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Unit tests for {@link UserController}.
+ */
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
@@ -35,33 +40,43 @@ class UserControllerTest {
 
   @MockitoBean
   private UserRepository userRepository;
-
   @MockitoBean
   private JwtService jwtService;
-
   @MockitoBean
   private AppUserDetailsService uds;
-
   @MockitoBean
   private ReadingSessionRepository readingSessionRepository;
-
   @MockitoBean
   private GamificationService gamificationService;
 
   private User user;
 
+  /**
+   * Sets up a test user with points and stub repository lookups.
+   */
   @BeforeEach
   void setUp() {
     user = new User();
     user.setId(1L);
     user.setEmail("test@example.com");
     user.setTotalPoints(150);
-    user.setCurrentStreak(3);
-    user.setLongestStreak(7);
-    user.setLastReadDate(java.time.LocalDate.of(2025, 3, 10));
 
     when(userRepository.findByEmail(user.getEmail()))
         .thenReturn(Optional.of(user));
+  }
+
+  /**
+   * Builds an Instant that falls on the given LocalDate at noon local time.
+   */
+  private Instant atNoon(LocalDate date) {
+    return date.atTime(12, 0).atZone(ZoneId.systemDefault()).toInstant();
+  }
+
+  private ReadingSession sessionOn(LocalDate date) {
+    ReadingSession s = new ReadingSession();
+    s.setStartTime(atNoon(date));
+    s.setEndTime(atNoon(date).plus(30, ChronoUnit.MINUTES));
+    return s;
   }
 
   @Test
@@ -75,18 +90,19 @@ class UserControllerTest {
   @Test
   @WithMockUser(username = "test@example.com")
   void getStreak_returnsStreakData() throws Exception {
-    ReadingSession session = new ReadingSession();
-    session.setStartTime(Instant.now().minus(1, ChronoUnit.DAYS));
-    session.setEndTime(Instant.now());
-
+    // Three consecutive days ending today → currentStreak = 3, longestStreak = 3
+    LocalDate today = LocalDate.now();
     when(readingSessionRepository.findByUserIdAndEndTimeIsNotNull(1L))
-        .thenReturn(List.of(session));
+        .thenReturn(List.of(
+            sessionOn(today.minusDays(2)),
+            sessionOn(today.minusDays(1)),
+            sessionOn(today)
+        ));
 
     mockMvc.perform(get("/api/users/streak"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.currentStreak").value(3))
-        .andExpect(jsonPath("$.longestStreak").value(7))
-        .andExpect(jsonPath("$.lastReadDate").value("2025-03-10"))
+        .andExpect(jsonPath("$.longestStreak").value(3))
         .andExpect(jsonPath("$.readDates").isArray());
   }
 
@@ -98,14 +114,13 @@ class UserControllerTest {
 
     mockMvc.perform(get("/api/users/streak"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.currentStreak").value(3))
+        .andExpect(jsonPath("$.currentStreak").value(0))
         .andExpect(jsonPath("$.readDates").isEmpty());
   }
 
   @Test
   @WithMockUser(username = "test@example.com")
   void getStreak_handlesNullLastReadDate() throws Exception {
-    user.setLastReadDate(null);
     when(readingSessionRepository.findByUserIdAndEndTimeIsNotNull(1L))
         .thenReturn(List.of());
 
@@ -117,14 +132,16 @@ class UserControllerTest {
   @Test
   @WithMockUser(username = "test@example.com")
   void getStreak_deduplicatesSessionsOnSameDay() throws Exception {
-    Instant today = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(12, ChronoUnit.HOURS);
+    LocalDate today = LocalDate.now();
+    Instant noon = atNoon(today);
+
     ReadingSession s1 = new ReadingSession();
-    s1.setStartTime(today);
-    s1.setEndTime(today.plus(30, ChronoUnit.MINUTES));
+    s1.setStartTime(noon);
+    s1.setEndTime(noon.plus(30, ChronoUnit.MINUTES));
 
     ReadingSession s2 = new ReadingSession();
-    s2.setStartTime(today.plus(1, ChronoUnit.HOURS));
-    s2.setEndTime(today.plus(2, ChronoUnit.HOURS));
+    s2.setStartTime(noon.plus(1, ChronoUnit.HOURS));
+    s2.setEndTime(noon.plus(2, ChronoUnit.HOURS));
 
     when(readingSessionRepository.findByUserIdAndEndTimeIsNotNull(1L))
         .thenReturn(List.of(s1, s2));
@@ -143,5 +160,4 @@ class UserControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.username").value("bookworm99"));
   }
-
 }

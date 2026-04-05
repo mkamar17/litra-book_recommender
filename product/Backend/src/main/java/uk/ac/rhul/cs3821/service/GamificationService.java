@@ -57,11 +57,6 @@ public class GamificationService {
 
   public int updateStreak(User user, long durationSeconds) {
 
-    // five minute minimum for valid session
-//    if (durationSeconds < 300) {
-//      return -1;
-//    }
-
     LocalDate today = LocalDate.now();
     LocalDate lastRead = user.getLastReadDate();
 

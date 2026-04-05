@@ -28,10 +28,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Unit tests for {@link AuthController}.
+ */
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
@@ -41,6 +43,7 @@ class AuthControllerTest {
   private static final String LOGIN_JSON =
       "{\"email\":\"" + TEST_EMAIL + "\",\"password\":\"" + TEST_PASSWORD + "\"}";
   private static final String REGISTER_JSON = LOGIN_JSON;
+
   @Autowired
   private MockMvc mockMvc;
   @MockitoBean
@@ -53,8 +56,12 @@ class AuthControllerTest {
   private PasswordEncoder encoder;
   @MockitoBean
   private AppUserDetailsService uds;
+
   private Authentication mockAuth;
 
+  /**
+   * Sets up mock authentication and JWT generation.
+   */
   @BeforeEach
   void setUp() {
     mockAuth = mock(Authentication.class);
@@ -86,8 +93,7 @@ class AuthControllerTest {
     mockMvc.perform(post("/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content(REGISTER_JSON))
-        .andExpect(status().isBadRequest())
-        .andExpect(content().string("Registration failed. Please try again."));
+        .andExpect(status().isConflict());
   }
 
   @Test
@@ -123,8 +129,7 @@ class AuthControllerTest {
             })
             .contentType(MediaType.APPLICATION_JSON)
             .content(LOGIN_JSON))
-        .andExpect(status().isTooManyRequests())
-        .andExpect(content().string("Too many login attempts. Please try again later."));
+        .andExpect(status().isTooManyRequests());
   }
 
   @Test
