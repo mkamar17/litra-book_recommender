@@ -369,5 +369,6 @@ product/ML/data/
 product/ML/datasets/*.csv
 product/ML/datasets/*.gz
 product/ML/datasets/*.json
+product/ML/datasets/*.pkl
 
 # End of https://www.toptal.com/developers/gitignore/api/maven,java,macos,intellij,react,node
