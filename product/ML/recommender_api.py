@@ -11,9 +11,8 @@ app = Flask(__name__)
 DB_URL = "postgresql://postgres:FYP_connect10@35.246.42.56:5432/postgres"
 engine = create_engine(DB_URL)
 
-# ---------------------------------------------------------------------------
-# 1. LOAD & PREP GOODREADS DATA (cached after first run)
-# ---------------------------------------------------------------------------
+# loading and prepping goodreads data - cached after first run 
+
 CACHE_PATH = "datasets/filtered_df_cache.pkl"
 
 if os.path.exists(CACHE_PATH):
@@ -42,7 +41,7 @@ else:
         (~filtered_df["image_url"].str.contains("nophoto", na=False))
     ]
 
-    # Extract authors
+    # getting authors
     authors_df = pd.read_json("datasets/goodreads_book_authors.json.gz", lines=True)
     authors_df["author_id"] = authors_df["author_id"].astype(str)
     filtered_df["author_id"] = filtered_df["authors"].apply(
@@ -54,7 +53,7 @@ else:
     filtered_df = filtered_df.rename(columns={"name": "author"})
     filtered_df = filtered_df.drop(columns=["authors", "author_id"])
 
-    # Extract genre
+    # extraing genre
     GENRE_SHELVES = {
         "fantasy", "romance", "science-fiction", "sci-fi", "mystery", "thriller",
         "horror", "dystopia", "paranormal", "urban-fantasy", "historical-fiction",
@@ -76,9 +75,9 @@ else:
     filtered_df.to_pickle(CACHE_PATH)
     print(f"Data ready and cached: {filtered_df['user_id'].nunique()} users, {filtered_df['book_id'].nunique()} books")
 
-# ---------------------------------------------------------------------------
-# 2. TRAIN BASE SVD ON GOODREADS DATA
-# ---------------------------------------------------------------------------
+
+# training SVD on goodreads dataset 
+
 print("Training SVD model...")
 reader = Reader(rating_scale=(1, 5))
 base_data = Dataset.load_from_df(
@@ -89,9 +88,8 @@ svd = SVD(n_factors=50, n_epochs=30, lr_all=0.005, reg_all=0.02)
 svd.fit(trainset)
 print("SVD model ready.")
 
-# ---------------------------------------------------------------------------
-# 3. POPULARITY FALLBACK
-# ---------------------------------------------------------------------------
+# cold start - popular books 
+
 num_rating_df = filtered_df.groupby("book_id")["rating"].count().reset_index()
 num_rating_df.rename(columns={"rating": "num_ratings"}, inplace=True)
 avg_rating_df = filtered_df.groupby("book_id")["rating"].mean().reset_index()
@@ -113,9 +111,7 @@ popular_df = (
     .reset_index(drop=True)
 )
 
-# ---------------------------------------------------------------------------
-# 4. HELPERS
-# ---------------------------------------------------------------------------
+# helper methods
 
 def get_app_user_ratings(internal_user_id):
     """
@@ -138,7 +134,8 @@ def get_app_user_ratings(internal_user_id):
 
     df = pd.DataFrame(rows, columns=["user_id", "book_id", "rating"])
 
-    # Filter to Goodreads-only (numeric IDs)
+    # filtering the google books from training 
+
     df = df[df["book_id"].str.isnumeric()]
 
     return df
@@ -150,7 +147,7 @@ def find_best_proxy(user_rated_book_ids, user_genres):
     the app user's rated books and preferred genres.
     Book overlap takes priority over genre overlap.
     """
-    # Try book overlap first
+
     book_overlap = filtered_df[
         filtered_df["book_id"].astype(str).isin(user_rated_book_ids)
     ].groupby("user_id").size().sort_values(ascending=False)
@@ -158,7 +155,6 @@ def find_best_proxy(user_rated_book_ids, user_genres):
     if len(book_overlap) > 0:
         return book_overlap.index[0]
 
-    # Fall back to genre overlap
     genre_overlap = filtered_df[
         filtered_df["genre"].isin(user_genres)
     ].groupby("user_id").size().sort_values(ascending=False)
@@ -166,7 +162,7 @@ def find_best_proxy(user_rated_book_ids, user_genres):
     if len(genre_overlap) > 0:
         return genre_overlap.index[0]
 
-    # Last resort — most active user
+    # otherwise, most active user
     return filtered_df.groupby("user_id").size().sort_values(ascending=False).index[0]
 
 
@@ -183,34 +179,33 @@ def get_personalised_recommendations(internal_user_id, user_ratings_df, n=20):
     proxy_user_id = find_best_proxy(rated_book_ids, user_genres)
     print(f"Proxy user for app user {internal_user_id}: {proxy_user_id}")
 
-    # Get proxy's Goodreads ratings
+    # getting the proxy users' Goodreads ratings
     proxy_ratings = filtered_df[filtered_df["user_id"] == proxy_user_id][
         ["user_id", "book_id", "rating"]
     ].copy()
     proxy_ratings["book_id"] = proxy_ratings["book_id"].astype(str)
 
-    # Synthetic user ID that won't clash with Goodreads IDs
     APP_USER_ID = f"app_user_{internal_user_id}"
 
-    # Build the app user's ratings in the same format
+    # building the app user's ratings in the same format
     app_ratings = user_ratings_df[["book_id", "rating"]].copy()
     app_ratings["book_id"] = app_ratings["book_id"].astype(str)
     app_ratings["user_id"] = APP_USER_ID
 
-    # Blend: proxy Goodreads ratings + app user's real ratings
+    # blend: proxy Goodreads ratings + app user's real ratings
     blended = pd.concat([
         proxy_ratings[["user_id", "book_id", "rating"]],
         app_ratings[["user_id", "book_id", "rating"]]
     ], ignore_index=True)
 
-    # Retrain SVD on blended data
+    # retrain SVD on blended data
     blend_reader = Reader(rating_scale=(1, 5))
     blend_data = Dataset.load_from_df(blended[["user_id", "book_id", "rating"]], blend_reader)
     blend_trainset = blend_data.build_full_trainset()
     blend_svd = SVD(n_factors=50, n_epochs=30, lr_all=0.005, reg_all=0.02)
     blend_svd.fit(blend_trainset)
 
-    # Predict ratings for all unrated Goodreads books
+    # predict ratings for all unrated Goodreads books
     all_books = filtered_df["book_id"].unique()
     unrated = [b for b in all_books if str(b) not in rated_book_ids]
     preds = [blend_svd.predict(APP_USER_ID, str(b)) for b in unrated]
@@ -276,10 +271,6 @@ def push_recommendations(internal_user_id, recs_df):
     print(f"Pushed {len(recs_to_save)} recommendations for user {internal_user_id}")
 
 
-# ---------------------------------------------------------------------------
-# 5. ROUTE
-# ---------------------------------------------------------------------------
-
 @app.route("/recommend/<int:internal_user_id>", methods=["POST"])
 def recommend(internal_user_id):
     user_ratings = get_app_user_ratings(internal_user_id)
@@ -288,7 +279,6 @@ def recommend(internal_user_id):
     print(f"User {internal_user_id} has {len(user_ratings)} usable Goodreads ratings out of total rated books")
 
     if len(user_ratings) < 5:
-        # Cold start — popularity based
         recs = (
             popular_df[~popular_df["book_id"].astype(str).isin(rated_ids)]
             .head(20)[["book_id", "title", "author", "genre", "description", "image_url", "score"]]
@@ -298,7 +288,7 @@ def recommend(internal_user_id):
         recs["book_id"] = recs["book_id"].astype(str)
         method = "popularity"
     else:
-        # Warm start — blend real ratings with Goodreads proxy, retrain SVD
+        # warm start — blend real ratings with Goodreads proxy, retrain SVD after each new rating
         recs = get_personalised_recommendations(internal_user_id, user_ratings, n=20)
         method = "svd_blended"
 
