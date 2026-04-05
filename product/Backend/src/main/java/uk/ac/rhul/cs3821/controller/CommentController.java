@@ -88,6 +88,13 @@ public class CommentController {
     return ResponseEntity.noContent().build();
   }
 
+  /**
+   * Toggles a like on a comment for the current user.
+   *
+   * @param commentId the ID of the comment to like or unlike
+   * @return the updated like count
+   */
+  
   @PostMapping("/{commentId}/like")
   public ResponseEntity<Integer> toggleLike(@PathVariable Long commentId) {
     Long userId = getCurrentUser().getId();

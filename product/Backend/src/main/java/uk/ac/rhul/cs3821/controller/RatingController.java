@@ -23,6 +23,10 @@ import uk.ac.rhul.cs3821.repository.BookRatingRepository;
 import uk.ac.rhul.cs3821.repository.BookRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 
+/**
+ * REST controller for managing book ratings.
+ * Handles retrieving, submitting, and deleting ratings for a specific book.
+ */
 @RestController
 @RequestMapping("/api/books/{bookId}/rating")
 @RequiredArgsConstructor
@@ -35,12 +39,25 @@ public class RatingController {
       .baseUrl("http://localhost:5001")
       .build();
 
+  /**
+   * Resolves the currently authenticated user from the security context.
+   *
+   * @return the authenticated User
+   * @throws EntityNotFoundException if the user is not found
+   */
+
   private User getCurrentUser() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     return userRepo.findByEmail(auth.getName())
         .orElseThrow(() -> new EntityNotFoundException("User not found"));
   }
 
+  /**
+   * Returns the current user's rating, average rating, and total rating count for a book.
+   *
+   * @param bookId the ID of the book
+   * @return rating summary including userRating, avgRating, and ratingCount
+   */
   @GetMapping
   public ResponseEntity<?> getRating(@PathVariable Long bookId) {
     User user = getCurrentUser();
@@ -55,13 +72,20 @@ public class RatingController {
     ));
   }
 
+  /**
+   * Returns the current user's rating, average rating, and total rating count for a book.
+   *
+   * @param bookId the ID of the book
+   * @return rating summary including userRating, avgRating, and ratingCount
+   */
   @PostMapping
   public ResponseEntity<?> submitRating(
       @PathVariable Long bookId,
       @RequestBody RatingDto dto) {
 
-    if (dto.rating() < 1 || dto.rating() > 5)
+    if (dto.rating() < 1 || dto.rating() > 5) {
       return ResponseEntity.badRequest().body("Rating must be between 1 and 5");
+    }
 
     User user = getCurrentUser();
     Book book = bookRepo.findById(bookId).orElseThrow();
@@ -86,6 +110,14 @@ public class RatingController {
     ));
   }
 
+  /**
+   * Deletes the current user's rating for a book.
+   * Triggers a recommender update after deletion.
+   *
+   * @param bookId the ID of the book
+   * @return HTTP 204 on success
+   */
+
   @DeleteMapping
   public ResponseEntity<?> deleteRating(@PathVariable Long bookId) {
     User user = getCurrentUser();
@@ -96,6 +128,12 @@ public class RatingController {
     return ResponseEntity.noContent().build();
   }
 
+  /**
+   * Asynchronously triggers the Flask recommender service to refresh recommendations for a user.
+   *
+   * @param userId the ID of the user to update
+   */
+  
   private void triggerRecommenderUpdate(Long userId) {
     try {
       recommenderClient.post()

@@ -19,6 +19,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Book rating model class to represent book ratings.
+ */
 @Entity
 @Table(name = "book_rating",
     uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "book_id"}))

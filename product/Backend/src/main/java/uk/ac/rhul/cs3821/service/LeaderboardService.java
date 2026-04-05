@@ -15,7 +15,8 @@ import uk.ac.rhul.cs3821.repository.LeaderboardCacheRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
 
 /**
- * Service manages Leaderboard logic.
+ * Service for managing leaderboard rankings.
+ * Handles retrieval of friend leaderboards and recomputation of cached scores.
  */
 @Service
 @Transactional
@@ -27,6 +28,11 @@ public class LeaderboardService {
 
   /**
    * Returns the friends leaderboard for the current user for a given period.
+   * Includes the current user's own entry, sorted by points descending.
+   *
+   * @param userId the ID of the current user
+   * @param period the leaderboard period — WEEKLY, MONTHLY, or ALL_TIME
+   * @return ranked list of LeaderboardEntryDto
    */
   @Transactional(readOnly = true)
   public List<LeaderboardEntryDto> getFriendsLeaderboard(Long userId, LeaderboardPeriod period) {
@@ -89,6 +95,12 @@ public class LeaderboardService {
     }
   }
 
+  /**
+   * Recomputes leaderboard cache entries for a single user across all periods.
+   * Called after a reading session ends to keep rankings up to date.
+   *
+   * @param user the user whose cache entries should be refreshed
+   */
   public void recomputeForUser(User user) {
     for (LeaderboardPeriod period : LeaderboardPeriod.values()) {
       LeaderboardCache cache = leaderboardCacheRepository
@@ -115,6 +127,7 @@ public class LeaderboardService {
           cache.setPagesRead(user.getTotalPagesRead());
           cache.setBooksCompleted(user.getTotalBooksCompleted());
         }
+        default -> throw new IllegalArgumentException("Unknown period: " + period);
       }
 
       leaderboardCacheRepository.save(cache);

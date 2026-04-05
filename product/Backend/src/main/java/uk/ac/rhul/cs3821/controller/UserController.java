@@ -102,32 +102,6 @@ public class UserController {
     return ResponseEntity.ok(response);
   }
 
-//  @GetMapping("/streak")
-//  public ResponseEntity<Map<String, Object>> getStreak() {
-//    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//    User user = userRepository.findByEmail(auth.getName())
-//        .orElseThrow(() -> new EntityNotFoundException("User not found"));
-//
-//    List<LocalDate> readDates = readingSessionRepository
-//        .findByUserIdAndEndTimeIsNotNull(user.getId())
-//        .stream()
-//        .map(s -> s.getStartTime().atZone(ZoneId.systemDefault()).toLocalDate())
-//        .distinct()
-//        .toList();
-//
-//    Map<String, Object> response = new java.util.HashMap<>();
-//    response.put("currentStreak", user.getCurrentStreak());
-//    response.put("longestStreak", user.getLongestStreak());
-//    response.put("readDates", readDates.stream().map(LocalDate::toString).toList());
-//
-//    if (user.getLastReadDate() != null) {
-//      response.put("lastReadDate", user.getLastReadDate().toString());
-//    }
-//    // if null, key is simply absent — matches your test: .andExpect(jsonPath("$.lastReadDate").doesNotExist())
-//
-//    return ResponseEntity.ok(response);
-//  }
-
   /**
    * Updates the display username for the authenticated user.
    *
