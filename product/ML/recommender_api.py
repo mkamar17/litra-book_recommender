@@ -8,7 +8,7 @@ from surprise.model_selection import train_test_split as surprise_split
 
 app = Flask(__name__)
 
-DB_URL = "postgresql://postgres:Dormezzled79!@35.246.42.56:5432/postgres"
+DB_URL = "postgresql://postgres:FYP_connect10@35.246.42.56:5432/postgres"
 engine = create_engine(DB_URL)
 
 # ---------------------------------------------------------------------------
