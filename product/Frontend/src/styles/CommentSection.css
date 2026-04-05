@@ -239,3 +239,22 @@
   gap: 12px;
   padding-right: 4px; /* stops scrollbar from overlapping content */
 }
+
+.comment-like-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  transition: color 0.15s;
+}
+
+.comment-like-btn:hover {
+  color: #e63946;
+}
+
+.comment-like-btn.liked {
+  color: #e63946;
+}

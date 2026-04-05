@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getComments, postComment, deleteComment } from "../api/api.js";
+import { getComments, postComment, deleteComment, toggleCommentLike } from "../api/api.js";
 import "../styles/CommentSection.css";
 
 export default function CommentSection({ bookId, bookProgress }) {
@@ -9,6 +9,7 @@ export default function CommentSection({ bookId, bookProgress }) {
   const [replyText, setReplyText] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [likedCommentIds, setLikedCommentIds] = useState(new Set());
 
   const currentUserEmail = localStorage.getItem("email");
   const bookCompleted = bookProgress >= 100;
@@ -21,10 +22,29 @@ export default function CommentSection({ bookId, bookProgress }) {
     try {
       const data = await getComments(bookId);
       setComments(data);
+      setLikedCommentIds(
+        new Set(data.filter((c) => c.likedByCurrentUser).map((c) => c.id))
+      );
     } catch (err) {
       setError("Could not load comments.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleToggleLike(commentId) {
+    try {
+      const newCount = await toggleCommentLike(bookId, commentId);
+      setComments((prev) =>
+        prev.map((c) => (c.id === commentId ? { ...c, likeCount: newCount } : c))
+      );
+      setLikedCommentIds((prev) => {
+        const next = new Set(prev);
+        next.has(commentId) ? next.delete(commentId) : next.add(commentId);
+        return next;
+      });
+    } catch (err) {
+      setError("Failed to like comment.");
     }
   }
 
@@ -70,12 +90,11 @@ export default function CommentSection({ bookId, bookProgress }) {
 
   function getUsername(email) {
     return email ? email.split("@")[0] : email;
-    }
+  }
 
   return (
     <div className="comment-section-wrapper">
 
-      {/* New comment input */}
       <div className="comment-input-row">
         <input
           className="comment-input"
@@ -91,7 +110,6 @@ export default function CommentSection({ bookId, bookProgress }) {
 
       {error && <p className="comment-error">{error}</p>}
 
-      {/* Two column layout */}
       <div className="comment-columns">
 
         {/* Non-Spoiler Column */}
@@ -114,7 +132,12 @@ export default function CommentSection({ bookId, bookProgress }) {
                 <p className="comment-content">{comment.content}</p>
 
                 <div className="comment-actions">
-                  <span className="comment-like">♥ {comment.likeCount}</span>
+                  <button
+                    className={`comment-like-btn${likedCommentIds.has(comment.id) ? " liked" : ""}`}
+                    onClick={() => handleToggleLike(comment.id)}
+                  >
+                    ♥ {comment.likeCount}
+                  </button>
                   <button
                     className="comment-action-btn"
                     onClick={() => {
@@ -134,7 +157,6 @@ export default function CommentSection({ bookId, bookProgress }) {
                   )}
                 </div>
 
-                {/* Reply input */}
                 {replyingTo === comment.id && (
                   <div className="reply-input-row">
                     <input
@@ -160,7 +182,6 @@ export default function CommentSection({ bookId, bookProgress }) {
                   </div>
                 )}
 
-                {/* Replies */}
                 {comment.replies && comment.replies.length > 0 && (
                   <div className="replies-block">
                     {comment.replies.map((reply) => (
@@ -170,28 +191,28 @@ export default function CommentSection({ bookId, bookProgress }) {
                           <span className="comment-date">{formatDate(reply.createdAt)}</span>
                         </div>
                         <p className="comment-content">{reply.content}</p>
-                        <div className = "comment-actions">
-                            {reply.authorEmail !== currentUserEmail && (
-                                <button
-                                className="comment-action-btn"
-                                onClick={() => {
-                                    setReplyingTo(comment.id); // parent comment id, not reply id
-                                    setReplyText(`@${getUsername(reply.authorEmail)} `); // pre-fill with mention
-                                }}
-                                >
-                                Reply
-                                </button>
-                            )}
-                        {reply.authorEmail === currentUserEmail && (
-                          <button
-                            className="comment-action-btn delete"
-                            onClick={() => handleDelete(reply.id)}
-                          >
-                            Delete
-                          </button>
-                        )}
+                        <div className="comment-actions">
+                          {reply.authorEmail !== currentUserEmail && (
+                            <button
+                              className="comment-action-btn"
+                              onClick={() => {
+                                setReplyingTo(comment.id);
+                                setReplyText(`@${getUsername(reply.authorEmail)} `);
+                              }}
+                            >
+                              Reply
+                            </button>
+                          )}
+                          {reply.authorEmail === currentUserEmail && (
+                            <button
+                              className="comment-action-btn delete"
+                              onClick={() => handleDelete(reply.id)}
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
                     ))}
                   </div>
                 )}
