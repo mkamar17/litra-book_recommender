@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for {@link CommentService}.
+ * Unit tests for CommentService.
  */
 @ExtendWith(MockitoExtension.class)
 class CommentServiceTest {

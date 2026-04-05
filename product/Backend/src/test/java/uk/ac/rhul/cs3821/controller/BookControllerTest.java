@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Unit tests for {@link BookController}.
+ * Unit tests for BookController.
  */
 @WebMvcTest(BookController.class)
 @AutoConfigureMockMvc(addFilters = false)

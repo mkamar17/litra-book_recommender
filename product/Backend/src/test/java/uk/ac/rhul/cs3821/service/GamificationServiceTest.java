@@ -15,7 +15,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
- * Unit tests for {@link GamificationService}.
+ * Unit tests for GamificationService.
  */
 @ExtendWith(MockitoExtension.class)
 class GamificationServiceTest {

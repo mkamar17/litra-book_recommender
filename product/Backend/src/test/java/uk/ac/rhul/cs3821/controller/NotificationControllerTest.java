@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for {@link NotificationController}.
+ * Unit tests for NotificationController.
  */
 @ExtendWith(MockitoExtension.class)
 class NotificationControllerTest {

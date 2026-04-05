@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for {@link FriendshipService}.
+ * Unit tests for FriendshipService.
  */
 @ExtendWith(MockitoExtension.class)
 class FriendshipServiceTest {

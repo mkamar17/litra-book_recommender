@@ -25,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for {@link CommentController}.
+ * Unit tests for CommentController.
  */
 @ExtendWith(MockitoExtension.class)
 class CommentControllerTest {

@@ -21,7 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for {@link LeaderboardService}.
+ * Unit tests for LeaderboardService.
  */
 @ExtendWith(MockitoExtension.class)
 class LeaderboardServiceTest {
