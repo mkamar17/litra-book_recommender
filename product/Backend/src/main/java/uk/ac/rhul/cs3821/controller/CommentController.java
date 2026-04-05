@@ -18,6 +18,7 @@ import uk.ac.rhul.cs3821.dto.CommentDto;
 import uk.ac.rhul.cs3821.model.BookComment;
 import uk.ac.rhul.cs3821.model.User;
 import uk.ac.rhul.cs3821.repository.UserRepository;
+import uk.ac.rhul.cs3821.service.CommentLikeService;
 import uk.ac.rhul.cs3821.service.CommentService;
 
 /**
@@ -30,6 +31,7 @@ import uk.ac.rhul.cs3821.service.CommentService;
 public class CommentController {
 
   private final CommentService commentService;
+  private final CommentLikeService commentLikeService;
   private final UserRepository userRepository;
 
   /**
@@ -51,7 +53,8 @@ public class CommentController {
    */
   @GetMapping
   public ResponseEntity<List<CommentDto>> getComments(@PathVariable Long bookId) {
-    return ResponseEntity.ok(commentService.getComments(bookId));
+    Long userId = getCurrentUser().getId();
+    return ResponseEntity.ok(commentService.getComments(bookId, userId));
   }
 
   /**
@@ -68,7 +71,7 @@ public class CommentController {
     Long userId = getCurrentUser().getId();
     BookComment saved = commentService.addComment(userId, bookId,
         request.content(), request.parentCommentId());
-    return ResponseEntity.status(HttpStatus.CREATED).body(commentService.toDto(saved));
+    return ResponseEntity.status(HttpStatus.CREATED).body(commentService.toDto(saved, userId));
   }
 
   /**
@@ -83,6 +86,13 @@ public class CommentController {
     Long userId = getCurrentUser().getId();
     commentService.deleteComment(commentId, userId);
     return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping("/{commentId}/like")
+  public ResponseEntity<Integer> toggleLike(@PathVariable Long commentId) {
+    Long userId = getCurrentUser().getId();
+    int newCount = commentLikeService.toggleLike(userId, commentId);
+    return ResponseEntity.ok(newCount);
   }
 
   /**
