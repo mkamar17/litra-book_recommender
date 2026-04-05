@@ -1,5 +1,6 @@
 package uk.ac.rhul.cs3821.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,6 @@ public interface BookRatingRepository extends JpaRepository<BookRating, Long> {
   long countByBookId(Long bookId);
 
   long countByUserId(Long userId);
+
+  List<BookRating> findByUserId(Long userId);
 }
