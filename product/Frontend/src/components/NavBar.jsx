@@ -125,7 +125,7 @@ export default function NavBar({ onSearch = () => {} }) { // to increase scalabi
             <form onSubmit={handleSearch} className="relative">
             <input
               type="text"
-              placeholder="Dystopian thriller novels..."
+              placeholder="Search any book title..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="bg-[rgb(60,60,60)] text-white placeholder-gray-400 text-sm font-light rounded-full pl-10 pr-4 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 w-48 sm:w-64 transition-all duration-200"
@@ -175,14 +175,6 @@ export default function NavBar({ onSearch = () => {} }) { // to increase scalabi
                     Your profile
                   </a>
                 </MenuItem>
-                {/* <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
-                  >
-                    Settings
-                  </a>
-                </MenuItem> */}
                 <MenuItem>
                   <a
                     href="#"

@@ -47,7 +47,6 @@ export default function LandingPage() {
   useEffect(() => {
     async function fetchBooks() {
       try {
-        console.log("Fetching books...");
         const [all, thriller, fantasy, romance, booktok, recommended] = await Promise.all([
           api.get("/books"),
           api.get("/books/genre/horror"),
@@ -100,7 +99,6 @@ export default function LandingPage() {
       .trim();
 
   const handleSearch = (query) => {
-    console.log("Search query:", query);
     const normalizedQuery = normalize(query);
 
     if (normalizedQuery === "") {
@@ -133,7 +131,6 @@ export default function LandingPage() {
 
   const handleSelectBook = (book) => {
     if (readingBook) {
-      console.log("Already in reading session");
       return;
     }
     setSelectedBook(book);
@@ -202,11 +199,10 @@ export default function LandingPage() {
                 />
 
                 <StarRating bookId={selectedBook.id} />
-                
+
                 <button
                   className="modal-start-book-btn"
                   onClick={() => {
-                    console.log("Starting book:", selectedBook);
                     setReadingBook(selectedBook);
                     setSelectedBook(null);
                   }}

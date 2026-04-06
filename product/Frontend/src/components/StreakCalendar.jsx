@@ -21,11 +21,6 @@ export default function StreakCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const ref = useRef(null);
 
-  // useEffect(() => {
-  //   // fetch streak count for navbar badge on mount
-  //   fetchStreak().then(setStreakData).catch(() => {});
-  // }, []);
-
   useEffect(() => {
     fetchStreak().then(setStreakData).catch(() => {});
 
@@ -44,15 +39,6 @@ export default function StreakCalendar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // async function handleOpen() {
-  //   if (open) { setOpen(false); return; }
-  //   try {
-  //     const data = await fetchStreak();
-  //     setStreakData(data);
-  //   } catch (e) {}
-  //   setOpen(true);
-  // }
 
   async function handleOpen() {
     setOpen(prev => !prev); // just toggle, no fetch

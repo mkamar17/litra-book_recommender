@@ -23,7 +23,6 @@ export default function BookCard({ book, onAddToLibrary, onSelectBook, refreshPr
   async function fetchProgress() {
     try {
       const res = await getBookProgress(book.id);
-      if (res.current_page != 0) console.log("current page:", book.id, res.current_page) 
       if (!res || res.total_pages === 0) return;
 
       setProgress({

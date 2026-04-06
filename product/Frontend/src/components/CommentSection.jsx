@@ -12,7 +12,6 @@ export default function CommentSection({ bookId, bookProgress }) {
   const [likedCommentIds, setLikedCommentIds] = useState(new Set());
 
   const currentUserEmail = localStorage.getItem("email");
-  const bookCompleted = bookProgress >= 100;
 
   useEffect(() => {
     fetchComments();
@@ -110,131 +109,109 @@ export default function CommentSection({ bookId, bookProgress }) {
 
       {error && <p className="comment-error">{error}</p>}
 
-      <div className="comment-columns">
+      {loading ? (
+        <p className="comment-muted">Loading comments...</p>
+      ) : comments.length === 0 ? (
+        <p className="comment-muted">No comments yet. Be the first!</p>
+      ) : (
+        comments.map((comment) => (
+          <div key={comment.id} className="comment-card">
 
-        {/* Non-Spoiler Column */}
-        <div className="comment-column">
-          <h3 className="comment-column-title">Non-Spoiler Comments</h3>
-
-          {loading ? (
-            <p className="comment-muted">Loading comments...</p>
-          ) : comments.length === 0 ? (
-            <p className="comment-muted">No comments yet. Be the first!</p>
-          ) : (
-            comments.map((comment) => (
-              <div key={comment.id} className="comment-card">
-
-                <div className="comment-header">
-                  <span className="comment-author">{getUsername(comment.authorEmail)}</span>
-                  <span className="comment-date">{formatDate(comment.createdAt)}</span>
-                </div>
-
-                <p className="comment-content">{comment.content}</p>
-
-                <div className="comment-actions">
-                  <button
-                    className={`comment-like-btn${likedCommentIds.has(comment.id) ? " liked" : ""}`}
-                    onClick={() => handleToggleLike(comment.id)}
-                  >
-                    ♥ {comment.likeCount}
-                  </button>
-                  <button
-                    className="comment-action-btn"
-                    onClick={() => {
-                      setReplyingTo(comment.id);
-                      setReplyText("");
-                    }}
-                  >
-                    Reply
-                  </button>
-                  {comment.authorEmail === currentUserEmail && (
-                    <button
-                      className="comment-action-btn delete"
-                      onClick={() => handleDelete(comment.id)}
-                    >
-                      Delete
-                    </button>
-                  )}
-                </div>
-
-                {replyingTo === comment.id && (
-                  <div className="reply-input-row">
-                    <input
-                      className="reply-input"
-                      placeholder={`Reply to ${getUsername(comment.authorEmail)}...`}
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handlePostReply(comment.id)}
-                      autoFocus
-                    />
-                    <button
-                      className="reply-post-btn"
-                      onClick={() => handlePostReply(comment.id)}
-                    >
-                      Reply
-                    </button>
-                    <button
-                      className="reply-cancel-btn"
-                      onClick={() => setReplyingTo(null)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                )}
-
-                {comment.replies && comment.replies.length > 0 && (
-                  <div className="replies-block">
-                    {comment.replies.map((reply) => (
-                      <div key={reply.id} className="reply-card">
-                        <div className="comment-header">
-                          <span className="comment-author">{getUsername(reply.authorEmail)}</span>
-                          <span className="comment-date">{formatDate(reply.createdAt)}</span>
-                        </div>
-                        <p className="comment-content">{reply.content}</p>
-                        <div className="comment-actions">
-                          {reply.authorEmail !== currentUserEmail && (
-                            <button
-                              className="comment-action-btn"
-                              onClick={() => {
-                                setReplyingTo(comment.id);
-                                setReplyText(`@${getUsername(reply.authorEmail)} `);
-                              }}
-                            >
-                              Reply
-                            </button>
-                          )}
-                          {reply.authorEmail === currentUserEmail && (
-                            <button
-                              className="comment-action-btn delete"
-                              onClick={() => handleDelete(reply.id)}
-                            >
-                              Delete
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Spoiler Column */}
-        <div className="comment-column">
-          <h3 className="comment-column-title">
-            Spoiler Comments <span>🔒</span>
-          </h3>
-          {bookCompleted ? (
-            <p className="comment-muted">Spoiler comments coming soon.</p>
-          ) : (
-            <div className="comment-locked-box">
-              <p className="comment-locked-text">Complete book to unlock</p>
+            <div className="comment-header">
+              <span className="comment-author">{getUsername(comment.authorEmail)}</span>
+              <span className="comment-date">{formatDate(comment.createdAt)}</span>
             </div>
-          )}
-        </div>
-      </div>
+
+            <p className="comment-content">{comment.content}</p>
+
+            <div className="comment-actions">
+              <button
+                className={`comment-like-btn${likedCommentIds.has(comment.id) ? " liked" : ""}`}
+                onClick={() => handleToggleLike(comment.id)}
+              >
+                ♥ {comment.likeCount}
+              </button>
+              <button
+                className="comment-action-btn"
+                onClick={() => {
+                  setReplyingTo(comment.id);
+                  setReplyText("");
+                }}
+              >
+                Reply
+              </button>
+              {comment.authorEmail === currentUserEmail && (
+                <button
+                  className="comment-action-btn delete"
+                  onClick={() => handleDelete(comment.id)}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+
+            {replyingTo === comment.id && (
+              <div className="reply-input-row">
+                <input
+                  className="reply-input"
+                  placeholder={`Reply to ${getUsername(comment.authorEmail)}...`}
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handlePostReply(comment.id)}
+                  autoFocus
+                />
+                <button
+                  className="reply-post-btn"
+                  onClick={() => handlePostReply(comment.id)}
+                >
+                  Reply
+                </button>
+                <button
+                  className="reply-cancel-btn"
+                  onClick={() => setReplyingTo(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+
+            {comment.replies && comment.replies.length > 0 && (
+              <div className="replies-block">
+                {comment.replies.map((reply) => (
+                  <div key={reply.id} className="reply-card">
+                    <div className="comment-header">
+                      <span className="comment-author">{getUsername(reply.authorEmail)}</span>
+                      <span className="comment-date">{formatDate(reply.createdAt)}</span>
+                    </div>
+                    <p className="comment-content">{reply.content}</p>
+                    <div className="comment-actions">
+                      {reply.authorEmail !== currentUserEmail && (
+                        <button
+                          className="comment-action-btn"
+                          onClick={() => {
+                            setReplyingTo(comment.id);
+                            setReplyText(`@${getUsername(reply.authorEmail)} `);
+                          }}
+                        >
+                          Reply
+                        </button>
+                      )}
+                      {reply.authorEmail === currentUserEmail && (
+                        <button
+                          className="comment-action-btn delete"
+                          onClick={() => handleDelete(reply.id)}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))
+      )}
     </div>
   );
 }
