@@ -6,12 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.rhul.cs3821.model.Book;
-import uk.ac.rhul.cs3821.service.BookService;
+import uk.ac.rhul.cs3821.repository.BookRepository;
 
 /**
  * REST controller for managing book operations.
@@ -21,18 +19,7 @@ import uk.ac.rhul.cs3821.service.BookService;
 @RequiredArgsConstructor
 public class BookController {
 
-  private final BookService service;
-
-  /**
-   * Fetches books from Google Books API and stores them locally.
-   *
-   * @param max maximum number of books to fetch
-   * @return list of persisted books
-   */
-  @PostMapping("/fetch")
-  public ResponseEntity<List<Book>> fetch(@RequestParam(defaultValue = "20") int max) {
-    return ResponseEntity.ok(service.fetchAndStorePopularFiction(max));
-  }
+  private final BookRepository bookRepository;
 
   /**
    * Returns all books stored locally.
@@ -41,7 +28,7 @@ public class BookController {
    */
   @GetMapping
   public ResponseEntity<List<Book>> all() {
-    return ResponseEntity.ok(service.getAll());
+    return ResponseEntity.ok(bookRepository.findAll());
   }
 
   /**
@@ -52,12 +39,11 @@ public class BookController {
    */
   @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteBook(@PathVariable Long id) {
-    final boolean deleted = service.deleteBookById(id);
-    if (deleted) {
-      return ResponseEntity.ok("Book deleted successfully.");
-    } else {
+    if (!bookRepository.existsById(id)) {
       return ResponseEntity.status(404).body("Book not found.");
     }
+    bookRepository.deleteById(id);
+    return ResponseEntity.ok("Book deleted successfully.");
   }
 
   /**
@@ -67,7 +53,7 @@ public class BookController {
    * @return list of books with the specified genre
    */
   @GetMapping("/genre/{genre}")
-  public List<Book> getBooksByGenre(@PathVariable String genre) {
-    return service.getBooksByGenre(genre);
+  public ResponseEntity<List<Book>> getBooksByGenre(@PathVariable String genre) {
+    return ResponseEntity.ok(bookRepository.findByGenreIgnoreCase(genre));
   }
 }

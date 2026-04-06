@@ -6,9 +6,11 @@ import api from "../api/api.js";
 import BookRow from "../components/BookRow";
 import NavBar from "../components/NavBar.jsx"
 import ReadingTimer from "../components/ReadingTimer";
+import CommentSection from "../components/CommentSection";
 import { getAllProgress } from "../api/api.js";
 import '../App.css'
 import '../styles/BookModal.css'
+import StarRating from "../components/StarRating.jsx";
 
 export default function LandingPage() {
   const [books, setBooks] = useState([]);
@@ -24,17 +26,33 @@ export default function LandingPage() {
   const [readingBook, setReadingBook] = useState(null);
   const [refreshProgress, setRefreshProgress] = useState(0);
   const [continueBooks, setContinueBooks] = useState([]);
+  const [selectedBookProgress, setSelectedBookProgress] = useState(0);
+
+  // Add this useEffect — runs when a book is selected
+  useEffect(() => {
+    if (!selectedBook) return;
+    async function fetchSelectedProgress() {
+      try {
+        const res = await getBookProgress(selectedBook.id);
+        if (!res || res.total_pages === 0) return;
+        const pct = Math.min(100, (res.current_page / res.total_pages) * 100);
+        setSelectedBookProgress(pct);
+      } catch (err) {
+        setSelectedBookProgress(0);
+      }
+    }
+    fetchSelectedProgress();
+  }, [selectedBook]);
   
   useEffect(() => {
     async function fetchBooks() {
       try {
-        console.log("Fetching books...");
         const [all, thriller, fantasy, romance, booktok, recommended] = await Promise.all([
           api.get("/books"),
-          api.get("/books/genre/Psychological Thrillers"),
-          api.get("/books/genre/Fantasy & YA"),
-          api.get("/books/genre/Modern Romance"),
-          api.get("/books/genre/BookTok Favourites"),
+          api.get("/books/genre/horror"),
+          api.get("/books/genre/fantasy"),
+          api.get("/books/genre/romance"),
+          api.get("/books/genre/fiction"),
           api.get("/recommendations")
         ]);
         setBooks(all.data);
@@ -81,7 +99,6 @@ export default function LandingPage() {
       .trim();
 
   const handleSearch = (query) => {
-    console.log("Search query:", query);
     const normalizedQuery = normalize(query);
 
     if (normalizedQuery === "") {
@@ -114,7 +131,6 @@ export default function LandingPage() {
 
   const handleSelectBook = (book) => {
     if (readingBook) {
-      console.log("Already in reading session");
       return;
     }
     setSelectedBook(book);
@@ -136,6 +152,10 @@ export default function LandingPage() {
     );
   }
 
+  const continueBookIds = new Set(continueBooks.map(b => b.id));
+
+  const forYouBooks = (recommendedBooks.length > 0 ? recommendedBooks : books).filter(b => !continueBookIds.has(b.id)).slice(0,50);
+
   return (
     <div className="bg-[rgb(24,24,24)] min-h-screen text-white font-poppins">
       <NavBar onSearch={handleSearch} />
@@ -146,20 +166,20 @@ export default function LandingPage() {
         ) : (
           <>
             {continueBooks.length > 0 && (
-              <BookRow title="Continue Reading" books={continueBooks} onSelectBook={handleSelectBook} refreshProgress={refreshProgress} />
+              <BookRow title="Continue Reading" books={continueBooks} onSelectBook={handleSelectBook} refreshProgress={refreshProgress} inLibrary={true} />
             )}
 
             <BookRow 
   title="For You" 
-  books={recommendedBooks.length > 0 ? recommendedBooks : books} // show recommendations if available, otherwise all books
+  books={forYouBooks} // show recommendations if available, otherwise all books
   onAddToLibrary={handleAddToLibrary} 
   onSelectBook={handleSelectBook} 
   refreshProgress={refreshProgress}
 />
-            <BookRow title="BookTok Favourites" books={booktokBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
-            <BookRow title="Psychological Thrillers" books={thrillerBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
-            <BookRow title="Fantasy & YA" books={fantasyBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
-            <BookRow title="Modern Romance" books={romanceBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Mixed Collection" books={booktokBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Horror" books={thrillerBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Fantasy" books={fantasyBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
+            <BookRow title="Romance" books={romanceBooks} onAddToLibrary={handleAddToLibrary} onSelectBook={handleSelectBook} refreshProgress={refreshProgress}/>
           </>
         )}
       </div>
@@ -177,10 +197,12 @@ export default function LandingPage() {
                   className="modal-image"
                   alt={selectedBook.title}
                 />
+
+                <StarRating bookId={selectedBook.id} />
+
                 <button
                   className="modal-start-book-btn"
                   onClick={() => {
-                    console.log("Starting book:", selectedBook);
                     setReadingBook(selectedBook);
                     setSelectedBook(null);
                   }}
@@ -195,6 +217,8 @@ export default function LandingPage() {
                     ? selectedBook.description.replace(/^(.{0,650}\b).*/, "$1") + "…"
                     : "No description available."}
                 </p>
+
+                <CommentSection bookId={selectedBook.id} bookProgress={selectedBookProgress} />
               </div>
 
               <button

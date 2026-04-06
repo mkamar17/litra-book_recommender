@@ -1,6 +1,7 @@
 package uk.ac.rhul.cs3821.controller;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -8,9 +9,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 import uk.ac.rhul.cs3821.model.Book;
 import uk.ac.rhul.cs3821.model.Recommendation;
 import uk.ac.rhul.cs3821.model.User;
+import uk.ac.rhul.cs3821.repository.BookRatingRepository;
 import uk.ac.rhul.cs3821.repository.BookRepository;
 import uk.ac.rhul.cs3821.repository.RecommendationRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
@@ -27,6 +30,7 @@ public class RecommendationController {
   private final RecommendationRepository recommendationRepository;
   private final BookRepository bookRepository;
   private final UserRepository userRepository;
+  private final BookRatingRepository ratingRepository;
 
   /**
    * Get personalized book recommendations for a user.
@@ -46,10 +50,37 @@ public class RecommendationController {
     List<Recommendation> recommendations =
         recommendationRepository.findByUserIdOrderByScoreDesc(user.getId());
 
-    List<Long> bookIds = recommendations.stream()
-        .map(Recommendation::getBookId)
+    // if empty, trigger Flask to seed them and return popular books as fallback
+    if (recommendations.isEmpty()) {
+      triggerRecommenderSeed(user.getId());
+      return bookRepository.findAll(); // temporary fallback until Flask responds
+    }
+
+    // get all book IDs this user has already rated
+    Set<Long> ratedBookIds = ratingRepository.findByUserId(user.getId())
+        .stream()
+        .map(r -> r.getBook().getId())
+        .collect(Collectors.toSet());
+
+
+    return recommendations.stream()
+        .map(rec -> bookRepository.findById(rec.getBookId()).orElse(null))
+        .filter(book -> book != null)
+        .filter(book -> !ratedBookIds.contains(book.getId())) // exclude rated books from recommendations
         .collect(Collectors.toList());
-    
-    return bookRepository.findAllById(bookIds);
+  }
+
+  private void triggerRecommenderSeed(Long userId) {
+    WebClient.builder()
+        .baseUrl("http://localhost:5001")
+        .build()
+        .post()
+        .uri("/recommend/" + userId)
+        .retrieve()
+        .bodyToMono(String.class)
+        .subscribe(
+            res -> System.out.println("Seeded existing user " + userId + ": " + res),
+            err -> System.err.println("Seed failed for user " + userId + ": " + err.getMessage())
+        );
   }
 }

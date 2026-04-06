@@ -40,24 +40,6 @@ export const getAllProgress = async () => {
   return res.data;
 };
 
-// export const updatePageReached = async (sessionId, pageReached) => {
-//   const res = await api.post(`/reading-sessions/end/${sessionId}`, null, {
-//     params: { pageReached }
-//   });
-//   return res.data;
-// };
-
-// export const updatePageReached = async (sessionId, pageReached) => {
-//   const res = await api.post(
-//     `/reading-sessions/end/${sessionId}`,
-//     null,
-//     {
-//       params: { pageReached: Number(pageReached) }
-//     }
-//   );
-//   return res.data;
-// };
-
 export const updatePageReached = async (sessionId, pageReached) => {
   const response = await fetch(
     `http://localhost:8080/api/reading-sessions/end/${sessionId}?pageReached=${pageReached}`,
@@ -94,8 +76,94 @@ export const getUserTotalPoints = async () => {
 };
 
 export const getRecommendations = async () => {
-  const res = await api.get('/recommendations');
+  const res = await api.get(`/recommendations`);
   return res.data;
+};
+
+export const getComments = async (bookId) => {
+  const res = await api.get(`/books/${bookId}/comments`);
+  return res.data;
+};
+
+export const postComment = async (bookId, content, parentCommentId = null) => {
+  const body = parentCommentId ? {content, parentCommentId} : {content};
+  const res = await api.post(`/books/${bookId}/comments`, body);
+  return res.data;
+};
+
+export const deleteComment = async (bookId, commentId) => {
+  await api.delete(`/books/${bookId}/comments/${commentId}`);
+};
+
+export const getNotifications = async () => {
+  const res = await api.get("/notifications");
+  return res.data;
+};
+
+export const markAllNotificationsRead = async () => {
+  await api.put("/notifications/read-all");
+};
+
+export const markNotificationRead = async (notificationId) => {
+  await api.put(`/notifications/${notificationId}/read`);
+};
+
+export const getLeaderboard = async (period = "WEEKLY") => {
+  const res = await api.get(`/leaderboard/friends?period=${period}`);
+  return res.data;
+};
+
+export const getFriends = async () => {
+  const res = await api.get("/friends");
+  return res.data;
+};
+
+export const getPendingRequests = async () => {
+  const res = await api.get("/friends/pending");
+  return res.data;
+};
+
+export const searchUsers = async (query) => {
+  const res = await api.get("/friends/search", { params: { query } });
+  return res.data;
+};
+
+export const sendFriendRequest = async (addresseeId) => {
+  const res = await api.post(`/friends/request/${addresseeId}`);
+  return res.data;
+};
+
+export const acceptFriendRequest = async (friendshipId) => {
+  const res = await api.put(`/friends/accept/${friendshipId}`);
+  return res.data;
+};
+
+export const removeFriend = async (friendshipId) => {
+  await api.delete(`/friends/${friendshipId}`);
+};
+
+export const updateUsername = async (username) => {
+  const res = await api.put("/users/username", { username });
+  return res.data;
+};
+
+export const toggleCommentLike = async (bookId, commentId) => {
+  const res = await api.post(`/books/${bookId}/comments/${commentId}/like`);
+  return res.data;
+};
+
+export const getBookRating = async (bookId) => {
+  const res = await api.get(`/books/${bookId}/rating`);
+  return res.data;
+};
+
+export const submitBookRating = async (bookId, rating) => {
+  const res = await api.post(`/books/${bookId}/rating`, { rating });
+  return res.data;
+};
+
+export const deleteBookRating = async (bookId) => {
+  await api.delete(`/books/${bookId}/rating`);
 };
 
 export default api;

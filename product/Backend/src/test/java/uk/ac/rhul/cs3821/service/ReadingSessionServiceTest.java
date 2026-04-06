@@ -21,19 +21,23 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for ReadingSessionService.
+ */
 @ExtendWith(MockitoExtension.class)
 class ReadingSessionServiceTest {
 
   @Mock
   private ReadingSessionRepository sessionRepo;
-
   @Mock
   private UserBookProgressRepository progressRepo;
-
   @Mock
   private GamificationService gamificationService;
+  @Mock
+  private LeaderboardService leaderboardService;
 
   @InjectMocks
   private ReadingSessionService readingSessionService;
@@ -43,6 +47,9 @@ class ReadingSessionServiceTest {
   private ReadingSession session;
   private UserBookProgress progress;
 
+  /**
+   * Sets up a test user, book, session, and progress fixture.
+   */
   @BeforeEach
   void setUp() {
     user = new User();
@@ -69,14 +76,11 @@ class ReadingSessionServiceTest {
 
   @Test
   void startSession_createsNewSession_whenNoActiveSession() {
-
     when(sessionRepo.findByUserAndBookAndEndTimeIsNull(user, book))
         .thenReturn(Optional.empty());
-    when(sessionRepo.save(any()))
-        .thenAnswer(inv -> inv.getArgument(0));
+    when(sessionRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-    ReadingSession result =
-        readingSessionService.startSession(user, book);
+    ReadingSession result = readingSessionService.startSession(user, book);
 
     assertNotNull(result.getStartTime());
     assertNull(result.getEndTime());
@@ -86,14 +90,11 @@ class ReadingSessionServiceTest {
 
   @Test
   void startSession_endsExistingSession_first() {
-
     when(sessionRepo.findByUserAndBookAndEndTimeIsNull(user, book))
         .thenReturn(Optional.of(session));
-    when(sessionRepo.save(any()))
-        .thenAnswer(inv -> inv.getArgument(0));
+    when(sessionRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-    ReadingSession result =
-        readingSessionService.startSession(user, book);
+    ReadingSession result = readingSessionService.startSession(user, book);
 
     assertNotNull(session.getEndTime());
     assertNotNull(session.getDurationSeconds());
@@ -102,12 +103,9 @@ class ReadingSessionServiceTest {
 
   @Test
   void endSession_setsEndTimeAndDuration() {
+    when(sessionRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-    when(sessionRepo.save(any()))
-        .thenAnswer(inv -> inv.getArgument(0));
-
-    ReadingSession result =
-        readingSessionService.endSession(session);
+    ReadingSession result = readingSessionService.endSession(session);
 
     assertNotNull(result.getEndTime());
     assertTrue(result.getDurationSeconds() > 0);
@@ -115,20 +113,14 @@ class ReadingSessionServiceTest {
 
   @Test
   void endSessionById_successfullyUpdatesProgressAndAwardsPoints() {
+    when(sessionRepo.findById(10L)).thenReturn(Optional.of(session));
+    when(progressRepo.findByUserAndBook(user, book)).thenReturn(Optional.of(progress));
+    when(progressRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(sessionRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(gamificationService.awardPointsForSession(user, 30, false)).thenReturn(150);
+    when(gamificationService.updateStreak(any(), any(long.class))).thenReturn(1);
 
-    when(sessionRepo.findById(10L))
-        .thenReturn(Optional.of(session));
-    when(progressRepo.findByUserAndBook(user, book))
-        .thenReturn(Optional.of(progress));
-    when(progressRepo.save(any()))
-        .thenAnswer(inv -> inv.getArgument(0));
-    when(sessionRepo.save(any()))
-        .thenAnswer(inv -> inv.getArgument(0));
-    when(gamificationService.awardPointsForSession(user, 30))
-        .thenReturn(150);
-
-    var result =
-        readingSessionService.endSession(10L, user, 80);
+    var result = readingSessionService.endSession(10L, user, 80);
 
     assertEquals(80, progress.getCurrentPage());
     assertEquals(150, result.get("pointsAwarded"));
@@ -137,53 +129,71 @@ class ReadingSessionServiceTest {
   }
 
   @Test
-  void endSessionById_throwsForbidden_whenUserNotOwner() {
+  void endSessionById_awardsPointsAndMarksBookCompleted_whenLastPage() {
+    progress.setCurrentPage(190);
 
+    when(sessionRepo.findById(10L)).thenReturn(Optional.of(session));
+    when(progressRepo.findByUserAndBook(user, book)).thenReturn(Optional.of(progress));
+    when(progressRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(sessionRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(gamificationService.awardPointsForSession(user, 10, true)).thenReturn(50);
+    when(gamificationService.updateStreak(any(), any(long.class))).thenReturn(1);
+
+    var result = readingSessionService.endSession(10L, user, 200);
+
+    assertEquals(200, progress.getCurrentPage());
+    verify(gamificationService).awardPointsForSession(user, 10, true);
+  }
+
+  @Test
+  void endSessionById_callsLeaderboardRecompute() {
+    when(sessionRepo.findById(10L)).thenReturn(Optional.of(session));
+    when(progressRepo.findByUserAndBook(user, book)).thenReturn(Optional.of(progress));
+    when(progressRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(sessionRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(gamificationService.awardPointsForSession(any(), any(int.class), any(boolean.class)))
+        .thenReturn(0);
+    when(gamificationService.updateStreak(any(), any(long.class))).thenReturn(1);
+
+    readingSessionService.endSession(10L, user, 80);
+
+    verify(leaderboardService).recomputeForUser(user);
+  }
+
+  @Test
+  void endSessionById_throwsForbidden_whenUserNotOwner() {
     User otherUser = new User();
     otherUser.setId(99L);
 
-    when(sessionRepo.findById(10L))
-        .thenReturn(Optional.of(session));
+    when(sessionRepo.findById(10L)).thenReturn(Optional.of(session));
 
-    assertThrows(ResponseStatusException.class, () ->
-        readingSessionService.endSession(10L, otherUser, 60)
-    );
+    assertThrows(ResponseStatusException.class,
+        () -> readingSessionService.endSession(10L, otherUser, 60));
   }
 
   @Test
   void endSessionById_throws_whenPageGoesBackwards() {
+    when(sessionRepo.findById(10L)).thenReturn(Optional.of(session));
+    when(progressRepo.findByUserAndBook(user, book)).thenReturn(Optional.of(progress));
 
-    when(sessionRepo.findById(10L))
-        .thenReturn(Optional.of(session));
-    when(progressRepo.findByUserAndBook(user, book))
-        .thenReturn(Optional.of(progress));
-
-    assertThrows(IllegalArgumentException.class, () ->
-        readingSessionService.endSession(10L, user, 40)
-    );
+    assertThrows(IllegalArgumentException.class,
+        () -> readingSessionService.endSession(10L, user, 40));
   }
 
   @Test
   void endSessionById_throws_whenPageExceedsTotalPages() {
+    when(sessionRepo.findById(10L)).thenReturn(Optional.of(session));
+    when(progressRepo.findByUserAndBook(user, book)).thenReturn(Optional.of(progress));
 
-    when(sessionRepo.findById(10L))
-        .thenReturn(Optional.of(session));
-    when(progressRepo.findByUserAndBook(user, book))
-        .thenReturn(Optional.of(progress));
-
-    assertThrows(IllegalArgumentException.class, () ->
-        readingSessionService.endSession(10L, user, 250)
-    );
+    assertThrows(IllegalArgumentException.class,
+        () -> readingSessionService.endSession(10L, user, 250));
   }
 
   @Test
   void getProgress_returnsOptional() {
+    when(progressRepo.findByUserAndBook(user, book)).thenReturn(Optional.of(progress));
 
-    when(progressRepo.findByUserAndBook(user, book))
-        .thenReturn(Optional.of(progress));
-
-    Optional<UserBookProgress> result =
-        readingSessionService.getProgress(user, book);
+    Optional<UserBookProgress> result = readingSessionService.getProgress(user, book);
 
     assertTrue(result.isPresent());
   }

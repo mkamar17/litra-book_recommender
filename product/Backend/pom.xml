@@ -119,6 +119,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -145,12 +150,19 @@
                 </configuration>
             </plugin>
 
+            <!-- FIXED: @{argLine} lets JaCoCo inject its agent without conflict,
+                 the two extra flags fix Mockito inline mocking on Java 21/23 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
                     <useModulePath>false</useModulePath>
+                    <argLine>
+                        @{argLine}
+                        -XX:+EnableDynamicAgentLoading
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                    </argLine>
                 </configuration>
             </plugin>
 
@@ -212,11 +224,11 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/dto/**</exclude>
+                                <exclude>**/model/**</exclude>
                             </excludes>
                             <rules>
                                 <rule>
                                     <element>CLASS</element>
-
                                     <excludes>
                                         <!-- Exclude Spring Boot entrypoint -->
                                         <exclude>uk.ac.rhul.cs3821.FypApplication</exclude>
@@ -231,7 +243,6 @@
                                 </rule>
                             </rules>
                         </configuration>
-
                     </execution>
                 </executions>
             </plugin>

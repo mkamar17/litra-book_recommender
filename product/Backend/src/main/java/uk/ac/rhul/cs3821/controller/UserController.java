@@ -1,15 +1,23 @@
 package uk.ac.rhul.cs3821.controller;
 
+import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.rhul.cs3821.model.User;
+import uk.ac.rhul.cs3821.repository.ReadingSessionRepository;
 import uk.ac.rhul.cs3821.repository.UserRepository;
+import uk.ac.rhul.cs3821.service.GamificationService;
 
 /**
  * REST controller for managing user-related endpoints.
@@ -21,6 +29,8 @@ import uk.ac.rhul.cs3821.repository.UserRepository;
 public class UserController {
 
   private final UserRepository userRepository;
+  private final ReadingSessionRepository readingSessionRepository;
+  private final GamificationService gamificationService;
 
   /**
    * Gets the total accumulated points for the authenticated user.
@@ -33,11 +43,87 @@ public class UserController {
     String email = auth.getName();
 
     User user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
     return ResponseEntity.ok(Map.of("totalPoints", user.getTotalPoints()));
   }
 
+  /**
+   * Returns the current user's streak data.
+   *
+   * @return response with current and longest streak and last read date and read dates for calendar
+   */
+  @GetMapping("/streak")
+  public ResponseEntity<Map<String, Object>> getStreak() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    User user = userRepository.findByEmail(auth.getName())
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+    List<LocalDate> readDates = readingSessionRepository
+        .findByUserIdAndEndTimeIsNotNull(user.getId())
+        .stream()
+        .map(s -> s.getStartTime().atZone(ZoneId.systemDefault()).toLocalDate())
+        .distinct()
+        .sorted()
+        .toList();
+
+    // Calculate current streak live
+    int currentStreak = 0;
+    LocalDate today = LocalDate.now();
+    LocalDate check = readDates.contains(today) ? today : today.minusDays(1);
+
+    for (int i = readDates.size() - 1; i >= 0; i--) {
+      if (readDates.get(i).equals(check)) {
+        currentStreak++;
+        check = check.minusDays(1);
+      } else if (readDates.get(i).isBefore(check)) {
+        break;
+      }
+    }
+
+    // Calculate longest streak live
+    int longestStreak = 0;
+    int current = 1;
+    for (int i = 1; i < readDates.size(); i++) {
+      if (readDates.get(i).equals(readDates.get(i - 1).plusDays(1))) {
+        current++;
+      } else {
+        longestStreak = Math.max(longestStreak, current);
+        current = 1;
+      }
+    }
+    longestStreak = Math.max(longestStreak, current);
+
+    Map<String, Object> response = new java.util.HashMap<>();
+    response.put("currentStreak", currentStreak);
+    response.put("longestStreak", longestStreak);
+    response.put("readDates", readDates.stream().map(LocalDate::toString).toList());
+
+    return ResponseEntity.ok(response);
+  }
+
+  /**
+   * Updates the display username for the authenticated user.
+   *
+   * @param body map containing the new username
+   * @return updated username
+   */
+  @PutMapping("/username")
+  public ResponseEntity<Map<String, Object>> updateUsername(@RequestBody Map<String, String> body) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    User user = userRepository.findByEmail(auth.getName())
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+    String newUsername = body.get("username");
+    if (newUsername == null || newUsername.isBlank()) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    user.setUsername(newUsername.trim());
+    userRepository.save(user);
+
+    return ResponseEntity.ok(Map.of("username", user.getUsername()));
+  }
   // Future endpoints you might add:
 
   // @GetMapping("/profile")

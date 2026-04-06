@@ -6,9 +6,12 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function GenrePage() {
   const [genres] = useState([
-    "BookTok Favourites",
-    "Psychological Thrillers",
-    "Modern Romance",
+    "Fantasy",
+    "Romance",
+    "Horror",
+    "Mystery",
+    "Science-fiction",
+    "Dystopia"
   ]);
   const [selectedGenre, setSelectedGenre] = useState(null);
   const [books, setBooks] = useState([]);

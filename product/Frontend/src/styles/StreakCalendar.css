@@ -1,0 +1,189 @@
+.streak-wrapper {
+  position: relative;
+}
+
+.streak-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgb(60, 60, 60);
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  line-height: 1;
+}
+
+.streak-btn:hover {
+  background: rgb(80, 80, 80);
+}
+
+.streak-fire {
+  font-size: 1.1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.streak-count {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  line-height: 1;
+}
+
+/* Dropdown */
+.streak-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 300px;
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow: hidden;
+  animation: streak-fade-in 0.15s ease;
+  padding-bottom: 12px;
+}
+
+@keyframes streak-fade-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Stats */
+.streak-stats {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.streak-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.streak-stat-icon {
+  font-size: 1.5rem;
+}
+
+.streak-stat-value {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.streak-stat-label {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.7rem;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.streak-stat-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Calendar header */
+.streak-cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 6px;
+}
+
+.streak-month-label {
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-family: 'Poppins', sans-serif;
+}
+
+.streak-nav-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  font-family: 'Poppins', sans-serif;
+}
+
+.streak-nav-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Day labels */
+.streak-day-labels {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 4px 12px;
+  gap: 2px;
+}
+
+.streak-day-label {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.3);
+  font-family: 'Poppins', sans-serif;
+  padding: 2px 0;
+}
+
+/* Grid */
+.streak-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 12px;
+  gap: 3px;
+}
+
+.streak-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.streak-cell--empty {
+  pointer-events: none;
+}
+
+.streak-cell--read {
+  background: rgba(230, 57, 70, 0.2);
+  color: #e63946;
+  font-weight: 700;
+}
+
+.streak-cell--today {
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.streak-cell--read.streak-cell--today {
+  background: #e63946;
+  color: #fff;
+  border: none;
+}

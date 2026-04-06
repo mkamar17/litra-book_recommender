@@ -27,6 +27,7 @@ public class ReadingSessionService {
   private final ReadingSessionRepository sessionRepo;
   private final UserBookProgressRepository progressRepo;
   private final GamificationService gamificationService;
+  private final LeaderboardService leaderboardService;
 
   /**
    * Method handles starting new reading session.
@@ -89,7 +90,8 @@ public class ReadingSessionService {
 
     UserBookProgress progress = progressRepo
         .findByUserAndBook(user, book)
-        .orElseThrow();
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "No progress record found for this book"));
 
     if (pageReached < progress.getCurrentPage()) {
       throw new IllegalArgumentException("Page cannot go backwards");
@@ -104,9 +106,15 @@ public class ReadingSessionService {
     progress.setCurrentPage(pageReached);
     progressRepo.save(progress);
 
-    int pointsAwarded = gamificationService.awardPointsForSession(user, pagesReadThisSession);
+    boolean bookCompleted = pageReached >= progress.getTotalPages();
+    int pointsAwarded = gamificationService.awardPointsForSession(user, pagesReadThisSession, bookCompleted);
+    leaderboardService.recomputeForUser(user);
 
     ReadingSession endedSession = endSession(session);
+
+    // updating the reading streak if needed (-1 if session too short, >0 means streak updated)
+
+    int streakDays = gamificationService.updateStreak(user, endedSession.getDurationSeconds());
 
     return Map.of(
         "sessionId", endedSession.getId(),
@@ -116,7 +124,8 @@ public class ReadingSessionService {
         "bookId", book.getId(),
         "bookTitle", book.getTitle(),
         "currentPage", pageReached,
-        "totalPages", progress.getTotalPages()
+        "totalPages", progress.getTotalPages(),
+        "streakDays", streakDays
     );
   }
 

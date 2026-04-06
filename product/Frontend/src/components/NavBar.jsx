@@ -1,16 +1,16 @@
 import React, {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
 import { getUserTotalPoints } from '../api/api.js';
-
+import NotificationDropdown from "./NotificationDropdown";
 
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-
 
 import logo from '../assets/logo.png';
 import pfp from '../assets/user_pfp.png';
 import search from '../assets/search.png';
+
+import StreakCalendar from "./StreakCalendar";
 
 
 const navigation = [
@@ -72,6 +72,12 @@ export default function NavBar({ onSearch = () => {} }) { // to increase scalabi
     // otherwise search normally
     onSearch(query);
   };
+
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    navigate("/");
+  }
   
   return (
     <Disclosure
@@ -119,7 +125,7 @@ export default function NavBar({ onSearch = () => {} }) { // to increase scalabi
             <form onSubmit={handleSearch} className="relative">
             <input
               type="text"
-              placeholder="Dystopian thriller novels..."
+              placeholder="Search any book title..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="bg-[rgb(60,60,60)] text-white placeholder-gray-400 text-sm font-light rounded-full pl-10 pr-4 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 w-48 sm:w-64 transition-all duration-200"
@@ -132,19 +138,17 @@ export default function NavBar({ onSearch = () => {} }) { // to increase scalabi
             </button>
           </form>
 
-          <div className="flex items-center gap-2 bg-[rgb(60,60,60)] rounded-full px-4 py-1.5">
-              <span className="text-yellow-400 text-lg">⭐</span>
-              <span className="text-white font-semibold text-sm">{totalPoints.toLocaleString()}</span>
-            </div>
+          <div
+            className="flex items-center gap-2 bg-[rgb(60,60,60)] rounded-full px-4 py-1.5 cursor-pointer hover:bg-[rgb(80,80,80)] transition"
+            onClick={() => navigate("/leaderboard")}
+          >
+            <span className="text-yellow-400 text-lg">⭐</span>
+            <span className="text-white font-semibold text-sm">{totalPoints.toLocaleString()}</span>
+          </div>
 
-            <button
-              type="button"
-              className="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
-            >
-              <span className="absolute -inset-1.5" />
-              <span className="sr-only">View notifications</span>
-              <BellIcon aria-hidden="true" className="size-6" />
-            </button>
+          <StreakCalendar/>
+
+            <NotificationDropdown/>
 
             {/* Profile dropdown */}
             <Menu as="div" className="relative -ml-2">
@@ -165,6 +169,7 @@ export default function NavBar({ onSearch = () => {} }) { // to increase scalabi
                 <MenuItem>
                   <a
                     href="#"
+                    onClick={() => navigate("/profile")}
                     className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
                   >
                     Your profile
@@ -173,14 +178,7 @@ export default function NavBar({ onSearch = () => {} }) { // to increase scalabi
                 <MenuItem>
                   <a
                     href="#"
-                    className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
-                  >
-                    Settings
-                  </a>
-                </MenuItem>
-                <MenuItem>
-                  <a
-                    href="#"
+                    onClick={handleSignOut}
                     className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
                   >
                     Sign out

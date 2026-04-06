@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import StreakPopup from "./StreakPopup"
+
 import {
   startReadingSession,
   setBookProgress,
@@ -31,6 +33,8 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
 
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [sessionResults, setSessionResults] = useState(null);
+
+  const [streakPopup, setStreakPopup] = useState(null);
 
   useEffect(() => {
     if (!running) return;
@@ -84,8 +88,7 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
         alert("Please enter the page you reached");
         return;
       }
-      
-      //await updatePageReached(sessionId, Number(pageReached));
+    
       const result = await updatePageReached(sessionId, Number(pageReached));
       
       sessionEndedRef.current = true;
@@ -96,8 +99,11 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
 
       setSessionResults(result);
       setShowSuccessCard(true);
+
+      if (result.streakDays && result.streakDays > 0){
+        setStreakPopup(result.streakDays);
+      }
       
-      //if (onClose) onClose();
     } catch (error) {
       console.error("Error finishing session:", error);
     }
@@ -105,7 +111,9 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
 
   const handleCloseSuccessCard = () => {
     setShowSuccessCard(false);
+    setStreakPopup(null);
     window.dispatchEvent(new Event('pointsUpdated'));
+    window.dispatchEvent(new Event('streakUpdated'))
     if (onClose) onClose();
   };
 
@@ -152,7 +160,7 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
           <span className="text-2xl">🎉 Well Done! 🎉</span>
         </DialogHeader>
         <DialogBody className="text-center">
-          {sessionResults && (
+          {sessionResults ? (
             <div className="space-y-4">
               <p className="text-lg">
                 You have read <span className="font-bold text-green-600">{sessionResults.pagesRead}</span> pages
@@ -164,6 +172,8 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
                 Reading time: {formatTime(sessionResults.durationSeconds)}
               </p>
             </div>
+          ) : (
+            <p>Loading...</p>
           )}
         </DialogBody>
         <DialogFooter className="flex justify-center">
@@ -242,6 +252,13 @@ export default function ReadingTimer({ bookId, title, coverUrl, onClose }) {
           </div>
         </div>
       </div>
+
+      {streakPopup && (
+        <StreakPopup
+          streak = {streakPopup}
+          onClose={() => setStreakPopup(null)}
+        />
+      )}
     </>
   );
 }

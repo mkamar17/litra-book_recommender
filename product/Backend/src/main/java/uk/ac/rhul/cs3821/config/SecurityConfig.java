@@ -56,8 +56,7 @@ public class SecurityConfig {
             .requestMatchers("/auth/**").permitAll()
             .requestMatchers("/swagger-ui/**").permitAll()
             .requestMatchers("/v3/api-docs/**").permitAll()
-            .requestMatchers("/api/books", "/api/books/**").permitAll()
-            .requestMatchers("/api/library/**").permitAll()
+            .requestMatchers("/api/books", "/api/books/genre/**").permitAll()
             .anyRequest().authenticated()
         )
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

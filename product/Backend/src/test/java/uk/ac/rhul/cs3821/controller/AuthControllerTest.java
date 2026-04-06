@@ -3,15 +3,17 @@ package uk.ac.rhul.cs3821.controller;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -26,84 +28,122 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Unit tests for AuthController.
+ */
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
 
+  private static final String TEST_EMAIL = "test@example.com";
+  private static final String TEST_PASSWORD = "pass";
+  private static final String LOGIN_JSON =
+      "{\"email\":\"" + TEST_EMAIL + "\",\"password\":\"" + TEST_PASSWORD + "\"}";
+  private static final String REGISTER_JSON = LOGIN_JSON;
+
   @Autowired
   private MockMvc mockMvc;
-
   @MockitoBean
   private AuthenticationManager authManager;
-
   @MockitoBean
   private JwtService jwt;
-
   @MockitoBean
   private UserRepository repo;
-
   @MockitoBean
   private PasswordEncoder encoder;
-
   @MockitoBean
   private AppUserDetailsService uds;
 
+  private Authentication mockAuth;
+
+  /**
+   * Sets up mock authentication and JWT generation.
+   */
+  @BeforeEach
+  void setUp() {
+    mockAuth = mock(Authentication.class);
+    when(mockAuth.getName()).thenReturn(TEST_EMAIL);
+    when(mockAuth.getAuthorities())
+        .thenReturn((Collection) List.of(new SimpleGrantedAuthority("ROLE_USER")));
+    when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+        .thenReturn(mockAuth);
+    when(jwt.generate(eq(TEST_EMAIL), any(Map.class))).thenReturn("fake-jwt");
+    when(encoder.encode(TEST_PASSWORD)).thenReturn("hashed");
+  }
+
   @Test
   void testRegisterSuccess() throws Exception {
-    when(repo.existsByEmail("test@example.com")).thenReturn(false);
-    when(encoder.encode("pass")).thenReturn("hashed");
+    when(repo.existsByEmail(TEST_EMAIL)).thenReturn(false);
 
     mockMvc.perform(post("/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
-            .content("""
-                {"email":"test@example.com","password":"pass"}
-                """))
+            .content(REGISTER_JSON))
         .andExpect(status().isOk());
 
     verify(repo, times(1)).save(any());
   }
 
-  // email already exists
   @Test
   void testRegisterEmailTaken() throws Exception {
-    when(repo.existsByEmail("test@example.com")).thenReturn(true);
+    when(repo.existsByEmail(TEST_EMAIL)).thenReturn(true);
 
     mockMvc.perform(post("/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
-            .content("""
-                {"email":"test@example.com","password":"pass"}
-                """))
-        .andExpect(status().isBadRequest())
-        .andExpect(content().string("Email taken"));
+            .content(REGISTER_JSON))
+        .andExpect(status().isConflict());
   }
-  
+
   @Test
   void testLoginSuccess() throws Exception {
-    Authentication mockAuth = mock(Authentication.class);
-
-    when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-        .thenReturn(mockAuth);
-
-    when(mockAuth.getName()).thenReturn("test@example.com");
-    Collection<? extends GrantedAuthority> authorities =
-        List.of(new SimpleGrantedAuthority("ROLE_USER"));
-
-    when(mockAuth.getAuthorities())
-        .thenReturn((Collection) authorities);
-
-
-    when(jwt.generate(eq("test@example.com"), any(Map.class))).thenReturn("fake-jwt");
-
     mockMvc.perform(post("/auth/login")
             .contentType(MediaType.APPLICATION_JSON)
-            .content("""
-                {"email":"test@example.com","password":"pass"}
-                """))
+            .content(LOGIN_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.token").value("fake-jwt"));
+  }
+
+  @Test
+  void testLoginRateLimitedAfterFiveAttempts() throws Exception {
+    Mockito.reset(authManager);
+    when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+        .thenThrow(new BadCredentialsException("Bad credentials"));
+
+    for (int i = 0; i < 5; i++) {
+      mockMvc.perform(post("/auth/login")
+              .with(req -> {
+                req.setRemoteAddr("192.168.1.200");
+                return req;
+              })
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(LOGIN_JSON))
+          .andExpect(status().isUnauthorized());
+    }
+
+    mockMvc.perform(post("/auth/login")
+            .with(req -> {
+              req.setRemoteAddr("192.168.1.200");
+              return req;
+            })
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(LOGIN_JSON))
+        .andExpect(status().isTooManyRequests());
+  }
+
+  @Test
+  void testLoginDifferentIpsNotRateLimited() throws Exception {
+    for (int i = 1; i <= 6; i++) {
+      final String ip = "10.0.1." + i;
+      mockMvc.perform(post("/auth/login")
+              .with(req -> {
+                req.setRemoteAddr(ip);
+                return req;
+              })
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(LOGIN_JSON))
+          .andExpect(status().isOk());
+    }
   }
 }
