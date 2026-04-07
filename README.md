@@ -1,4 +1,4 @@
-# 📚 BookApp — User Manual & Setup Guide
+# 📚 Litra — User Manual & Setup Guide
 
 This document walks you through everything needed to download the data, configure the environment, and run all components of the application from scratch.
 
