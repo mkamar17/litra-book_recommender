@@ -1,4 +1,4 @@
-# 📚 BookApp — User Manual & Setup Guide
+# 📚 Litra — User Manual & Setup Guide
 
 This document walks you through everything needed to download the data, configure the environment, and run all components of the application from scratch.
 
@@ -85,7 +85,7 @@ project-root/
 The backend connects to a **Google Cloud SQL** database. Your machine's IP address must be added to the Authorised Networks list before the backend can connect.
 
 To do this:
-1. Find your current public IP address by visiting [https://whatismyip.com](https://whatismyip.com)
+1. Find your current public **IPv4** address by visiting [https://whatismyip.com](https://whatismyip.com)
 2. Send an email to **mkamar2740@gmail.com** with the subject line **"Request to whitelist IP address"** and include your IP address in the body
 3. Once you've been notified that your IP has been added, proceed to Step 4
 
