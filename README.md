@@ -66,14 +66,6 @@ project-root/
 │   │   │   └── book_recommender.ipynb
 │   │   ├── recommender_api.py
 │   │   └── requirements.txt
-│   ├── Backend/
-│   │   ├── src/
-│   │   └── pom.xml
-│   └── Frontend/
-│       ├── src/
-│       ├── index.html
-│       └── package.json
-└── README.md
 ```
 
 > **Note:** After the first run, the API caches the processed datasets locally, so subsequent startups will be significantly faster.
@@ -86,7 +78,8 @@ The backend connects to a **Google Cloud SQL** database. Your machine's IP addre
 
 To do this:
 1. Find your current public **IPv4** address by visiting [https://whatismyip.com](https://whatismyip.com)
-2. Send an email to **mkamar2740@gmail.com** with the subject line **"Request to whitelist IP address"** and include your IP address in the body
+2. Contact the project developer to have your IP address whitelisted 
+before proceeding.
 3. Once you've been notified that your IP has been added, proceed to Step 4
 
 ---
